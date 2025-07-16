@@ -1,0 +1,576 @@
+2025-07-02 10:57:44.253652-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "-- planta_personal_db.sql\000d\000a\000d\000aCREATE [*]DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */"; se esperaba "OR REPLACE, FORCE, VIEW, MATERIALIZED, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL TEMPORARY, GLOBAL TEMPORARY, TEMPORARY, TABLE, SYNONYM, UNIQUE, SPATIAL, INDEX"
+Syntax error in SQL statement "-- planta_personal_db.sql\000d\000a\000d\000aCREATE [*]DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */"; expected "OR REPLACE, FORCE, VIEW, MATERIALIZED, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL TEMPORARY, GLOBAL TEMPORARY, TEMPORARY, TABLE, SYNONYM, UNIQUE, SPATIAL, INDEX"; SQL statement:
+-- planta_personal_db.sql
+
+CREATE DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */ [42001-232]
+2025-07-02 10:57:44.258659-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Schema "PLANTA_PERSONAL_DB" no encontrado
+Schema "PLANTA_PERSONAL_DB" not found; SQL statement:
+USE `planta_personal_db` [90079-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.engine.Database.getSchema(Database.java:1577)
+	at org.h2.command.dml.Set.update(Set.java:397)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:304)
+	at org.h2.command.Command.executeUpdate(Command.java:248)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+2025-07-02 10:57:44.262665-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE TABLE `info_planta_personal` (\000d\000a  `N` bigint NOT NULL AUTO_INCREMENT,\000d\000a  `cedula` varchar(255) DEFAULT NULL,\000d\000a  `nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE[*]=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; se esperaba "identifier"
+Syntax error in SQL statement "CREATE TABLE `info_planta_personal` (\000d\000a  `N` bigint NOT NULL AUTO_INCREMENT,\000d\000a  `cedula` varchar(255) DEFAULT NULL,\000d\000a  `nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE[*]=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; expected "identifier"; SQL statement:
+CREATE TABLE `info_planta_personal` (
+  `N` bigint NOT NULL AUTO_INCREMENT,
+  `cedula` varchar(255) DEFAULT NULL,
+  `nombres_y_apellidos` varchar(255) DEFAULT NULL,
+  `formacion_academica` varchar(255) DEFAULT NULL,
+  `codigo` varchar(255) DEFAULT NULL,
+  `grado` varchar(255) DEFAULT NULL,
+  `cargo` varchar(255) DEFAULT NULL,
+  `dependencia` varchar(255) DEFAULT NULL,
+  `correo_institucional` varchar(255) DEFAULT NULL,
+  `telefono_institucional` varchar(255) DEFAULT NULL,
+  `enlace_sigep` varchar(255) DEFAULT NULL,
+  `Numero_Unico` int DEFAULT NULL,
+  `numero` int DEFAULT NULL,
+  PRIMARY KEY (`N`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci [42001-232]
+2025-07-02 10:57:44.264647-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]LOCK TABLES `info_planta_personal` WRITE"
+Syntax error in SQL statement "[*]LOCK TABLES `info_planta_personal` WRITE"; SQL statement:
+LOCK TABLES `info_planta_personal` WRITE [42000-232]
+2025-07-02 10:57:44.266646-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "INFO_PLANTA_PERSONAL" not found (this database is empty); SQL statement:
+INSERT INTO `info_planta_personal` VALUES 
+(1,'1048848951','ALFONSO PINZON LEYLY ZULIANA','PROFESIONAL','219','1','PROFESIONAL UNIVERSITARIO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2216931-0606-4',NULL,1),
+(2,'33677037','AVILA DIAZ CLARA INES','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4539152-0606-4',NULL,2),
+(3,'23606579','AVILA GONZALEZ ROSA CECILIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO - COMISARIA DE FAMILIA','familia@garagoa-boyaca.gov.co','3232311568','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268936-0606-4',NULL,3),
+(4,'33677704','AVILA MONTAÑEZ ANGIE CELENE','ASISTENCIAL','470','1','SERVICIOS GENERALES','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,4),
+(5,'1049625301','BACCA VACCA NORMA CONSTANZA','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','no tiene',NULL,5),
+(6,'7335908','BARRERA CASTAÑEDA WILMER ALONSO','DIRECTIVO','115','2','SECRETARIOS DE DESPACHO','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1752001-0606-4',NULL,6),
+(7,'23607760','BARRETO ARIAS OLGA LUCIA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229460-0606-4',NULL,7),
+(8,'7332262','BENAVIDES MORA JAIME HUMBERTO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,8),
+(9,'23607108','BERNAL CUESTA DILMA LUCIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229409-0606-4',NULL,9),
+(10,'33676741','BERNAL GUTIERREZ PAOLA ASTRID','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2278710-0606-4',NULL,10),
+(11,'7332471','BERNAL LEGUIZAMO JOSE FRANCISCO','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268937-0606-4',NULL,11),
+(12,'7331496','BOHORQUEZ VANEGAS JOSE OLIVERIO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARÍA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,12),
+(13,'23474662','BUITRAGO RAMIREZ LUZ MARINA','DIRECTIVO','19','3','SECRETARIOS DE DESPACHO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S898740-0606-4',NULL,13),
+(14,'1010176028','CANO PIÑEROS JOHN FREDY','DIRECTIVO','20','3','JEFE DE OFICINA','DIRECCIÓN ADMINISTRAIVA DE CONTRATACIÓN.','contratacion@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,14),
+(15,'33675106','CASTILLO CASTILLO MAGDA ADELFA','PROFESIONAL','215','3','ALMACENISTA','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS -ALMACEN','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2271064-0606-4',NULL,15),
+(16,'33675542','CASTRO AVILA YURI ASENCION','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','DESPACHO ALCALDIA','alcaldia@garagoa-boyaca.gov.co','3115134058','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S699667-0606-4',NULL,16),
+(17,'1036638280','CASTRO VALENCIA MARIA LUISA','TECNICO','340','1','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,17),
+(18,'7334234','CONTRERAS RIVERA DIEGO ALEXANDER','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,18),
+(19,'1048850019','CRUZ VELEZ GLORIA ESTEFANIA','PROFESIONAL','219','2','PROFESIONAL UNIVERSITARIO','SECRETARÍA GENERAL Y DE GOBIERNO - COMISARIA DE FAMILIA','familia@garagoa-boyaca.gov.co','3232311568','no tiene',NULL,19),
+(20,'7333321','DAZA ALFONSO JOSE RAMIRO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,20),
+(21,'1048846955','DIAZ HUERTAS ADRIANA MARCELA','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','no tiene',NULL,21),
+(22,'1048846959','DIAZ OVALLE GERMAN DAVID','DIRECTIVO','6','3','JEFE DE OFICINA','OFICINA DE CONTROL INTERNO DE GESTION','controlinterno@garagoa-boyaca.gov.co','3112848505','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S3080416-0606-4',NULL,22),
+(23,'7172709','GONZALEZ  OSCAR','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,23),
+(24,'23607394','GUTIERREZ JIMENEZ CLAUDIA MARCELA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO ','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268943-0606-4',NULL,24),
+(25,'33676456','GUTIERREZ MONTENEGRO YENY ROCIO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,25),
+(26,'35532675','GUTIERREZ RUIZ RUTH YELI','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2245993-0606-4',NULL,26),
+(27,'7336061','JOYA MORALES NORVEY','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268945-0606-4',NULL,27),
+(28,'33676693','LARA ALFONSO NILSA SARAI','ASISTENCIAL','470','1','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,28),
+(29,'1048846229','LOZANO LONDOÑO JAYSSON ANTONIO','TECNICO','340','1','TECNICO OPERATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4509726-0606-4',NULL,29),
+(30,'13761626','LUJAN VICTOR JULIO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,30),
+(31,'33677619','MAHECHA ROA SANDRA MILENA','ASISTENCIAL','407','1','AUXILIAR ADMINISTRATIVO','SECRETARÍA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1091570-0606-4',NULL,31),
+(32,'4247402','MANRIQUE PULGAR OMAR DANILO','PROFESIONAL','202','5','PROFESIONAL ESPECIALIZADO','DIRECCIÓN ADMINISTRAIVA DE CONTRATACIÓN.','contratacion@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,32),
+(33,'23607564','MARTINEZ MARTINEZ DEVIA DEYANIRA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268947-0606-4',NULL,33),
+(34,'1048849552','MARTINEZ MARTINEZ LUIS MIGUEL','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,34),
+(35,'33377148','MEDINA GARCIA LADY BIBIANA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,35),
+(36,'74363046','MOLINA LOPEZ AQUILEO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,36),
+(37,'7332737','MONTENEGRO BARRERA WILLIAN RICARDO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1714027-0606-4',NULL,37),
+(38,'1048849585','MORENO FERNANDEZ HUGO FERNANDO','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1722425-0606-4',NULL,38),
+(39,'1001666562','MUNERA TORO VALERIA','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,39),
+(40,'1048849970','NOVOA GUTIERREZ MARIA CAMILA','TECNICO','303','3','SECRETARIA DE DESPACHO ( c )','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2465900-0606-4',NULL,40),
+(41,'33675892','OLMOS BUITRAGO RUDY ALEXANDRA','ASISTENCIAL','470','1','SERVICIOS GENERALES','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,41),
+(42,'33677867','PARRA VALLEJO MATILDE','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268949-0606-4',NULL,42),
+(43,'1048850555','PLAZAS ROA ANGIE LORENA','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4539181-0606-4',NULL,43),
+(44,'1048850495','PLAZAS TORRES LUIS CARLOS','DIRECTIVO','20','3','JEFE DE OFICINA','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2267295-0606-4',NULL,44),
+(45,'1048847096','PONCE CAMPO ALEJANDRO','PROFESIONAL','219','1','PROFESIONAL UNIVERSITARIO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1709909-0606-4',NULL,45),
+(46,'33676758','PUERTA LOPEZ ALBERTO','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE DESARROLLO ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1236330-0606-4',NULL,46),
+(47,'1048849953','QUIROGA CASTRO LUIS FERNANDO','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S3026190-0606-4',NULL,47),
+(48,'33675574','RAMOS GARCIA MARTHA LILIA','DIRECTIVO','20','3','JEFE DE OFICINA','SECRETARIA DE DESARROLLO ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','no tiene',NULL,48),
+(49,'33675399','RAMOS LOPEZ BLANCA ESMERALDA','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,49),
+(50,'33675932','RAMOS MONTAÑEZ ORLANDO','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,50),
+(51,'23606734','RAMOS RODRIGUEZ RUTH RUTH','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268953-0606-4',NULL,51),
+(52,'1048850518','RAMOS RUIZ MARIA EUGENIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','no tiene',NULL,52),
+(53,'1048847057','REYES GUERRERO ANDRES FELIPE','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229547-0606-4',NULL,53),
+(54,'1048850544','ROA MORALES LUZ DARY','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','no tiene',NULL,54),
+(55,'7335883','ROJAS FLOREZ ALFONSO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,55),
+(56,'1048849598','ROJAS LOPEZ ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,56),
+(57,'33676421','ROJAS PAEZ LUIS ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,57),
+(58,'1048847007','ROJAS TORO YUNIOR ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,58),
+(59,'1048846790','ROSALES FLOREZ LUISA FABIOLA','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','no tiene',NULL,59),
+(60,'1048847023','SACRISTAN CARRILLO PEDRO ANTONIO','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,60),
+(61,'1048847056','SANTOS JARAMILLO ALBERT','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,61),
+(62,'1048849580','VILLAMIL RIOS ALBERTO LUIS','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229477-0606-4',NULL,62),
+(63,'33676718','VILLAMIL VILLAMIL ANDRES','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,63),
+(64,'1048849965','VILLAMIL VILLAMIL LUIS ALBERTO','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,64) [42104-232]
+2025-07-02 10:57:44.269667-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]UNLOCK TABLES"; se esperaba "UPDATE"
+Syntax error in SQL statement "[*]UNLOCK TABLES"; expected "UPDATE"; SQL statement:
+UNLOCK TABLES [42001-232]
+2025-07-02 10:58:16.106071-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE [*]DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */"; se esperaba "OR REPLACE, FORCE, VIEW, MATERIALIZED, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL TEMPORARY, GLOBAL TEMPORARY, TEMPORARY, TABLE, SYNONYM, UNIQUE, SPATIAL, INDEX"
+Syntax error in SQL statement "CREATE [*]DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */"; expected "OR REPLACE, FORCE, VIEW, MATERIALIZED, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL TEMPORARY, GLOBAL TEMPORARY, TEMPORARY, TABLE, SYNONYM, UNIQUE, SPATIAL, INDEX"; SQL statement:
+CREATE DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */ [42001-232]
+2025-07-02 10:58:16.109076-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Schema "PLANTA_PERSONAL_DB" no encontrado
+Schema "PLANTA_PERSONAL_DB" not found; SQL statement:
+USE `planta_personal_db` [90079-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.engine.Database.getSchema(Database.java:1577)
+	at org.h2.command.dml.Set.update(Set.java:397)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:304)
+	at org.h2.command.Command.executeUpdate(Command.java:248)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+2025-07-02 10:58:16.117087-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE TABLE `info_planta_personal` (\000d\000a  `N` bigint NOT NULL AUTO_INCREMENT,\000d\000a  `cedula` varchar(255) DEFAULT NULL,\000d\000a  `nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE[*]=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; se esperaba "identifier"
+Syntax error in SQL statement "CREATE TABLE `info_planta_personal` (\000d\000a  `N` bigint NOT NULL AUTO_INCREMENT,\000d\000a  `cedula` varchar(255) DEFAULT NULL,\000d\000a  `nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE[*]=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; expected "identifier"; SQL statement:
+CREATE TABLE `info_planta_personal` (
+  `N` bigint NOT NULL AUTO_INCREMENT,
+  `cedula` varchar(255) DEFAULT NULL,
+  `nombres_y_apellidos` varchar(255) DEFAULT NULL,
+  `formacion_academica` varchar(255) DEFAULT NULL,
+  `codigo` varchar(255) DEFAULT NULL,
+  `grado` varchar(255) DEFAULT NULL,
+  `cargo` varchar(255) DEFAULT NULL,
+  `dependencia` varchar(255) DEFAULT NULL,
+  `correo_institucional` varchar(255) DEFAULT NULL,
+  `telefono_institucional` varchar(255) DEFAULT NULL,
+  `enlace_sigep` varchar(255) DEFAULT NULL,
+  `Numero_Unico` int DEFAULT NULL,
+  `numero` int DEFAULT NULL,
+  PRIMARY KEY (`N`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci [42001-232]
+2025-07-02 10:58:16.119086-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]LOCK TABLES `info_planta_personal` WRITE"
+Syntax error in SQL statement "[*]LOCK TABLES `info_planta_personal` WRITE"; SQL statement:
+LOCK TABLES `info_planta_personal` WRITE [42000-232]
+2025-07-02 10:58:16.121085-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "INFO_PLANTA_PERSONAL" not found (this database is empty); SQL statement:
+INSERT INTO `info_planta_personal` VALUES 
+(1,'1048848951','ALFONSO PINZON LEYLY ZULIANA','PROFESIONAL','219','1','PROFESIONAL UNIVERSITARIO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2216931-0606-4',NULL,1),
+(2,'33677037','AVILA DIAZ CLARA INES','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4539152-0606-4',NULL,2),
+(3,'23606579','AVILA GONZALEZ ROSA CECILIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO - COMISARIA DE FAMILIA','familia@garagoa-boyaca.gov.co','3232311568','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268936-0606-4',NULL,3),
+(4,'33677704','AVILA MONTAÑEZ ANGIE CELENE','ASISTENCIAL','470','1','SERVICIOS GENERALES','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,4),
+(5,'1049625301','BACCA VACCA NORMA CONSTANZA','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','no tiene',NULL,5),
+(6,'7335908','BARRERA CASTAÑEDA WILMER ALONSO','DIRECTIVO','115','2','SECRETARIOS DE DESPACHO','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1752001-0606-4',NULL,6),
+(7,'23607760','BARRETO ARIAS OLGA LUCIA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229460-0606-4',NULL,7),
+(8,'7332262','BENAVIDES MORA JAIME HUMBERTO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,8),
+(9,'23607108','BERNAL CUESTA DILMA LUCIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229409-0606-4',NULL,9),
+(10,'33676741','BERNAL GUTIERREZ PAOLA ASTRID','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2278710-0606-4',NULL,10),
+(11,'7332471','BERNAL LEGUIZAMO JOSE FRANCISCO','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268937-0606-4',NULL,11),
+(12,'7331496','BOHORQUEZ VANEGAS JOSE OLIVERIO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARÍA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,12),
+(13,'23474662','BUITRAGO RAMIREZ LUZ MARINA','DIRECTIVO','19','3','SECRETARIOS DE DESPACHO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S898740-0606-4',NULL,13),
+(14,'1010176028','CANO PIÑEROS JOHN FREDY','DIRECTIVO','20','3','JEFE DE OFICINA','DIRECCIÓN ADMINISTRAIVA DE CONTRATACIÓN.','contratacion@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,14),
+(15,'33675106','CASTILLO CASTILLO MAGDA ADELFA','PROFESIONAL','215','3','ALMACENISTA','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS -ALMACEN','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2271064-0606-4',NULL,15),
+(16,'33675542','CASTRO AVILA YURI ASENCION','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','DESPACHO ALCALDIA','alcaldia@garagoa-boyaca.gov.co','3115134058','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S699667-0606-4',NULL,16),
+(17,'1036638280','CASTRO VALENCIA MARIA LUISA','TECNICO','340','1','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,17),
+(18,'7334234','CONTRERAS RIVERA DIEGO ALEXANDER','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,18),
+(19,'1048850019','CRUZ VELEZ GLORIA ESTEFANIA','PROFESIONAL','219','2','PROFESIONAL UNIVERSITARIO','SECRETARÍA GENERAL Y DE GOBIERNO - COMISARIA DE FAMILIA','familia@garagoa-boyaca.gov.co','3232311568','no tiene',NULL,19),
+(20,'7333321','DAZA ALFONSO JOSE RAMIRO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,20),
+(21,'1048846955','DIAZ HUERTAS ADRIANA MARCELA','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','no tiene',NULL,21),
+(22,'1048846959','DIAZ OVALLE GERMAN DAVID','DIRECTIVO','6','3','JEFE DE OFICINA','OFICINA DE CONTROL INTERNO DE GESTION','controlinterno@garagoa-boyaca.gov.co','3112848505','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S3080416-0606-4',NULL,22),
+(23,'7172709','GONZALEZ  OSCAR','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,23),
+(24,'23607394','GUTIERREZ JIMENEZ CLAUDIA MARCELA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO ','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268943-0606-4',NULL,24),
+(25,'33676456','GUTIERREZ MONTENEGRO YENY ROCIO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,25),
+(26,'35532675','GUTIERREZ RUIZ RUTH YELI','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2245993-0606-4',NULL,26),
+(27,'7336061','JOYA MORALES NORVEY','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268945-0606-4',NULL,27),
+(28,'33676693','LARA ALFONSO NILSA SARAI','ASISTENCIAL','470','1','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,28),
+(29,'1048846229','LOZANO LONDOÑO JAYSSON ANTONIO','TECNICO','340','1','TECNICO OPERATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4509726-0606-4',NULL,29),
+(30,'13761626','LUJAN VICTOR JULIO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,30),
+(31,'33677619','MAHECHA ROA SANDRA MILENA','ASISTENCIAL','407','1','AUXILIAR ADMINISTRATIVO','SECRETARÍA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1091570-0606-4',NULL,31),
+(32,'4247402','MANRIQUE PULGAR OMAR DANILO','PROFESIONAL','202','5','PROFESIONAL ESPECIALIZADO','DIRECCIÓN ADMINISTRAIVA DE CONTRATACIÓN.','contratacion@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,32),
+(33,'23607564','MARTINEZ MARTINEZ DEVIA DEYANIRA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268947-0606-4',NULL,33),
+(34,'1048849552','MARTINEZ MARTINEZ LUIS MIGUEL','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,34),
+(35,'33377148','MEDINA GARCIA LADY BIBIANA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,35),
+(36,'74363046','MOLINA LOPEZ AQUILEO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,36),
+(37,'7332737','MONTENEGRO BARRERA WILLIAN RICARDO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1714027-0606-4',NULL,37),
+(38,'1048849585','MORENO FERNANDEZ HUGO FERNANDO','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1722425-0606-4',NULL,38),
+(39,'1001666562','MUNERA TORO VALERIA','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,39),
+(40,'1048849970','NOVOA GUTIERREZ MARIA CAMILA','TECNICO','303','3','SECRETARIA DE DESPACHO ( c )','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2465900-0606-4',NULL,40),
+(41,'33675892','OLMOS BUITRAGO RUDY ALEXANDRA','ASISTENCIAL','470','1','SERVICIOS GENERALES','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,41),
+(42,'33677867','PARRA VALLEJO MATILDE','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268949-0606-4',NULL,42),
+(43,'1048850555','PLAZAS ROA ANGIE LORENA','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4539181-0606-4',NULL,43),
+(44,'1048850495','PLAZAS TORRES LUIS CARLOS','DIRECTIVO','20','3','JEFE DE OFICINA','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2267295-0606-4',NULL,44),
+(45,'1048847096','PONCE CAMPO ALEJANDRO','PROFESIONAL','219','1','PROFESIONAL UNIVERSITARIO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1709909-0606-4',NULL,45),
+(46,'33676758','PUERTA LOPEZ ALBERTO','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE DESARROLLO ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1236330-0606-4',NULL,46),
+(47,'1048849953','QUIROGA CASTRO LUIS FERNANDO','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S3026190-0606-4',NULL,47),
+(48,'33675574','RAMOS GARCIA MARTHA LILIA','DIRECTIVO','20','3','JEFE DE OFICINA','SECRETARIA DE DESARROLLO ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','no tiene',NULL,48),
+(49,'33675399','RAMOS LOPEZ BLANCA ESMERALDA','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,49),
+(50,'33675932','RAMOS MONTAÑEZ ORLANDO','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,50),
+(51,'23606734','RAMOS RODRIGUEZ RUTH RUTH','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268953-0606-4',NULL,51),
+(52,'1048850518','RAMOS RUIZ MARIA EUGENIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','no tiene',NULL,52),
+(53,'1048847057','REYES GUERRERO ANDRES FELIPE','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229547-0606-4',NULL,53),
+(54,'1048850544','ROA MORALES LUZ DARY','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','no tiene',NULL,54),
+(55,'7335883','ROJAS FLOREZ ALFONSO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,55),
+(56,'1048849598','ROJAS LOPEZ ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,56),
+(57,'33676421','ROJAS PAEZ LUIS ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,57),
+(58,'1048847007','ROJAS TORO YUNIOR ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,58),
+(59,'1048846790','ROSALES FLOREZ LUISA FABIOLA','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','no tiene',NULL,59),
+(60,'1048847023','SACRISTAN CARRILLO PEDRO ANTONIO','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,60),
+(61,'1048847056','SANTOS JARAMILLO ALBERT','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,61),
+(62,'1048849580','VILLAMIL RIOS ALBERTO LUIS','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229477-0606-4',NULL,62),
+(63,'33676718','VILLAMIL VILLAMIL ANDRES','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,63),
+(64,'1048849965','VILLAMIL VILLAMIL LUIS ALBERTO','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,64) [42104-232]
+2025-07-02 10:58:16.125085-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]UNLOCK TABLES"; se esperaba "UPDATE"
+Syntax error in SQL statement "[*]UNLOCK TABLES"; expected "UPDATE"; SQL statement:
+UNLOCK TABLES [42001-232]
+2025-07-02 10:58:17.164975-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE [*]DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */"; se esperaba "OR REPLACE, FORCE, VIEW, MATERIALIZED, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL TEMPORARY, GLOBAL TEMPORARY, TEMPORARY, TABLE, SYNONYM, UNIQUE, SPATIAL, INDEX"
+Syntax error in SQL statement "CREATE [*]DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */"; expected "OR REPLACE, FORCE, VIEW, MATERIALIZED, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL TEMPORARY, GLOBAL TEMPORARY, TEMPORARY, TABLE, SYNONYM, UNIQUE, SPATIAL, INDEX"; SQL statement:
+CREATE DATABASE IF NOT EXISTS `planta_personal_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */ [42001-232]
+2025-07-02 10:58:17.166980-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Schema "PLANTA_PERSONAL_DB" no encontrado
+Schema "PLANTA_PERSONAL_DB" not found; SQL statement:
+USE `planta_personal_db` [90079-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.engine.Database.getSchema(Database.java:1577)
+	at org.h2.command.dml.Set.update(Set.java:397)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:304)
+	at org.h2.command.Command.executeUpdate(Command.java:248)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+2025-07-02 10:58:17.169976-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE TABLE `info_planta_personal` (\000d\000a  `N` bigint NOT NULL AUTO_INCREMENT,\000d\000a  `cedula` varchar(255) DEFAULT NULL,\000d\000a  `nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE[*]=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; se esperaba "identifier"
+Syntax error in SQL statement "CREATE TABLE `info_planta_personal` (\000d\000a  `N` bigint NOT NULL AUTO_INCREMENT,\000d\000a  `cedula` varchar(255) DEFAULT NULL,\000d\000a  `nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE[*]=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; expected "identifier"; SQL statement:
+CREATE TABLE `info_planta_personal` (
+  `N` bigint NOT NULL AUTO_INCREMENT,
+  `cedula` varchar(255) DEFAULT NULL,
+  `nombres_y_apellidos` varchar(255) DEFAULT NULL,
+  `formacion_academica` varchar(255) DEFAULT NULL,
+  `codigo` varchar(255) DEFAULT NULL,
+  `grado` varchar(255) DEFAULT NULL,
+  `cargo` varchar(255) DEFAULT NULL,
+  `dependencia` varchar(255) DEFAULT NULL,
+  `correo_institucional` varchar(255) DEFAULT NULL,
+  `telefono_institucional` varchar(255) DEFAULT NULL,
+  `enlace_sigep` varchar(255) DEFAULT NULL,
+  `Numero_Unico` int DEFAULT NULL,
+  `numero` int DEFAULT NULL,
+  PRIMARY KEY (`N`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci [42001-232]
+2025-07-02 10:58:17.171970-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]LOCK TABLES `info_planta_personal` WRITE"
+Syntax error in SQL statement "[*]LOCK TABLES `info_planta_personal` WRITE"; SQL statement:
+LOCK TABLES `info_planta_personal` WRITE [42000-232]
+2025-07-02 10:58:17.175973-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "INFO_PLANTA_PERSONAL" not found (this database is empty); SQL statement:
+INSERT INTO `info_planta_personal` VALUES 
+(1,'1048848951','ALFONSO PINZON LEYLY ZULIANA','PROFESIONAL','219','1','PROFESIONAL UNIVERSITARIO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2216931-0606-4',NULL,1),
+(2,'33677037','AVILA DIAZ CLARA INES','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4539152-0606-4',NULL,2),
+(3,'23606579','AVILA GONZALEZ ROSA CECILIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO - COMISARIA DE FAMILIA','familia@garagoa-boyaca.gov.co','3232311568','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268936-0606-4',NULL,3),
+(4,'33677704','AVILA MONTAÑEZ ANGIE CELENE','ASISTENCIAL','470','1','SERVICIOS GENERALES','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,4),
+(5,'1049625301','BACCA VACCA NORMA CONSTANZA','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','no tiene',NULL,5),
+(6,'7335908','BARRERA CASTAÑEDA WILMER ALONSO','DIRECTIVO','115','2','SECRETARIOS DE DESPACHO','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1752001-0606-4',NULL,6),
+(7,'23607760','BARRETO ARIAS OLGA LUCIA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229460-0606-4',NULL,7),
+(8,'7332262','BENAVIDES MORA JAIME HUMBERTO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,8),
+(9,'23607108','BERNAL CUESTA DILMA LUCIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229409-0606-4',NULL,9),
+(10,'33676741','BERNAL GUTIERREZ PAOLA ASTRID','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2278710-0606-4',NULL,10),
+(11,'7332471','BERNAL LEGUIZAMO JOSE FRANCISCO','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268937-0606-4',NULL,11),
+(12,'7331496','BOHORQUEZ VANEGAS JOSE OLIVERIO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARÍA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,12),
+(13,'23474662','BUITRAGO RAMIREZ LUZ MARINA','DIRECTIVO','19','3','SECRETARIOS DE DESPACHO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S898740-0606-4',NULL,13),
+(14,'1010176028','CANO PIÑEROS JOHN FREDY','DIRECTIVO','20','3','JEFE DE OFICINA','DIRECCIÓN ADMINISTRAIVA DE CONTRATACIÓN.','contratacion@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,14),
+(15,'33675106','CASTILLO CASTILLO MAGDA ADELFA','PROFESIONAL','215','3','ALMACENISTA','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS -ALMACEN','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2271064-0606-4',NULL,15),
+(16,'33675542','CASTRO AVILA YURI ASENCION','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','DESPACHO ALCALDIA','alcaldia@garagoa-boyaca.gov.co','3115134058','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S699667-0606-4',NULL,16),
+(17,'1036638280','CASTRO VALENCIA MARIA LUISA','TECNICO','340','1','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,17),
+(18,'7334234','CONTRERAS RIVERA DIEGO ALEXANDER','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,18),
+(19,'1048850019','CRUZ VELEZ GLORIA ESTEFANIA','PROFESIONAL','219','2','PROFESIONAL UNIVERSITARIO','SECRETARÍA GENERAL Y DE GOBIERNO - COMISARIA DE FAMILIA','familia@garagoa-boyaca.gov.co','3232311568','no tiene',NULL,19),
+(20,'7333321','DAZA ALFONSO JOSE RAMIRO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,20),
+(21,'1048846955','DIAZ HUERTAS ADRIANA MARCELA','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','no tiene',NULL,21),
+(22,'1048846959','DIAZ OVALLE GERMAN DAVID','DIRECTIVO','6','3','JEFE DE OFICINA','OFICINA DE CONTROL INTERNO DE GESTION','controlinterno@garagoa-boyaca.gov.co','3112848505','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S3080416-0606-4',NULL,22),
+(23,'7172709','GONZALEZ  OSCAR','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,23),
+(24,'23607394','GUTIERREZ JIMENEZ CLAUDIA MARCELA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARÍA GENERAL Y DE GOBIERNO ','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268943-0606-4',NULL,24),
+(25,'33676456','GUTIERREZ MONTENEGRO YENY ROCIO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,25),
+(26,'35532675','GUTIERREZ RUIZ RUTH YELI','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA  DE DESARROLLO  ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2245993-0606-4',NULL,26),
+(27,'7336061','JOYA MORALES NORVEY','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268945-0606-4',NULL,27),
+(28,'33676693','LARA ALFONSO NILSA SARAI','ASISTENCIAL','470','1','AUXILIAR ADMINISTRATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,28),
+(29,'1048846229','LOZANO LONDOÑO JAYSSON ANTONIO','TECNICO','340','1','TECNICO OPERATIVO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4509726-0606-4',NULL,29),
+(30,'13761626','LUJAN VICTOR JULIO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,30),
+(31,'33677619','MAHECHA ROA SANDRA MILENA','ASISTENCIAL','407','1','AUXILIAR ADMINISTRATIVO','SECRETARÍA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1091570-0606-4',NULL,31),
+(32,'4247402','MANRIQUE PULGAR OMAR DANILO','PROFESIONAL','202','5','PROFESIONAL ESPECIALIZADO','DIRECCIÓN ADMINISTRAIVA DE CONTRATACIÓN.','contratacion@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,32),
+(33,'23607564','MARTINEZ MARTINEZ DEVIA DEYANIRA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268947-0606-4',NULL,33),
+(34,'1048849552','MARTINEZ MARTINEZ LUIS MIGUEL','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,34),
+(35,'33377148','MEDINA GARCIA LADY BIBIANA','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,35),
+(36,'74363046','MOLINA LOPEZ AQUILEO','ASISTENCIAL','490','1','SERVICIOS GENERALES','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','no tiene',NULL,36),
+(37,'7332737','MONTENEGRO BARRERA WILLIAN RICARDO','OFICIAL','TO','TO','OPERARIO CONDUCTOR','SECRETARIA DE INFRAESTRUCTURA','infraestructura@garagoa-boyaca.gov.co','3232310337','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1714027-0606-4',NULL,37),
+(38,'1048849585','MORENO FERNANDEZ HUGO FERNANDO','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1722425-0606-4',NULL,38),
+(39,'1001666562','MUNERA TORO VALERIA','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,39),
+(40,'1048849970','NOVOA GUTIERREZ MARIA CAMILA','TECNICO','303','3','SECRETARIA DE DESPACHO ( c )','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2465900-0606-4',NULL,40),
+(41,'33675892','OLMOS BUITRAGO RUDY ALEXANDRA','ASISTENCIAL','470','1','SERVICIOS GENERALES','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,41),
+(42,'33677867','PARRA VALLEJO MATILDE','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268949-0606-4',NULL,42),
+(43,'1048850555','PLAZAS ROA ANGIE LORENA','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S4539181-0606-4',NULL,43),
+(44,'1048850495','PLAZAS TORRES LUIS CARLOS','DIRECTIVO','20','3','JEFE DE OFICINA','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S2267295-0606-4',NULL,44),
+(45,'1048847096','PONCE CAMPO ALEJANDRO','PROFESIONAL','219','1','PROFESIONAL UNIVERSITARIO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1709909-0606-4',NULL,45),
+(46,'33676758','PUERTA LOPEZ ALBERTO','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE DESARROLLO ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1236330-0606-4',NULL,46),
+(47,'1048849953','QUIROGA CASTRO LUIS FERNANDO','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S3026190-0606-4',NULL,47),
+(48,'33675574','RAMOS GARCIA MARTHA LILIA','DIRECTIVO','20','3','JEFE DE OFICINA','SECRETARIA DE DESARROLLO ECONOMICO Y SOCIAL','desarrollosocial@garagoa-boyaca.gov.co','3173630103','no tiene',NULL,48),
+(49,'33675399','RAMOS LOPEZ BLANCA ESMERALDA','DIRECTIVO','20','3','SECRETARIOS DE DESPACHO','SECRETARIA  GENERAL Y DE GOBIERNO','generalygobierno@garagoa-boyaca.gov.co','3152207029','no tiene',NULL,49),
+(50,'33675932','RAMOS MONTAÑEZ ORLANDO','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,50),
+(51,'23606734','RAMOS RODRIGUEZ RUTH RUTH','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1268953-0606-4',NULL,51),
+(52,'1048850518','RAMOS RUIZ MARIA EUGENIA','ASISTENCIAL','407','5','AUXILIAR ADMINISTRATIVO','SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS','hacienda@garagoa-boyaca.gov.co','3163971732','no tiene',NULL,52),
+(53,'1048847057','REYES GUERRERO ANDRES FELIPE','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229547-0606-4',NULL,53),
+(54,'1048850544','ROA MORALES LUZ DARY','ASISTENCIAL','407','4','AUXILIAR ADMINISTRATIVO','SECRETARIA DE CULTURA, TURISMO, JUVENTUDES, RECREACION Y DEPORTE','deporte@garagoa-boyaca.gov.co','3132527457','no tiene',NULL,54),
+(55,'7335883','ROJAS FLOREZ ALFONSO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,55),
+(56,'1048849598','ROJAS LOPEZ ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,56),
+(57,'33676421','ROJAS PAEZ LUIS ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,57),
+(58,'1048847007','ROJAS TORO YUNIOR ALBERTO','TECNICO','340','1','AGENTE DE TRANSITO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,58),
+(59,'1048846790','ROSALES FLOREZ LUISA FABIOLA','TECNICO','303','3','INSPECTOR DE POLICIA','SECRETARÍA GENERAL Y DE GOBIERNO - INSPECIÓN DE POLICÍA','inspecciondepolicia@garagoa-boyaca.gov.co','3232311580','no tiene',NULL,59),
+(60,'1048847023','SACRISTAN CARRILLO PEDRO ANTONIO','TECNICO','314','2','TECNICO OPERATIVO','SECRETARIA DE TRANSITO Y TRANSPORTE','transporte@garagoa-boyaca.gov.co','3232311520','no tiene',NULL,60),
+(61,'1048847056','SANTOS JARAMILLO ALBERT','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,61),
+(62,'1048849580','VILLAMIL RIOS ALBERTO LUIS','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','https://www1.funcionpublica.gov.co/dafpIndexerBHV/hvSigep/detallarHV/S1229477-0606-4',NULL,62),
+(63,'33676718','VILLAMIL VILLAMIL ANDRES','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,63),
+(64,'1048849965','VILLAMIL VILLAMIL LUIS ALBERTO','TECNICO','314','2','TECNICO OPERATIVO','OFICINA ASESORA DE PLANEACION','planeacion@garagoa-boyaca.gov.co','3173694758','no tiene',NULL,64) [42104-232]
+2025-07-02 10:58:17.179971-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]UNLOCK TABLES"; se esperaba "UPDATE"
+Syntax error in SQL statement "[*]UNLOCK TABLES"; expected "UPDATE"; SQL statement:
+UNLOCK TABLES [42001-232]
+2025-07-02 10:59:19.731953-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]`nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+Syntax error in SQL statement "[*]`nombres_y_apellidos` varchar(255) DEFAULT NULL,\000d\000a  `formacion_academica` varchar(255) DEFAULT NULL,\000d\000a  `codigo` varchar(255) DEFAULT NULL,\000d\000a  `grado` varchar(255) DEFAULT NULL,\000d\000a  `cargo` varchar(255) DEFAULT NULL,\000d\000a  `dependencia` varchar(255) DEFAULT NULL,\000d\000a  `correo_institucional` varchar(255) DEFAULT NULL,\000d\000a  `telefono_institucional` varchar(255) DEFAULT NULL,\000d\000a  `enlace_sigep` varchar(255) DEFAULT NULL,\000d\000a  `Numero_Unico` int DEFAULT NULL,\000d\000a  `numero` int DEFAULT NULL,\000d\000a  PRIMARY KEY (`N`)\000d\000a) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"; SQL statement:
+`nombres_y_apellidos` varchar(255) DEFAULT NULL,
+  `formacion_academica` varchar(255) DEFAULT NULL,
+  `codigo` varchar(255) DEFAULT NULL,
+  `grado` varchar(255) DEFAULT NULL,
+  `cargo` varchar(255) DEFAULT NULL,
+  `dependencia` varchar(255) DEFAULT NULL,
+  `correo_institucional` varchar(255) DEFAULT NULL,
+  `telefono_institucional` varchar(255) DEFAULT NULL,
+  `enlace_sigep` varchar(255) DEFAULT NULL,
+  `Numero_Unico` int DEFAULT NULL,
+  `numero` int DEFAULT NULL,
+  PRIMARY KEY (`N`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci [42000-232]
+2025-07-02 10:59:19.732951-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]LOCK TABLES `info_planta_personal` WRITE"
+Syntax error in SQL statement "[*]LOCK TABLES `info_planta_personal` WRITE"; SQL statement:
+LOCK TABLES `info_planta_personal` WRITE [42000-232]
+2025-07-02 10:59:19.748954-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]UNLOCK TABLES"; se esperaba "UPDATE"
+Syntax error in SQL statement "[*]UNLOCK TABLES"; expected "UPDATE"; SQL statement:
+UNLOCK TABLES [42001-232]
+2025-07-02 11:10:44.886787-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Schema "PLANTA_PERSONAL_DB" no encontrado
+Schema "PLANTA_PERSONAL_DB" not found; SQL statement:
+SELECT * FROM planta_personal_db.info_planta_personal [90079-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.Parser.readTablePrimary(Parser.java:1739)
+	at org.h2.command.Parser.readTableReference(Parser.java:2249)
+	at org.h2.command.Parser.parseSelectFromPart(Parser.java:2702)
+	at org.h2.command.Parser.parseSelect(Parser.java:2810)
+	at org.h2.command.Parser.parseQueryPrimary(Parser.java:2692)
+	at org.h2.command.Parser.parseQueryTerm(Parser.java:2547)
+	at org.h2.command.Parser.parseQueryExpressionBody(Parser.java:2526)
+	at org.h2.command.Parser.parseQueryExpressionBodyAndEndOfQuery(Parser.java:2519)
+	at org.h2.command.Parser.parseQueryExpression(Parser.java:2512)
+	at org.h2.command.Parser.parseQuery(Parser.java:2479)
+	at org.h2.command.Parser.parsePrepared(Parser.java:610)
+	at org.h2.command.Parser.parse(Parser.java:581)
+	at org.h2.command.Parser.parse(Parser.java:556)
+	at org.h2.command.Parser.prepareCommand(Parser.java:484)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:645)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:561)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+2025-07-02 11:10:56.424225-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PLANTA_PERSONAL_DB" no encontrada
+Table "PLANTA_PERSONAL_DB" not found; SQL statement:
+SELECT * FROM planta_personal_db [42102-232]
+2025-07-02 11:10:57.902495-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PLANTA_PERSONAL_DB" no encontrada
+Table "PLANTA_PERSONAL_DB" not found; SQL statement:
+SELECT * FROM planta_personal_db [42102-232]
+2025-07-02 11:11:01.563466-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PLANTA_PERSONAL" no encontrada
+Table "PLANTA_PERSONAL" not found; SQL statement:
+SELECT * FROM planta_personal [42102-232]
+2025-07-02 11:11:02.708755-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PLANTA_PERSONAL" no encontrada
+Table "PLANTA_PERSONAL" not found; SQL statement:
+SELECT * FROM planta_personal [42102-232]

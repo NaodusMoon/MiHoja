@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultar Hojas de Vida</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ✅ NAVBAR -->
+<div class="navbar">
+    <div class="logo" href="/consultar">[Logo]</div>
+    <div class="app-name" href="/consultar">MiHoja</div>
+    <div class="nav-links">
+        <a class="active" href="/consultar">Consultar</a>
+        <a href="/insertar">Insertar</a>
+    </div>
+    <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
+</div>
+
+<div class="main">
+    <!-- ✅ SIDEBAR DE FILTROS -->
+    <div class="sidebar-filtros">
+        <form method="get" action="/consultar">
+            <h2 class="filtro-titulo">Filtrar por:</h2>
+            <hr class="linea-divisoria">
+
+                        <!-- ✅ SEXO -->
+            <div class="filtro-seccion">
+                <h4>Sexo:</h4>
+                <label><input type="checkbox" name="sexo" value="M" th:checked="${sexo != null and sexo.contains('M')}"> M</label><br>
+                <label><input type="checkbox" name="sexo" value="F" th:checked="${sexo != null and sexo.contains('F')}"> F</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ LUGAR DE EXPEDICIÓN -->
+            <div class="filtro-seccion">
+                <h4>Lugar de Expedición:</h4>
+                <label><input type="checkbox" name="lugarExpedicion" value="GARAGOA" th:checked="${lugarExpedicion != null and lugarExpedicion.contains('GARAGOA')}"> Garagoa</label><br>
+                <label><input type="checkbox" name="lugarExpedicion" value="TUNJA" th:checked="${lugarExpedicion != null and lugarExpedicion.contains('TUNJA')}"> Tunja</label><br>
+                <label><input type="checkbox" name="lugarExpedicion" value="BOGOTA" th:checked="${lugarExpedicion != null and lugarExpedicion.contains('BOGOTA')}"> Bogotá</label><br>
+                <label><input type="checkbox" name="lugarExpedicion" value="DUITAMA" th:checked="${lugarExpedicion != null and lugarExpedicion.contains('DUITAMA')}"> Duitama</label><br>
+                <label><input type="checkbox" name="lugarExpedicion" value="OTRAS" th:checked="${lugarExpedicion != null and lugarExpedicion.contains('OTRAS')}"> Otras</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ FORMACIÓN -->
+            <div class="filtro-seccion">
+                <h4>Formación Académica:</h4>
+                <label><input type="checkbox" name="formacion" value="PROFESIONAL" th:checked="${formacion != null and formacion.contains('PROFESIONAL')}"> Profesional</label><br>
+                <label><input type="checkbox" name="formacion" value="ASISTENCIAL" th:checked="${formacion != null and formacion.contains('ASISTENCIAL')}"> Asistencial</label><br>
+                <label><input type="checkbox" name="formacion" value="TECNICO" th:checked="${formacion != null and formacion.contains('TECNICO')}"> Técnico</label><br>
+                <label><input type="checkbox" name="formacion" value="DIRECTIVO" th:checked="${formacion != null and formacion.contains('DIRECTIVO')}"> Directivo</label><br>
+                <label><input type="checkbox" name="formacion" value="OFICIAL" th:checked="${formacion != null and formacion.contains('OFICIAL')}"> Oficial</label><br>
+                <label><input type="checkbox" name="formacion" value="NO DISPONIBLE" th:checked="${formacion != null and formacion.contains('NO DISPONIBLE')}"> No disponible</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ GRADO -->
+            <div class="filtro-seccion">
+                <h4>Grado:</h4>
+                <label><input type="checkbox" name="grado" value="1" th:checked="${grado != null and grado.contains('1')}"> 1</label><br>
+                <label><input type="checkbox" name="grado" value="2" th:checked="${grado != null and grado.contains('2')}"> 2</label><br>
+                <label><input type="checkbox" name="grado" value="3" th:checked="${grado != null and grado.contains('3')}"> 3</label><br>
+                <label><input type="checkbox" name="grado" value="4" th:checked="${grado != null and grado.contains('4')}"> 4</label><br>
+                <label><input type="checkbox" name="grado" value="5" th:checked="${grado != null and grado.contains('5')}"> 5</label><br>
+                <label><input type="checkbox" name="grado" value="6" th:checked="${grado != null and grado.contains('6')}"> 6</label><br>
+                <label><input type="checkbox" name="grado" value="TO" th:checked="${grado != null and grado.contains('TO')}"> TO</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ CARGO -->
+            <div class="filtro-seccion">
+                <h4>Cargo:</h4>
+                <label><input type="checkbox" name="cargo" value="PROFESIONAL UNIVERSITARIO" th:checked="${cargo != null and cargo.contains('PROFESIONAL UNIVERSITARIO')}"> Profesional Universitario</label><br>
+                <label><input type="checkbox" name="cargo" value="AUXILIAR ADMINISTRATIVO" th:checked="${cargo != null and cargo.contains('AUXILIAR ADMINISTRATIVO')}"> Auxiliar Administrativo</label><br>
+                <label><input type="checkbox" name="cargo" value="TECNICO OPERATIVO" th:checked="${cargo != null and cargo.contains('TECNICO OPERATIVO')}"> Técnico Operativo</label><br>
+                <label><input type="checkbox" name="cargo" value="SECRETARIOS DE DESPACHO" th:checked="${cargo != null and cargo.contains('SECRETARIOS DE DESPACHO')}"> Secretarios de Despacho</label><br>
+                <label><input type="checkbox" name="cargo" value="OPERARIO CONDUCTOR" th:checked="${cargo != null and cargo.contains('OPERARIO CONDUCTOR')}"> Operario Conductor</label><br>
+                <label><input type="checkbox" name="cargo" value="SERVICIOS GENERALES" th:checked="${cargo != null and cargo.contains('SERVICIOS GENERALES')}"> Servicios Generales</label><br>
+                <label><input type="checkbox" name="cargo" value="INSPECTOR DE POLICIA" th:checked="${cargo != null and cargo.contains('INSPECTOR DE POLICIA')}"> Inspector de Policía</label><br>
+                <label><input type="checkbox" name="cargo" value="AGENTE DE TRANSITO" th:checked="${cargo != null and cargo.contains('AGENTE DE TRANSITO')}"> Agente de Tránsito</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+                        <!-- ✅ DEPENDENCIA -->
+            <div class="filtro-seccion">
+                <h4>Dependencia:</h4>
+                <label><input type="checkbox" name="dependencia" value="SECRETARIA GENERAL Y DE GOBIERNO" th:checked="${dependencia != null and dependencia.contains('SECRETARIA GENERAL Y DE GOBIERNO')}"> Secretaría General y de Gobierno</label><br>
+                <label><input type="checkbox" name="dependencia" value="SECRETARIA DE INFRAESTRUCTURA" th:checked="${dependencia != null and dependencia.contains('SECRETARIA DE INFRAESTRUCTURA')}"> Secretaría de Infraestructura</label><br>
+                <label><input type="checkbox" name="dependencia" value="SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS" th:checked="${dependencia != null and dependencia.contains('SECRETARIA DE HACIENDA Y FINANZAS PUBLICAS')}"> Hacienda y Finanzas Públicas</label><br>
+                <label><input type="checkbox" name="dependencia" value="SECRETARIA DE TRANSITO Y TRANSPORTE" th:checked="${dependencia != null and dependencia.contains('SECRETARIA DE TRANSITO Y TRANSPORTE')}"> Tránsito y Transporte</label><br>
+                <label><input type="checkbox" name="dependencia" value="OFICINA ASESORA DE PLANEACION" th:checked="${dependencia != null and dependencia.contains('OFICINA ASESORA DE PLANEACION')}"> Planeación</label><br>
+                <label><input type="checkbox" name="dependencia" value="DIRECCION ADMINISTRATIVA DE CONTRATACION" th:checked="${dependencia != null and dependencia.contains('DIRECCION ADMINISTRATIVA DE CONTRATACION')}"> Contratación</label><br>
+                <label><input type="checkbox" name="dependencia" value="NO DISPONIBLE" th:checked="${dependencia != null and dependencia.contains('NO DISPONIBLE')}"> No disponible</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ RH -->
+            <div class="filtro-seccion">
+                <h4>RH:</h4>
+                <label><input type="checkbox" name="rh" value="O+" th:checked="${rh != null and rh.contains('O+')}"> O+</label><br>
+                <label><input type="checkbox" name="rh" value="A+" th:checked="${rh != null and rh.contains('A+')}"> A+</label><br>
+                <label><input type="checkbox" name="rh" value="B+" th:checked="${rh != null and rh.contains('B+')}"> B+</label><br>
+                <label><input type="checkbox" name="rh" value="AB+" th:checked="${rh != null and rh.contains('AB+')}"> AB+</label><br>
+                <label><input type="checkbox" name="rh" value="O-" th:checked="${rh != null and rh.contains('O-')}"> O-</label><br>
+                <label><input type="checkbox" name="rh" value="A-" th:checked="${rh != null and rh.contains('A-')}"> A-</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ EPS -->
+            <div class="filtro-seccion">
+                <h4>EPS:</h4>
+                <label><input type="checkbox" name="eps" value="NUEVA EPS" th:checked="${eps != null and eps.contains('NUEVA EPS')}"> Nueva EPS</label><br>
+                <label><input type="checkbox" name="eps" value="SANITAS" th:checked="${eps != null and eps.contains('SANITAS')}"> Sanitas</label><br>
+                <label><input type="checkbox" name="eps" value="COMPENSAR" th:checked="${eps != null and eps.contains('COMPENSAR')}"> Compensar</label><br>
+                <label><input type="checkbox" name="eps" value="CAJA COPI" th:checked="${eps != null and eps.contains('CAJA COPI')}"> Caja Copi</label><br>
+                <label><input type="checkbox" name="eps" value="SALUD TOTAL" th:checked="${eps != null and eps.contains('SALUD TOTAL')}"> Salud Total</label><br>
+                <label><input type="checkbox" name="eps" value="POSITIVA" th:checked="${eps != null and eps.contains('POSITIVA')}"> Positiva</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ AFP -->
+            <div class="filtro-seccion">
+                <h4>AFP:</h4>
+                <label><input type="checkbox" name="afp" value="PORVENIR" th:checked="${afp != null and afp.contains('PORVENIR')}"> Porvenir</label><br>
+                <label><input type="checkbox" name="afp" value="COLPENSIONES" th:checked="${afp != null and afp.contains('COLPENSIONES')}"> Colpensiones</label><br>
+                <label><input type="checkbox" name="afp" value="PROTECCION" th:checked="${afp != null and afp.contains('PROTECCION')}"> Protección</label><br>
+                <label><input type="checkbox" name="afp" value="COLFONDOS" th:checked="${afp != null and afp.contains('COLFONDOS')}"> Colfondos</label><br>
+                <label><input type="checkbox" name="afp" value="SKANDIA" th:checked="${afp != null and afp.contains('SKANDIA')}"> Skandia</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ CARNET DE VACUNACIÓN -->
+            <div class="filtro-seccion">
+                <h4>Carnet de Vacunación:</h4>
+                <label><input type="checkbox" name="carnetVacunacion" value="SI" th:checked="${carnetVacunacion != null and carnetVacunacion.contains('SI')}"> Sí</label><br>
+                <label><input type="checkbox" name="carnetVacunacion" value="NO" th:checked="${carnetVacunacion != null and carnetVacunacion.contains('NO')}"> No</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ RIESGO -->
+            <div class="filtro-seccion">
+                <h4>Nivel de Riesgo:</h4>
+                <label><input type="checkbox" name="riesgo" value="1" th:checked="${riesgo != null and riesgo.contains('1')}"> 1 (Bajo)</label><br>
+                <label><input type="checkbox" name="riesgo" value="3" th:checked="${riesgo != null and riesgo.contains('3')}"> 3 (Medio)</label><br>
+                <label><input type="checkbox" name="riesgo" value="5" th:checked="${riesgo != null and riesgo.contains('5')}"> 5 (Alto)</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ MEDIO DE TRANSPORTE -->
+            <div class="filtro-seccion">
+                <h4>Medio de Transporte:</h4>
+                <label><input type="checkbox" name="medioTransporte" value="CARRO" th:checked="${medioTransporte != null and medioTransporte.contains('CARRO')}"> Carro</label><br>
+                <label><input type="checkbox" name="medioTransporte" value="MOTO" th:checked="${medioTransporte != null and medioTransporte.contains('MOTO')}"> Moto</label><br>
+                <label><input type="checkbox" name="medioTransporte" value="NO DISPONIBLE" th:checked="${medioTransporte != null and medioTransporte.contains('NO DISPONIBLE')}"> No disponible</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ PROCEDENCIA -->
+            <div class="filtro-seccion">
+                <h4>Procedencia:</h4>
+                <label><input type="checkbox" name="procedencia" value="GARAGOA" th:checked="${procedencia != null and procedencia.contains('GARAGOA')}"> Garagoa</label><br>
+                <label><input type="checkbox" name="procedencia" value="TUNJA" th:checked="${procedencia != null and procedencia.contains('TUNJA')}"> Tunja</label><br>
+                <label><input type="checkbox" name="procedencia" value="BOGOTA" th:checked="${procedencia != null and procedencia.contains('BOGOTA')}"> Bogotá</label><br>
+                <label><input type="checkbox" name="procedencia" value="ALMEIDA" th:checked="${procedencia != null and procedencia.contains('ALMEIDA')}"> Almeida</label><br>
+                <label><input type="checkbox" name="procedencia" value="OTRAS" th:checked="${procedencia != null and procedencia.contains('OTRAS')}"> Otras</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ INDUCCIÓN -->
+            <div class="filtro-seccion">
+                <h4>Inducción:</h4>
+                <label><input type="checkbox" name="induccion" value="SI" th:checked="${induccion != null and induccion.contains('SI')}"> Sí</label><br>
+                <label><input type="checkbox" name="induccion" value="NO" th:checked="${induccion != null and induccion.contains('NO')}"> No</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ EXAMEN DE INGRESO -->
+            <div class="filtro-seccion">
+                <h4>Examen de Ingreso:</h4>
+                <label><input type="checkbox" name="examen" value="SI" th:checked="${examen != null and examen.contains('SI')}"> Sí</label><br>
+                <label><input type="checkbox" name="examen" value="NO" th:checked="${examen != null and examen.contains('NO')}"> No</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ MESES DE EXPERIENCIA -->
+            <div class="filtro-seccion">
+                <h4>Meses de Experiencia:</h4>
+                <label><input type="checkbox" name="mesesExperiencia" value="0-12" th:checked="${mesesExperiencia != null and mesesExperiencia.contains('0-12')}"> 0-12</label><br>
+                <label><input type="checkbox" name="mesesExperiencia" value="13-60" th:checked="${mesesExperiencia != null and mesesExperiencia.contains('13-60')}"> 13-60</label><br>
+                <label><input type="checkbox" name="mesesExperiencia" value="61-120" th:checked="${mesesExperiencia != null and mesesExperiencia.contains('61-120')}"> 61-120</label><br>
+                <label><input type="checkbox" name="mesesExperiencia" value="121+" th:checked="${mesesExperiencia != null and mesesExperiencia.contains('121+')}"> 121+</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+            <hr class="linea-divisoria">
+
+            <!-- ✅ DOTACIÓN -->
+            <div class="filtro-seccion">
+                <h4>Dotación:</h4>
+                <label><input type="checkbox" name="dotacion" value="SI" th:checked="${dotacion != null and dotacion.contains('SI')}"> Sí</label><br>
+                <label><input type="checkbox" name="dotacion" value="NO" th:checked="${dotacion != null and dotacion.contains('NO')}"> No</label><br>
+                <label><input type="checkbox" name="dotacion" value="PENDIENTE" th:checked="${dotacion != null and dotacion.contains('PENDIENTE')}"> Pendiente</label><br>
+                <button type="submit" class="btn-filtro">Aplicar Filtro</button>
+            </div>
+        </form>
+    </div>
+
+        <!-- ✅ CONTENIDO PRINCIPAL (LISTADO DE HOJAS DE VIDA) -->
+    <div class="content">
+        <!-- 🔍 BUSCADOR POR NOMBRE -->
+        <form method="get" action="/consultar">
+            <input type="text" name="nombre" placeholder="Buscar por nombre" th:value="${param.nombre}">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <!-- 🗑 ELIMINACIÓN MÚLTIPLE -->
+        <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; margin: 15px 0;">
+            <form method="post" action="/eliminar-multiples">
+                <label><input type="checkbox" id="selectAll"> Seleccionar todos</label>
+                <button type="submit" style="margin-left: 10px;" onclick="return confirm('¿Eliminar los elementos seleccionados?')">
+                    🗑 Eliminar seleccionados
+                </button>
+                <div id="hiddenSelected" style="display:none;"></div>
+            </form>
+        </div>
+
+        <!-- 📄 LISTADO DE HOJAS DE VIDA -->
+        <div class="hojas" style="margin-top: 15px;">
+            <th:block th:each="hoja : ${personas}">
+                <div class="hoja-card">
+                    <!-- ✅ Checkbox para eliminación múltiple -->
+                    <input type="checkbox" class="select-item" th:data-id="${hoja.id}">
+
+                    <!-- ✅ Enlace a detalle -->
+                    <a th:href="@{/muestra/{id}(id=${hoja.id})}">
+                        [[${hoja.apellidos}]] [[${hoja.nombres}]]
+                    </a>
+                    <p><strong>N°:</strong> [[${hoja.numero}]]</p>
+                    <p><strong>Cédula:</strong> [[${hoja.cedula}]]</p>
+                    <p><strong>Cargo:</strong> [[${hoja.cargo} ?: 'Sin cargo registrado']]</p>
+                    <p><strong>Dependencia:</strong> [[${hoja.dependencia} ?: 'Sin dependencia']]</p>
+
+                    <!-- ✅ Botón de eliminación individual -->
+                    <div class="boton-eliminar-container">
+                        <a th:href="@{/eliminar/{id}(id=${hoja.id})}"
+                           class="btn-eliminar"
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar esta hoja de vida?');">
+                            🗑 Eliminar
+                        </a>
+                    </div>
+                </div>
+            </th:block>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ SCRIPT FINAL -->
+<script>
+    // ✅ Mantener posición del scroll al recargar
+    window.addEventListener("beforeunload", () => sessionStorage.setItem("scrollY", window.scrollY));
+    window.addEventListener("load", () => {
+        const scrollY = sessionStorage.getItem("scrollY");
+        if (scrollY) window.scrollTo(0, parseInt(scrollY));
+    });
+
+    // ✅ Apagar aplicación (botón navbar)
+    document.getElementById("shutdownBtn").addEventListener("click", function () {
+        if (confirm("¿Deseas cerrar la aplicación?")) {
+            fetch("/shutdown", { method: "POST" })
+                .then(() => alert("Aplicación apagándose..."))
+                .catch((error) => alert("Error al apagar: " + error));
+        }
+    });
+
+    // ✅ Selección múltiple y eliminación
+    const selectAll = document.getElementById("selectAll");
+    const hiddenSelected = document.getElementById("hiddenSelected");
+    const formEliminar = hiddenSelected.closest("form");
+
+    selectAll.addEventListener("change", function () {
+        document.querySelectorAll(".select-item").forEach(cb => cb.checked = this.checked);
+    });
+
+    formEliminar.addEventListener("submit", function (e) {
+        hiddenSelected.innerHTML = "";
+        document.querySelectorAll(".select-item:checked").forEach(cb => {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "selectedIds";
+            input.value = cb.dataset.id;
+            hiddenSelected.appendChild(input);
+        });
+        if (!hiddenSelected.children.length) {
+            e.preventDefault();
+            alert("No hay elementos seleccionados para eliminar.");
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Hojas de Vida</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo" href="/consultar">[Logo]</div>
+    <div class="app-name" href="/consultar">MiHoja</div>
+    <div class="nav-links">
+        <a href="/consultar">Consultar</a>
+        <a class="active" href="/insertar">Insertar</a>
+    </div>
+</div>
+
+<!-- Mensajes desde controlador -->
+<div th:if="${mensajeExito}" class="mensaje exito" th:text="${mensajeExito}"></div>
+<div th:if="${mensajeError}" class="mensaje error" th:text="${mensajeError}"></div>
+
+<!-- Botón flotante para subir archivo -->
+<button type="button" class="archivo-btn" onclick="document.getElementById('archivo').click()">Insertar desde archivo</button>
+<input type="file" id="archivo" name="archivo" accept=".xlsx" style="display:none" onchange="subirArchivo()">
+
+<!-- Formulario principal -->
+<form id="formulario-insercion" method="post" action="/api/insertar">
+    <div class="form-container">
+
+        <!-- DATOS PERSONALES COMPLETOS -->
+        
+        <div class="form-group"><label for="nombres">Nombres</label><input type="text" id="nombres" name="nombres" required></div>
+        <div class="form-group"><label for="apellidos">Apellidos</label><input type="text" id="apellidos" name="apellidos" required></div>
+        <div class="form-group"><label for="cedula">Cedula</label><input type="text" id="cedula" name="cedula" required></div>
+        <div class="form-group"><label for="lugarExpedicion">Lugar de Expedicion</label><input type="text" id="lugarExpedicion" name="lugarExpedicion"></div>
+        <div class="form-group"><label for="fechaNacimiento">Fecha de Nacimiento</label><input type="date" id="fechaNacimiento" name="fechaNacimiento"></div>
+        <div class="form-group"><label for="formacionAcademica">Formacion Academica</label><input type="text" id="formacionAcademica" name="formacionAcademica"></div>
+        <div class="form-group"><label for="codigo">Codigo</label><input type="text" id="codigo" name="codigo"></div>
+        <div class="form-group"><label for="grado">Grado</label><input type="text" id="grado" name="grado"></div>
+        <div class="form-group"><label for="cargo">Cargo</label><input type="text" id="cargo" name="cargo"></div>
+        <div class="form-group"><label for="dependencia">Dependencia</label><input type="text" id="dependencia" name="dependencia"></div>
+        <div class="form-group"><label for="enlaceSigep">Enlace Sigep</label><input type="text" id="enlaceSigep" name="enlaceSigep"></div>
+        <div class="form-group"><label for="correoInstitucional">Correo</label><input type="email" id="correoInstitucional" name="correoInstitucional"></div>
+        <div class="form-group"><label for="telefonoInstitucional">Telefono</label><input type="text" id="telefonoInstitucional" name="telefonoInstitucional"></div>
+        <div class="form-group"><label for="direccion">Direccion</label><input type="text" id="direccion" name="direccion"></div>
+        <div class="form-group"><label for="sexo">Sexo</label><input type="text" id="sexo" name="sexo"></div>
+        <div class="form-group"><label for="titulo">Titulo</label><input type="text" id="titulo" name="titulo"></div>
+        <div class="form-group"><label for="mesesExperiencia">Meses de Experiencia</label><input type="number" id="mesesExperiencia" name="mesesExperiencia"></div>
+        <div class="form-group"><label for="medioTransporte">Medio de Transporte</label><input type="text" id="medioTransporte" name="medioTransporte"></div>
+        <div class="form-group"><label for="procedencia">Procedencia del Trabajador</label><input type="text" id="procedencia" name="procedencia"></div>
+        <div class="form-group"><label for="riesgo">Riesgo</label><input type="text" id="riesgo" name="riesgo"></div>
+        <div class="form-group"><label for="examen">Examen de Ingreso</label><input type="text" id="examen" name="examen"></div>
+        <div class="form-group"><label for="induccion">Induccion</label><input type="text" id="induccion" name="induccion"></div>
+        <div class="form-group"><label for="fechaIngreso">Fecha de Ingreso</label><input type="date" id="fechaIngreso" name="fechaIngreso"></div>
+        <div class="form-group"><label for="fechaEgreso">Fecha de Egreso</label><input type="date" id="fechaEgreso" name="fechaEgreso"></div>
+        <div class="form-group"><label for="dotacion">Dotacion</label><input type="text" id="dotacion" name="dotacion"></div>
+        <div class="form-group"><label for="arl">ARL</label><input type="text" id="arl" name="arl"></div>
+        <div class="form-group"><label for="eps">EPS</label><input type="text" id="eps" name="eps"></div>
+        <div class="form-group"><label for="afp">AFP</label><input type="text" id="afp" name="afp"></div>
+        <div class="form-group"><label for="ccf">CCF</label><input type="text" id="ccf" name="ccf"></div>
+        <div class="form-group"><label for="rh">RH</label><input type="text" id="rh" name="rh"></div>
+        <div class="form-group">
+            <label for="carnetVacunacion">Carnet de Vacunacion</label>
+            <select id="carnetVacunacion" name="carnetVacunacion">
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="form-group"><label for="enfermedades">Enfermedades</label><textarea id="enfermedades" name="enfermedades"></textarea></div>
+        <div class="form-group"><label for="alergias">Alergias</label><textarea id="alergias" name="alergias"></textarea></div>
+        <div class="form-group"><label for="medicamentos">Medicamentos</label><textarea id="medicamentos" name="medicamentos"></textarea></div>
+        <div class="form-group"><label for="fechaFirmaContrato">Fecha de Firma de Contrato</label><input type="date" id="fechaFirmaContrato" name="fechaFirmaContrato"></div>
+        <div class="form-group"><label for="nombreEmergencia">En caso de Emergencia llamar a:</label><input type="text" id="nombreEmergencia" name="nombreEmergencia"></div>
+        <div class="form-group"><label for="parentesco">Parentesco</label><input type="text" id="parentesco" name="parentesco"></div>
+        <div class="form-group"><label for="telefonoEmergencia">Numero telefonico del contacto</label><input type="text" id="telefonoEmergencia" name="telefonoEmergencia"></div>
+
+    </div>
+
+    <button type="submit" class="submit-btn">Insertar</button>
+</form>
+
+<!-- Mensaje flotante -->
+<div id="mensaje" class="mensaje" style="display:none"></div>
+
+<script>
+    async function subirArchivo() {
+        const input = document.getElementById('archivo');
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/insertar/archivo', {
+            method: 'POST',
+            body: formData
+        });
+
+        const mensaje = document.getElementById('mensaje');
+        if (response.ok) {
+            mostrarMensaje('Archivo cargado exitosamente.', true);
+        } else {
+            mostrarMensaje('Error al cargar el archivo.', false);
+        }
+        input.value = '';
+    }
+
+    function mostrarMensaje(texto, exito) {
+        const mensaje = document.getElementById('mensaje');
+        mensaje.textContent = texto;
+        mensaje.className = 'mensaje ' + (exito ? 'exito' : 'error');
+        mensaje.style.display = 'block';
+        setTimeout(() => mensaje.style.display = 'none', 4000);
+    }
+</script>
+
+</body>
+</html>
