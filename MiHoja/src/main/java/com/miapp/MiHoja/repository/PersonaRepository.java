@@ -12,13 +12,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-
-
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
-
-    
     // Búsqueda parcial por nombre
     List<Persona> findByNombresContainingIgnoreCase(String nombres);
 
@@ -57,23 +53,23 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
     @Query("UPDATE Persona p SET p.numero = p.numero - 1 WHERE p.numero > :numeroEliminado")
     void decrementarNumerosPosteriores(@Param("numeroEliminado") int numeroEliminado);
 
-    // Cargar persona con todas las relaciones importantes (incluye medicamentos de enfermedades)
+        // ✅ Cargar persona con todas las relaciones importantes
     @EntityGraph(attributePaths = {
-        "formaciones",
-        "contactosEmergencia",
-        "riesgoProcedencias",
-        "registrosSalud",
-        "alergias",
-        "enfermedades",
-        "enfermedades.medicamentos",
-        "cargosLaborales",
-        "cargosLaborales.cargo",
-        "cargosLaborales.induccionesExamen"
+            "formaciones",
+            "contactosEmergencia",
+            "riesgoProcedencias",
+            "registrosSalud",
+            "alergias",
+            "enfermedades",
+            "enfermedades.medicamentos",
+            "cargosLaborales",
+            "cargosLaborales.cargo",
+            "cargosLaborales.induccionesExamen"
     })
     @Query("SELECT p FROM Persona p WHERE p.id = :id")
     Optional<Persona> findByIdWithAllRelations(@Param("id") Long id);
 
-    // ✅ Consulta personalizada de personas con su cargo más reciente + todos los campos necesarios para filtros
+        // ✅ Consulta personalizada de personas con su cargo más reciente + todos los campos necesarios
     @Query(value = """
         SELECT 
             p.n AS id,
@@ -87,15 +83,86 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             p.correo_institucional AS correoInstitucional,
             p.telefono_institucional AS telefonoInstitucional,
             p.enlace_sigep AS enlaceSigep,
+
+            -- ✅ Cargo más reciente
             cl.cargo AS cargo,
-            cl.dependencia AS dependencia
+            cl.dependencia AS dependencia,
+
+            -- ✅ Formación (última)
+            f.formacion_academica AS formacion,
+            f.grado AS grado,
+
+            -- ✅ Salud
+            s.rh AS rh,
+            s.eps AS eps,
+            s.afp AS afp,
+            s.dotacion AS dotacion,
+            CASE 
+                WHEN s.carnet_vacunacion = TRUE THEN 'SI'
+                ELSE 'NO'
+            END AS carnetVacunacion,
+
+            -- ✅ Riesgo y procedencia
+            rp.riesgo AS riesgo,
+            rp.medio_transporte AS medioTransporte,
+            rp.procedencia_trabajador AS procedencia,
+
+            -- ✅ Inducción y examen
+            CASE 
+                WHEN ie.induccion = TRUE THEN 'SI'
+                ELSE 'NO'
+            END AS induccion,
+            CASE 
+                WHEN ie.examen_ingreso = TRUE THEN 'SI'
+                ELSE 'NO'
+            END AS examen,
+
+            -- ✅ Meses de experiencia
+            pcl.meses_experiencia AS mesesExperiencia
+
         FROM persona p
-        LEFT JOIN (
+
+        -- Último cargo (LATERAL)
+        LEFT JOIN LATERAL (
             SELECT DISTINCT ON (persona_id) *
             FROM persona_cargo_laboral
+            WHERE persona_id = p.n
             ORDER BY persona_id, fecha_ingreso DESC NULLS LAST, id_pcl DESC
-        ) pcl ON p.n = pcl.persona_id
+        ) pcl ON TRUE
+
         LEFT JOIN cargo_laboral cl ON pcl.cargo_id = cl.id_cargo
-    """, nativeQuery = true)
+
+        -- Última formación (LATERAL)
+        LEFT JOIN LATERAL (
+            SELECT DISTINCT ON (n) *
+            FROM formacion
+            WHERE n = p.n
+            ORDER BY n, id_formacion DESC
+        ) f ON TRUE
+
+        -- Última salud (LATERAL)
+        LEFT JOIN LATERAL (
+            SELECT DISTINCT ON (n) *
+            FROM salud
+            WHERE n = p.n
+            ORDER BY n, id_salud DESC
+        ) s ON TRUE
+
+        -- Último riesgo (LATERAL)
+        LEFT JOIN LATERAL (
+            SELECT DISTINCT ON (n) *
+            FROM riesgo_procedencia
+            WHERE n = p.n
+            ORDER BY n, id_riesgo DESC
+        ) rp ON TRUE
+
+        -- Última inducción/examen (LATERAL)
+        LEFT JOIN LATERAL (
+            SELECT DISTINCT ON (persona_cargo_id) *
+            FROM induccion_examen
+            WHERE persona_cargo_id = pcl.id_pcl
+            ORDER BY persona_cargo_id, id_induccion DESC
+        ) ie ON TRUE
+        """, nativeQuery = true)
     List<PersonaConCargo> consultarPersonasConCargo();
 }

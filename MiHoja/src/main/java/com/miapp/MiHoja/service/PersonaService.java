@@ -103,6 +103,38 @@ public class PersonaService {
         }
     }
 
+
+    // ✅ Guardar persona (usando guardarConNumero internamente)
+@Transactional
+public Persona guardarPersona(Persona persona) {
+    return guardarConNumero(persona);
+}
+
+// ✅ Actualizar persona
+@Transactional
+public void actualizarPersona(Long id, Persona personaActualizada) {
+    Persona personaExistente = personaRepository.findById(id).orElse(null);
+
+    if (personaExistente != null) {
+        personaExistente.setNombres(personaActualizada.getNombres());
+        personaExistente.setApellidos(personaActualizada.getApellidos());
+        personaExistente.setCedula(personaActualizada.getCedula());
+        personaExistente.setLugarExpedicion(personaActualizada.getLugarExpedicion());
+        personaExistente.setDireccion(personaActualizada.getDireccion());
+        personaExistente.setSexo(personaActualizada.getSexo());
+        personaExistente.setCorreoInstitucional(personaActualizada.getCorreoInstitucional());
+        personaExistente.setTelefonoInstitucional(personaActualizada.getTelefonoInstitucional());
+        personaExistente.setEnlaceSigep(personaActualizada.getEnlaceSigep());
+        personaExistente.setNumero(personaActualizada.getNumero());
+        // ✅ Si tienes más campos, agrégalos aquí
+
+        personaRepository.save(personaExistente);
+    } else {
+        throw new RuntimeException("No se encontró la persona con ID: " + id);
+    }
+}
+
+
     // Obtener o crear cargo laboral
     @Transactional
     public CargoLaboral obtenerOCrearCargo(String cargo, String codigo, String dependencia) {

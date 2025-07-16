@@ -25,7 +25,7 @@
             <h2 class="filtro-titulo">Filtrar por:</h2>
             <hr class="linea-divisoria">
 
-                        <!-- ✅ SEXO -->
+            <!-- ✅ SEXO -->
             <div class="filtro-seccion">
                 <h4>Sexo:</h4>
                 <label><input type="checkbox" name="sexo" value="M" th:checked="${sexo != null and sexo.contains('M')}"> M</label><br>
@@ -86,9 +86,10 @@
                 <label><input type="checkbox" name="cargo" value="AGENTE DE TRANSITO" th:checked="${cargo != null and cargo.contains('AGENTE DE TRANSITO')}"> Agente de Tránsito</label><br>
                 <button type="submit" class="btn-filtro">Aplicar Filtro</button>
             </div>
-            <hr class="linea-divisoria">
 
-                        <!-- ✅ DEPENDENCIA -->
+                        <hr class="linea-divisoria">
+
+            <!-- ✅ DEPENDENCIA -->
             <div class="filtro-seccion">
                 <h4>Dependencia:</h4>
                 <label><input type="checkbox" name="dependencia" value="SECRETARIA GENERAL Y DE GOBIERNO" th:checked="${dependencia != null and dependencia.contains('SECRETARIA GENERAL Y DE GOBIERNO')}"> Secretaría General y de Gobierno</label><br>
@@ -199,7 +200,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ MESES DE EXPERIENCIA -->
+                        <!-- ✅ MESES DE EXPERIENCIA -->
             <div class="filtro-seccion">
                 <h4>Meses de Experiencia:</h4>
                 <label><input type="checkbox" name="mesesExperiencia" value="0-12" th:checked="${mesesExperiencia != null and mesesExperiencia.contains('0-12')}"> 0-12</label><br>
@@ -221,7 +222,7 @@
         </form>
     </div>
 
-        <!-- ✅ CONTENIDO PRINCIPAL (LISTADO DE HOJAS DE VIDA) -->
+    <!-- ✅ CONTENIDO PRINCIPAL (LISTADO DE HOJAS DE VIDA) -->
     <div class="content">
         <!-- 🔍 BUSCADOR POR NOMBRE -->
         <form method="get" action="/consultar">

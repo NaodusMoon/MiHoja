@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- ✅ NAVBAR -->
 <div class="navbar">
     <div class="logo" href="/consultar">[Logo]</div>
     <div class="app-name" href="/consultar">MiHoja</div>
@@ -17,13 +17,16 @@
     </div>
 </div>
 
-<!-- Acciones superiores -->
+<!-- ✅ ACCIONES SUPERIORES -->
 <div class="acciones-superiores">
+    <!-- 🔙 Botón para regresar manteniendo todos los filtros -->
     <div>
-        <a th:href="@{/consultar(nombre=${param.nombre}, formacion=${param.formacion}, grado=${param.grado}, cargo=${param.cargo}, dependencia=${param.dependencia})}">
+        <a th:href="@{'/consultar?' + ${filtrosQuery}}">
             <button class="cerrar-btn">X</button>
         </a>
     </div>
+
+    <!-- 📥 Menú de descarga -->
     <div th:if="${persona != null}">
         <button class="descargar-btn" onclick="toggleMenu()">Descargar</button>
         <div class="descargar-menu" id="menuDescarga" style="display:none;">
@@ -34,69 +37,137 @@
     </div>
 </div>
 
-<!-- Datos de la persona -->
+<!-- ✅ DATOS DE LA PERSONA -->
 <div class="datos-container" th:if="${persona != null}">
     <div class="fila">
-        <div class="dato"><label>N°</label><div class="valor" th:text="${persona.numero}"></div></div>
-        <div class="dato"><label>Nombres</label><div class="valor" th:text="${persona.nombres}"></div></div>
-        <div class="dato"><label>Apellidos</label><div class="valor" th:text="${persona.apellidos}"></div></div>
+        <div class="dato"><label>N°</label>
+            <div class="valor" th:text="${persona.numero}"></div>
+        </div>
+        <div class="dato"><label>Nombres</label>
+            <div class="valor" th:text="${persona.nombres}"></div>
+        </div>
+        <div class="dato"><label>Apellidos</label>
+            <div class="valor" th:text="${persona.apellidos}"></div>
+        </div>
     </div>
 
     <div class="fila">
-        <div class="dato"><label>Cédula</label><div class="valor" th:text="${persona.cedula}"></div></div>
-        <div class="dato"><label>Lugar de Expedición</label><div class="valor" th:text="${persona.lugarExpedicion}"></div></div>
-        <div class="dato"><label>Fecha de Nacimiento</label><div class="valor" th:text="${persona.fechaNacimiento}"></div></div>
+        <div class="dato"><label>Cédula</label>
+            <div class="valor" th:text="${persona.cedula}"></div>
+        </div>
+        <div class="dato"><label>Lugar de Expedición</label>
+            <div class="valor" th:text="${persona.lugarExpedicion}"></div>
+        </div>
+        <div class="dato"><label>Fecha de Nacimiento</label>
+            <div class="valor" th:text="${persona.fechaNacimiento}"></div>
+        </div>
+    </div>
+
+        <div class="fila">
+        <div class="dato"><label>Dirección</label>
+            <div class="valor" th:text="${persona.direccion}"></div>
+        </div>
+        <div class="dato"><label>Sexo</label>
+            <div class="valor" th:text="${persona.sexo}"></div>
+        </div>
+        <div class="dato"><label>Correo Institucional</label>
+            <div class="valor" th:text="${persona.correoInstitucional}"></div>
+        </div>
     </div>
 
     <div class="fila">
-        <div class="dato"><label>Dirección</label><div class="valor" th:text="${persona.direccion}"></div></div>
-        <div class="dato"><label>Sexo</label><div class="valor" th:text="${persona.sexo}"></div></div>
-        <div class="dato"><label>Correo Institucional</label><div class="valor" th:text="${persona.correoInstitucional}"></div></div>
+        <div class="dato"><label>Teléfono</label>
+            <div class="valor" th:text="${persona.telefonoInstitucional}"></div>
+        </div>
+        <div class="dato" th:if="${formacion != null}">
+            <label>Formación Académica</label>
+            <div class="valor" th:text="${formacion.formacionAcademica}"></div>
+        </div>
+        <div class="dato" th:if="${formacion != null}">
+            <label>Grado</label>
+            <div class="valor" th:text="${formacion.grado}"></div>
+        </div>
     </div>
 
     <div class="fila">
-        <div class="dato"><label>Teléfono</label><div class="valor" th:text="${persona.telefonoInstitucional}"></div></div>
-        <div class="dato" th:if="${formacion != null}"><label>Formación Académica</label><div class="valor" th:text="${formacion.formacionAcademica}"></div></div>
-        <div class="dato" th:if="${formacion != null}"><label>Grado</label><div class="valor" th:text="${formacion.grado}"></div></div>
+        <div class="dato" th:if="${formacion != null}">
+            <label>Título</label>
+            <div class="valor" th:text="${formacion.titulo}"></div>
+        </div>
+        <div class="dato" th:if="${cargoLaboral != null}">
+            <label>Código</label>
+            <div class="valor" th:text="${cargoLaboral.codigo}"></div>
+        </div>
+        <div class="dato" th:if="${cargoLaboral != null}">
+            <label>Cargo</label>
+            <div class="valor" th:text="${cargoLaboral.cargo}"></div>
+        </div>
     </div>
 
     <div class="fila">
-        <div class="dato" th:if="${formacion != null}"><label>Título</label><div class="valor" th:text="${formacion.titulo}"></div></div>
-        <div class="dato" th:if="${cargoLaboral != null}"><label>Código</label><div class="valor" th:text="${cargoLaboral.codigo}"></div></div>
-        <div class="dato" th:if="${cargoLaboral != null}"><label>Cargo</label><div class="valor" th:text="${cargoLaboral.cargo}"></div></div>
+        <div class="dato" th:if="${cargoLaboral != null}">
+            <label>Dependencia</label>
+            <div class="valor" th:text="${cargoLaboral.dependencia}"></div>
+        </div>
+        <div class="dato" th:if="${pcl != null}">
+            <label>Meses de Experiencia</label>
+            <div class="valor" th:text="${pcl.mesesExperiencia}"></div>
+        </div>
+        <div class="dato" th:if="${pcl != null}">
+            <label>Fecha de Ingreso</label>
+            <div class="valor" th:text="${pcl.fechaIngreso}"></div>
+        </div>
     </div>
 
     <div class="fila">
-        <div class="dato" th:if="${cargoLaboral != null}"><label>Dependencia</label><div class="valor" th:text="${cargoLaboral.dependencia}"></div></div>
-        <div class="dato" th:if="${pcl != null}"><label>Meses de Experiencia</label><div class="valor" th:text="${pcl.mesesExperiencia}"></div></div>
-        <div class="dato" th:if="${pcl != null}"><label>Fecha de Ingreso</label><div class="valor" th:text="${pcl.fechaIngreso}"></div></div>
-    </div>
-
-    <div class="fila">
-        <div class="dato" th:if="${induccionExamen != null}"><label>Fecha de Egreso</label><div class="valor" th:text="${induccionExamen.fechaEgreso}"></div></div>
-        <div class="dato" th:if="${pcl != null}"><label>Fecha de Firma de Contrato</label><div class="valor" th:text="${pcl.fechaFirmaContrato}"></div></div>
-        <div class="dato"><label>Enlace SIGEP</label>
+        <div class="dato" th:if="${induccionExamen != null}">
+            <label>Fecha de Egreso</label>
+            <div class="valor" th:text="${induccionExamen.fechaEgreso}"></div>
+        </div>
+        <div class="dato" th:if="${pcl != null}">
+            <label>Fecha de Firma de Contrato</label>
+            <div class="valor" th:text="${pcl.fechaFirmaContrato}"></div>
+        </div>
+        <div class="dato">
+            <label>Enlace SIGEP</label>
             <div class="valor">
-                <a th:if="${#strings.contains(persona.enlaceSigep, 'http')}" th:href="${persona.enlaceSigep}" target="_blank" style="color:blue;" th:text="${persona.enlaceSigep}"></a>
-                <span th:unless="${#strings.contains(persona.enlaceSigep, 'http')}" th:text="${persona.enlaceSigep}"></span>
+                <a th:if="${#strings.contains(persona.enlaceSigep, 'http')}"
+                   th:href="${persona.enlaceSigep}" target="_blank" style="color:blue;"
+                   th:text="${persona.enlaceSigep}"></a>
+                <span th:unless="${#strings.contains(persona.enlaceSigep, 'http')}"
+                      th:text="${persona.enlaceSigep}"></span>
             </div>
         </div>
     </div>
 
     <div class="fila" th:if="${salud != null}">
-        <div class="dato"><label>Dotación</label><div class="valor" th:text="${salud.dotacion}"></div></div>
-        <div class="dato"><label>ARL</label><div class="valor" th:text="${salud.arl}"></div></div>
-        <div class="dato"><label>EPS</label><div class="valor" th:text="${salud.eps}"></div></div>
+        <div class="dato"><label>Dotación</label>
+            <div class="valor" th:text="${salud.dotacion}"></div>
+        </div>
+        <div class="dato"><label>ARL</label>
+            <div class="valor" th:text="${salud.arl}"></div>
+        </div>
+        <div class="dato"><label>EPS</label>
+            <div class="valor" th:text="${salud.eps}"></div>
+        </div>
     </div>
 
     <div class="fila" th:if="${salud != null}">
-        <div class="dato"><label>AFP</label><div class="valor" th:text="${salud.afp}"></div></div>
-        <div class="dato"><label>CCF</label><div class="valor" th:text="${salud.ccf}"></div></div>
-        <div class="dato"><label>RH</label><div class="valor" th:text="${salud.rh}"></div></div>
+        <div class="dato"><label>AFP</label>
+            <div class="valor" th:text="${salud.afp}"></div>
+        </div>
+        <div class="dato"><label>CCF</label>
+            <div class="valor" th:text="${salud.ccf}"></div>
+        </div>
+        <div class="dato"><label>RH</label>
+            <div class="valor" th:text="${salud.rh}"></div>
+        </div>
     </div>
 
-    <div class="fila" th:if="${salud != null}">
-        <div class="dato"><label>Carnet de Vacunación</label><div class="valor" th:text="${salud.carnetVacunacion ? 'Sí' : 'No'}"></div></div>
+        <div class="fila" th:if="${salud != null}">
+        <div class="dato"><label>Carnet de Vacunación</label>
+            <div class="valor" th:text="${salud.carnetVacunacion ? 'Sí' : 'No'}"></div>
+        </div>
         <div class="dato"><label>Enfermedades</label>
             <div class="valor">
                 <ul th:if="${enfermedades != null and !enfermedades.isEmpty()}">
@@ -124,29 +195,64 @@
                 <span th:if="${medicamentos == null or medicamentos.isEmpty()}">N/A</span>
             </div>
         </div>
-        <div class="dato" th:if="${induccionExamen != null}"><label>Examen de Ingreso</label><div class="valor" th:text="${induccionExamen.examenIngreso}"></div></div>
-        <div class="dato" th:if="${induccionExamen != null}"><label>Inducción</label><div class="valor" th:text="${induccionExamen.induccion}"></div></div>
+        <div class="dato" th:if="${induccionExamen != null}">
+            <label>Examen de Ingreso</label>
+            <div class="valor" th:text="${induccionExamen.examenIngreso}"></div>
+        </div>
+        <div class="dato" th:if="${induccionExamen != null}">
+            <label>Inducción</label>
+            <div class="valor" th:text="${induccionExamen.induccion}"></div>
+        </div>
     </div>
 
     <div class="fila" th:if="${riesgoProcedencia != null}">
-        <div class="dato"><label>Medio de Transporte</label><div class="valor" th:text="${riesgoProcedencia.medioTransporte}"></div></div>
-        <div class="dato"><label>Procedencia del Trabajador</label><div class="valor" th:text="${riesgoProcedencia.procedenciaTrabajador}"></div></div>
-        <div class="dato"><label>Riesgo</label><div class="valor" th:text="${riesgoProcedencia.riesgo}"></div></div>
+        <div class="dato">
+            <label>Medio de Transporte</label>
+            <div class="valor" th:text="${riesgoProcedencia.medioTransporte}"></div>
+        </div>
+        <div class="dato">
+            <label>Procedencia del Trabajador</label>
+            <div class="valor" th:text="${riesgoProcedencia.procedenciaTrabajador}"></div>
+        </div>
+        <div class="dato">
+            <label>Riesgo</label>
+            <div class="valor" th:text="${riesgoProcedencia.riesgo}"></div>
+        </div>
     </div>
 
     <div class="fila" th:if="${contactoEmergencia != null}">
-        <div class="dato"><label>En caso de Emergencia llamar a:</label><div class="valor" th:text="${contactoEmergencia.nombreContactoEmergencia}"></div></div>
-        <div class="dato"><label>Parentesco</label><div class="valor" th:text="${contactoEmergencia.parentesco}"></div></div>
-        <div class="dato"><label>Teléfono del Contacto</label><div class="valor" th:text="${contactoEmergencia.telefonoContactoEmergencia}"></div></div>
+        <div class="dato">
+            <label>En caso de Emergencia llamar a:</label>
+            <div class="valor" th:text="${contactoEmergencia.nombreContactoEmergencia}"></div>
+        </div>
+        <div class="dato">
+            <label>Parentesco</label>
+            <div class="valor" th:text="${contactoEmergencia.parentesco}"></div>
+        </div>
+        <div class="dato">
+            <label>Teléfono del Contacto</label>
+            <div class="valor" th:text="${contactoEmergencia.telefonoContactoEmergencia}"></div>
+        </div>
     </div>
 </div>
 
-<!-- No encontrada -->
+<!-- ✅ MENSAJE SI NO SE ENCUENTRA -->
 <div th:if="${persona == null}" style="padding: 2rem; text-align: center;">
     <h2 style="color: red;">No se encontró la hoja de vida solicitada.</h2>
-    <a th:href="@{/consultar(nombre=${param.nombre}, formacion=${param.formacion}, grado=${param.grado}, cargo=${param.cargo}, dependencia=${param.dependencia})}">Volver a la búsqueda</a>
+    <a th:href="@{/consultar(
+        nombre=${param.nombre},
+        formacion=${param.formacion},
+        grado=${param.grado},
+        cargo=${param.cargo},
+        dependencia=${param.dependencia},
+        mesesExperiencia=${param.mesesExperiencia},
+        dotacion=${param.dotacion}
+    )}">
+        Volver a la búsqueda
+    </a>
 </div>
 
+<!-- ✅ SCRIPT PARA DESCARGA -->
 <script>
     function toggleMenu() {
         const menu = document.getElementById("menuDescarga");
