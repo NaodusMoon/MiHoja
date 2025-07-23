@@ -9,13 +9,33 @@
 
 <!-- ✅ NAVBAR -->
 <div class="navbar">
-    <div class="logo" href="/consultar">[Logo]</div>
-    <div class="app-name" href="/consultar">MiHoja</div>
+    <a class="logo"
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
+        [Logo]
+    </a>
+
+    <a class="app-name"
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
+        MiHoja
+    </a>
+
     <div class="nav-links">
-        <a class="active" href="/consultar">Consultar</a>
-        <a href="/insertar">Insertar</a>
+        <a th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}"
+           th:classappend="${paginaActual == 'consultar'} ? ' active'">
+            Consultar
+        </a>
+
+        <a th:href="${#strings.isEmpty(filtrosQuery)} ? @{/insertar} : '/insertar?' + ${filtrosQuery}"
+           th:classappend="${paginaActual == 'insertar'} ? ' active'">
+            Insertar
+        </a>
     </div>
+
+    <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
 </div>
+
+
+
 
 <!-- ✅ ACCIONES SUPERIORES -->
 <div class="acciones-superiores">

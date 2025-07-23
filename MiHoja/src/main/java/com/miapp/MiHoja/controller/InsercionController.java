@@ -176,172 +176,206 @@ public class InsercionController {
         return "redirect:/insertar";
     }
 
-        @PostMapping(value = "/insertar/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") MultipartFile file) {
-        try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            Row headerRow = sheet.getRow(0);
-            Map<String, Integer> colIndex = mapearColumnasConJaroWinkler(headerRow);
+       @PostMapping(value = "/insertar/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") MultipartFile file) {
+    try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row headerRow = sheet.getRow(0);
+        Map<String, Integer> colIndex = mapearColumnasConJaroWinkler(headerRow);
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null || esFilaVacia(row)) continue;
+        // ✅ Log para ver qué columnas fueron mapeadas
+        System.out.println("📌 Mapeo detectado: " + colIndex);
 
+        // ✅ 1. PRIMERO: Guardar solo personas
+        List<Persona> personasLote = new ArrayList<>();
 
-                Persona persona = new Persona();
-                persona.setNombres(getCellValue(row, colIndex.get("nombres")));
-                persona.setApellidos(getCellValue(row, colIndex.get("apellidos")));
-                persona.setCedula(getCellValue(row, colIndex.get("cedula")));
-                persona.setLugarExpedicion(getCellValue(row, colIndex.get("lugarExpedicion")));
-                persona.setFechaNacimiento(parseFecha(getCellValue(row, colIndex.get("fechaNacimiento"))));
-                persona.setDireccion(getCellValue(row, colIndex.get("direccion")));
-                persona.setSexo(getCellValue(row, colIndex.get("sexo")));
-                persona.setNumero(parseInteger(getCellValue(row, colIndex.get("numero"))));
-                persona.setCorreoInstitucional(getCellValue(row, colIndex.get("correoInstitucional")));
-                persona.setTelefonoInstitucional(getCellValue(row, colIndex.get("telefonoInstitucional")));
-                persona.setEnlaceSigep(getCellValue(row, colIndex.get("enlaceSigep")));
-                personaService.guardarConNumero(persona);
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null || esFilaVacia(row)) continue;
 
-                // Formación
-                Formacion formacion = new Formacion();
-                formacion.setPersona(persona);
-                formacion.setFormacionAcademica(getCellValue(row, colIndex.get("formacionAcademica")));
-                formacion.setGrado(getCellValue(row, colIndex.get("grado")));
-                formacion.setTitulo(getCellValue(row, colIndex.get("titulo")));
-                personaService.guardarFormacion(formacion);
+            Persona persona = new Persona();
+            persona.setNombres(getCellValue(row, colIndex.get("nombres")));
+            persona.setApellidos(getCellValue(row, colIndex.get("apellidos")));
 
-                // Cargo laboral
-                CargoLaboral cargo = personaService.obtenerOCrearCargo(
+            String cedulaExcel = getCellValue(row, colIndex.get("cedula"));
+            if (cedulaExcel == null || cedulaExcel.trim().isEmpty() || cedulaExcel.equalsIgnoreCase("NO DISPONIBLE")) {
+                persona.setCedula("NO DISPONIBLE_" + UUID.randomUUID().toString().substring(0, 8));
+            } else {
+                persona.setCedula(cedulaExcel.trim());
+            }
+
+            persona.setLugarExpedicion(getCellValue(row, colIndex.get("lugarExpedicion")));
+            persona.setFechaNacimiento(parseFecha(getCellValue(row, colIndex.get("fechaNacimiento"))));
+            persona.setDireccion(getCellValue(row, colIndex.get("direccion")));
+            persona.setSexo(getCellValue(row, colIndex.get("sexo")));
+            persona.setNumero(parseInteger(getCellValue(row, colIndex.get("numero"))));
+            persona.setCorreoInstitucional(getCellValue(row, colIndex.get("correoInstitucional")));
+            persona.setTelefonoInstitucional(getCellValue(row, colIndex.get("telefonoInstitucional")));
+            persona.setEnlaceSigep(getCellValue(row, colIndex.get("enlaceSigep")));
+
+            personasLote.add(persona);
+        }
+
+        // ✅ Guardar personas primero para que tengan N e ID generados
+        personasLote = personaService.guardarPersonasEnLote(personasLote);
+
+        // ✅ Reordenar números para asegurar N consecutivos y sin huecos
+        personaService.reordenarNumeros();
+
+        // ✅ 2. SEGUNDO: Crear relaciones usando personas ya persistidas (con N asignado)
+        List<Formacion> formacionesLote = new ArrayList<>();
+        List<PersonaCargoLaboral> cargosLote = new ArrayList<>();
+        List<InduccionExamen> induccionesLote = new ArrayList<>();
+        List<RiesgoProcedencia> riesgosLote = new ArrayList<>();
+        List<Salud> saludLote = new ArrayList<>();
+        List<ContactoEmergencia> contactosLote = new ArrayList<>();
+        List<Enfermedad> enfermedadesLote = new ArrayList<>();
+        List<Alergia> alergiasLote = new ArrayList<>();
+
+        // ✅ Nuevo índice sincronizado (evita el problema de filas vacías)
+        int indexPersona = 0;
+
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null || esFilaVacia(row)) continue;
+
+            Persona persona = personasLote.get(indexPersona);
+            indexPersona++; // ✅ Aumenta solo en filas válidas
+
+            System.out.println("📌 Persona guardada con N: " + persona.getNumero());
+
+            // Formación
+            Formacion formacion = new Formacion();
+            formacion.setPersona(persona);
+            formacion.setFormacionAcademica(getCellValue(row, colIndex.get("formacionAcademica")));
+            formacion.setGrado(getCellValue(row, colIndex.get("grado")));
+            formacion.setTitulo(getCellValue(row, colIndex.get("titulo")));
+            formacionesLote.add(formacion);
+
+            // Cargo
+            CargoLaboral cargo = personaService.obtenerOCrearCargo(
                     getCellValue(row, colIndex.get("cargo")),
                     getCellValue(row, colIndex.get("codigo")),
                     getCellValue(row, colIndex.get("dependencia"))
-                );
+            );
+            PersonaCargoLaboral pcl = new PersonaCargoLaboral();
+            pcl.setPersona(persona);
+            pcl.setCargo(cargo);
 
-                PersonaCargoLaboral pcl = new PersonaCargoLaboral();
-                pcl.setPersona(persona);
-                pcl.setCargo(cargo);
-                pcl.setFechaIngreso(parseFecha(getCellValue(row, colIndex.get("fechaIngreso"))));
-                pcl.setFechaFirmaContrato(parseFecha(getCellValue(row, colIndex.get("fechaFirmaContrato"))));
-                pcl.setMesesExperiencia(parseInteger(getCellValue(row, colIndex.get("mesesExperiencia"))));
-                personaService.guardarPersonaCargo(pcl);
+            // ✅ Log para depurar fechaFirmaContrato
+            String fechaFirmaRaw = getCellValue(row, colIndex.get("fechaFirmaContrato"));
+            LocalDate fechaFirmaParseada = parseFecha(fechaFirmaRaw);
+            System.out.println("📌 Fila " + i +
+                    " | Valor crudo Excel FechaFirmaContrato: '" + fechaFirmaRaw + "'" +
+                    " | Parseado: " + fechaFirmaParseada);
 
-                // Inducción y examen
-                InduccionExamen ie = new InduccionExamen();
-                ie.setPersonaCargoLaboral(pcl);
-                ie.setInduccion(Boolean.parseBoolean(getCellValue(row, colIndex.get("induccion"))));
-                ie.setExamenIngreso(Boolean.parseBoolean(getCellValue(row, colIndex.get("examen"))));
-                ie.setFechaEgreso(parseFecha(getCellValue(row, colIndex.get("fechaEgreso"))));
-                personaService.guardarInduccion(ie);
+            pcl.setFechaIngreso(parseFecha(getCellValue(row, colIndex.get("fechaIngreso"))));
+            pcl.setFechaFirmaContrato(fechaFirmaParseada);
+            pcl.setMesesExperiencia(parseInteger(getCellValue(row, colIndex.get("mesesExperiencia"))));
+            cargosLote.add(pcl);
 
-                // Riesgo y procedencia
-                RiesgoProcedencia rp = new RiesgoProcedencia();
-                rp.setPersona(persona);
-                rp.setRiesgo(getCellValue(row, colIndex.get("riesgo")));
-                rp.setMedioTransporte(getCellValue(row, colIndex.get("medioTransporte")));
-                rp.setProcedenciaTrabajador(getCellValue(row, colIndex.get("procedencia")));
-                personaService.guardarRiesgo(rp);
+            // Inducción
+            InduccionExamen ie = new InduccionExamen();
+            ie.setPersonaCargoLaboral(pcl);
+            ie.setInduccion(parseBooleanCustom(getCellValue(row, colIndex.get("induccion"))));
+            ie.setExamenIngreso(parseBooleanCustom(getCellValue(row, colIndex.get("examen"))));
+            ie.setFechaEgreso(parseFecha(getCellValue(row, colIndex.get("fechaEgreso"))));
+            induccionesLote.add(ie);
 
-                // Salud
-                Salud salud = new Salud();
-                salud.setPersona(persona);
-                salud.setDotacion(getCellValue(row, colIndex.get("dotacion")));
-                salud.setArl(getCellValue(row, colIndex.get("arl")));
-                salud.setEps(getCellValue(row, colIndex.get("eps")));
-                salud.setAfp(getCellValue(row, colIndex.get("afp")));
-                salud.setCcf(getCellValue(row, colIndex.get("ccf")));
-                salud.setRh(getCellValue(row, colIndex.get("rh")));
-                salud.setCarnetVacunacion(Boolean.parseBoolean(getCellValue(row, colIndex.get("carnetVacunacion"))));
-                personaService.guardarSalud(salud);
+            // Riesgo
+            RiesgoProcedencia rp = new RiesgoProcedencia();
+            rp.setPersona(persona);
+            rp.setRiesgo(getCellValue(row, colIndex.get("riesgo")));
+            rp.setMedioTransporte(getCellValue(row, colIndex.get("medioTransporte")));
+            rp.setProcedenciaTrabajador(getCellValue(row, colIndex.get("procedencia")));
+            riesgosLote.add(rp);
 
-                // Contacto emergencia
-                ContactoEmergencia contacto = new ContactoEmergencia();
-                contacto.setPersona(persona);
-                contacto.setNombreContactoEmergencia(getCellValue(row, colIndex.get("nombreEmergencia")));
-                contacto.setParentesco(getCellValue(row, colIndex.get("parentesco")));
-                contacto.setTelefonoContactoEmergencia(getCellValue(row, colIndex.get("telefonoEmergencia")));
-                personaService.guardarContactoEmergencia(contacto);
+            // Salud
+            Salud salud = new Salud();
+            salud.setPersona(persona);
+            salud.setDotacion(getCellValue(row, colIndex.get("dotacion")));
+            salud.setArl(getCellValue(row, colIndex.get("arl")));
+            salud.setEps(getCellValue(row, colIndex.get("eps")));
+            salud.setAfp(getCellValue(row, colIndex.get("afp")));
+            salud.setCcf(getCellValue(row, colIndex.get("ccf")));
+            salud.setRh(getCellValue(row, colIndex.get("rh")));
+            salud.setCarnetVacunacion(parseBooleanCustom(getCellValue(row, colIndex.get("carnetVacunacion"))));
+            saludLote.add(salud);
 
-                // === Enfermedades ===
-                Map<String, Enfermedad> mapaEnfermedades = new HashMap<>();
-                String enfermedadesRaw = getCellValue(row, colIndex.get("enfermedades"));
-                if (!enfermedadesRaw.isEmpty()) {
-                    Arrays.stream(enfermedadesRaw.split(",")).forEach(nombre -> {
-                        nombre = nombre.trim();
-                        if (!nombre.isEmpty()) {
-                            Enfermedad enf = new Enfermedad();
-                            enf.setPersona(persona);
-                            enf.setNombre(nombre);
-                            personaService.guardarEnfermedad(enf);
-                            mapaEnfermedades.put(nombre.toLowerCase(), enf);
-                        }
-                    });
-                }
+            // Contacto
+            ContactoEmergencia contacto = new ContactoEmergencia();
+            contacto.setPersona(persona);
+            contacto.setNombreContactoEmergencia(getCellValue(row, colIndex.get("nombreEmergencia")));
+            contacto.setParentesco(getCellValue(row, colIndex.get("parentesco")));
+            contacto.setTelefonoContactoEmergencia(getCellValue(row, colIndex.get("telefonoEmergencia")));
+            contactosLote.add(contacto);
 
-                // === Alergias ===
-                String alergiasRaw = getCellValue(row, colIndex.get("alergias"));
-                if (!alergiasRaw.isEmpty()) {
-                    Arrays.stream(alergiasRaw.split(",")).forEach(nombre -> {
-                        nombre = nombre.trim();
-                        if (!nombre.isEmpty()) {
-                            Alergia alergia = new Alergia();
-                            alergia.setPersona(persona);
-                            alergia.setNombre(nombre);
-                            personaService.guardarAlergia(alergia);
-                        }
-                    });
-                }
-
-                // === Medicamentos ===
-                String medicamentosRaw = getCellValue(row, colIndex.get("medicamentos"));
-                if (!medicamentosRaw.isEmpty()) {
-                    String[] entradas = medicamentosRaw.split(",");
-                    for (String entrada : entradas) {
-                        entrada = entrada.trim();
-                        if (entrada.contains(":")) {
-                            String[] partes = entrada.split(":", 2);
-                            String enfKey = partes[0].trim().toLowerCase();
-                            Enfermedad enf = mapaEnfermedades.get(enfKey);
-                            if (enf != null) {
-                                String[] meds = partes[1].split("\\|");
-                                for (String nomMed : meds) {
-                                    nomMed = nomMed.trim();
-                                    if (!nomMed.isEmpty()) {
-                                        Medicamento med = personaService.obtenerOCrearMedicamento(nomMed, persona);
-                                        personaService.asociarMedicamentoAEnfermedad(med, enf);
-                                    }
-                                }
-                            }
-                        } else {
-                            if (!entrada.isEmpty()) {
-                                Medicamento med = personaService.obtenerOCrearMedicamento(entrada, persona);
-                                if (mapaEnfermedades.size() == 1) {
-                                    Enfermedad unica = mapaEnfermedades.values().iterator().next();
-                                    personaService.asociarMedicamentoAEnfermedad(med, unica);
-                                } else {
-                                    Enfermedad generica = mapaEnfermedades.get("no especificada");
-                                    if (generica == null) {
-                                        generica = new Enfermedad();
-                                        generica.setPersona(persona);
-                                        generica.setNombre("No especificada");
-                                        personaService.guardarEnfermedad(generica);
-                                        mapaEnfermedades.put("no especificada", generica);
-                                    }
-                                    personaService.asociarMedicamentoAEnfermedad(med, generica);
-                                }
-                            }
-                        }
+            // Enfermedades
+            String enfermedadesRaw = getCellValue(row, colIndex.get("enfermedades"));
+            if (enfermedadesRaw != null && !enfermedadesRaw.isEmpty()) {
+                Arrays.stream(enfermedadesRaw.split(",")).forEach(nombre -> {
+                    nombre = nombre.trim();
+                    if (!nombre.isEmpty()) {
+                        Enfermedad enf = new Enfermedad();
+                        enf.setPersona(persona);
+                        enf.setNombre(nombre);
+                        enfermedadesLote.add(enf);
                     }
-                }
+                });
             }
 
-            return ResponseEntity.ok("✅ Archivo cargado e información insertada correctamente.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body("❌ Error al procesar el archivo Excel: " + e.getMessage());
+            // Alergias
+            String alergiasRaw = getCellValue(row, colIndex.get("alergias"));
+            if (alergiasRaw != null && !alergiasRaw.isEmpty()) {
+                Arrays.stream(alergiasRaw.split(",")).forEach(nombre -> {
+                    nombre = nombre.trim();
+                    if (!nombre.isEmpty()) {
+                        Alergia alergia = new Alergia();
+                        alergia.setPersona(persona);
+                        alergia.setNombre(nombre);
+                        alergiasLote.add(alergia);
+                    }
+                });
+            }
         }
+
+        // ✅ 3. Guardar todas las relaciones en lote
+        personaService.guardarFormacionesEnLote(formacionesLote);
+        personaService.guardarPersonaCargoEnLote(cargosLote);
+
+        // 🔥 AQUI ESTA UN LOG PARA VER QUE SE GUARDE EN LOTE FECHA FIRMACONTRATO
+cargosLote.forEach(c -> 
+    System.out.println("✅ Guardado en lote: " + 
+        c.getPersona().getCedula() + 
+        " | FechaFirmaContrato=" + c.getFechaFirmaContrato())
+);
+
+        personaService.guardarInduccionesEnLote(induccionesLote);
+        personaService.guardarRiesgosEnLote(riesgosLote);
+        personaService.guardarSaludEnLote(saludLote);
+        personaService.guardarContactosEnLote(contactosLote);
+        personaService.guardarEnfermedadesEnLote(enfermedadesLote);
+        personaService.guardarAlergiasEnLote(alergiasLote);
+
+        return ResponseEntity.ok("✅ Archivo cargado e información insertada en lote correctamente.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.internalServerError().body("❌ Error al procesar el archivo Excel: " + e.getMessage());
     }
+}
+
+
+
+
 
         // === MÉTODOS AUXILIARES ===
+
+        private boolean parseBooleanCustom(String valor) {
+    if (valor == null) return false;
+    valor = valor.trim().toLowerCase();
+    return valor.equals("true") || valor.equals("si") || valor.equals("sí") || valor.equals("1") || valor.equals("x");
+}
+
 
     private Map<String, Integer> mapearColumnasConJaroWinkler(Row headerRow) {
         Map<String, Integer> mapeo = new HashMap<>();
@@ -351,15 +385,16 @@ public class InsercionController {
             String valor = getCellValue(cell);
             String valorOriginal = valor.trim().toLowerCase(); // sin normalizar
             String normalizado = normalizarNombreColumna(valorOriginal);
-            double maxSimilitud = 0.80;
+            double maxSimilitud = 0.70;
             String campoEncontrado = null;
 
             // Buscar alias exactos primero
-            if (ALIAS_COLUMNAS.containsKey(valorOriginal)) {
-                campoEncontrado = ALIAS_COLUMNAS.get(valorOriginal);
-                mapeo.put(campoEncontrado, cell.getColumnIndex());
-                continue;
-            }
+            String normalizadoAlias = normalizarNombreColumna(valorOriginal);
+if (ALIAS_COLUMNAS.containsKey(valorOriginal) || ALIAS_COLUMNAS.containsKey(normalizadoAlias)) {
+    campoEncontrado = ALIAS_COLUMNAS.getOrDefault(valorOriginal, ALIAS_COLUMNAS.get(normalizadoAlias));
+    mapeo.put(campoEncontrado, cell.getColumnIndex());
+    continue;
+}
 
             // Comparar contra todos los campos esperados
             for (String campoEsperado : CAMPOS_ESPERADOS) {
@@ -385,20 +420,37 @@ public class InsercionController {
     }
 
     private String getCellValue(Cell cell) {
-        if (cell == null) return "";
-        DataFormatter formatter = new DataFormatter();
-        return formatter.formatCellValue(cell).trim();
+    if (cell == null) return "";
+
+    // ✅ Si es numérico y es fecha (Excel Date)
+    if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+        return cell.getLocalDateTimeCellValue().toLocalDate().toString(); // yyyy-MM-dd
     }
 
+    // ✅ Si es texto normal
+    DataFormatter formatter = new DataFormatter();
+    return formatter.formatCellValue(cell).trim();
+}
+
+
     private LocalDate parseFecha(String valor) {
-        if (valor == null || valor.trim().isEmpty()) return null;
-        for (DateTimeFormatter formato : FORMATOS_FECHA) {
-            try {
-                return LocalDate.parse(valor.trim(), formato);
-            } catch (DateTimeParseException ignored) {}
-        }
+    if (valor == null) return null;
+    valor = valor.trim();
+
+    // ✅ Ignorar valores explícitamente no válidos
+    if (valor.isEmpty() || valor.equalsIgnoreCase("NO DISPONIBLE") || valor.equalsIgnoreCase("SI")) {
         return null;
     }
+
+    for (DateTimeFormatter formato : FORMATOS_FECHA) {
+        try {
+            return LocalDate.parse(valor, formato);
+        } catch (DateTimeParseException ignored) {}
+    }
+
+    return null;
+}
+
 
     private Integer parseInteger(String valor) {
         try {

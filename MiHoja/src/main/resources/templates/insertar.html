@@ -4,18 +4,46 @@
     <meta charset="UTF-8">
     <title>Crear Hojas de Vida</title>
     <link rel="stylesheet" href="css/styles.css">
+    
 </head>
 <body>
 
 <!-- Navbar -->
 <div class="navbar">
-    <div class="logo" href="/consultar">[Logo]</div>
-    <div class="app-name" href="/consultar">MiHoja</div>
+    <a class="logo"
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
+        [Logo]
+    </a>
+
+    <a class="app-name"
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
+        MiHoja
+    </a>
+
     <div class="nav-links">
-        <a href="/consultar">Consultar</a>
-        <a class="active" href="/insertar">Insertar</a>
+        <a th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}"
+           th:classappend="${paginaActual == 'consultar'} ? ' active'">
+            Consultar
+        </a>
+
+        <a th:href="${#strings.isEmpty(filtrosQuery)} ? @{/insertar} : '/insertar?' + ${filtrosQuery}"
+           th:classappend="${paginaActual == 'insertar'} ? ' active'">
+            Insertar
+        </a>
     </div>
+
+    <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
 </div>
+
+
+
+
+
+
+
+
+
+
 
 <!-- Mensajes desde controlador -->
 <div th:if="${mensajeExito}" class="mensaje exito" th:text="${mensajeExito}"></div>
@@ -30,7 +58,6 @@
     <div class="form-container">
 
         <!-- DATOS PERSONALES COMPLETOS -->
-        
         <div class="form-group"><label for="nombres">Nombres</label><input type="text" id="nombres" name="nombres" required></div>
         <div class="form-group"><label for="apellidos">Apellidos</label><input type="text" id="apellidos" name="apellidos" required></div>
         <div class="form-group"><label for="cedula">Cedula</label><input type="text" id="cedula" name="cedula" required></div>
@@ -75,7 +102,6 @@
         <div class="form-group"><label for="nombreEmergencia">En caso de Emergencia llamar a:</label><input type="text" id="nombreEmergencia" name="nombreEmergencia"></div>
         <div class="form-group"><label for="parentesco">Parentesco</label><input type="text" id="parentesco" name="parentesco"></div>
         <div class="form-group"><label for="telefonoEmergencia">Numero telefonico del contacto</label><input type="text" id="telefonoEmergencia" name="telefonoEmergencia"></div>
-
     </div>
 
     <button type="submit" class="submit-btn">Insertar</button>
@@ -84,19 +110,30 @@
 <!-- Mensaje flotante -->
 <div id="mensaje" class="mensaje" style="display:none"></div>
 
+<!-- 🔹 Mensaje de progreso -->
+<div id="progreso">
+    <div class="spinner"></div>
+    <span>Subiendo datos, por favor espere...</span>
+</div>
+
 <script>
+    const progreso = document.getElementById('progreso');
+
     async function subirArchivo() {
         const input = document.getElementById('archivo');
         const file = input.files[0];
+        if (!file) return;
+
         const formData = new FormData();
         formData.append('file', file);
 
+        progreso.style.display = 'flex'; // Mostrar progreso
         const response = await fetch('/api/insertar/archivo', {
             method: 'POST',
             body: formData
         });
 
-        const mensaje = document.getElementById('mensaje');
+        progreso.style.display = 'none'; // Ocultar progreso
         if (response.ok) {
             mostrarMensaje('Archivo cargado exitosamente.', true);
         } else {
@@ -105,6 +142,10 @@
         input.value = '';
     }
 
+    document.getElementById('formulario-insercion').addEventListener('submit', function () {
+        progreso.style.display = 'flex';
+    });
+
     function mostrarMensaje(texto, exito) {
         const mensaje = document.getElementById('mensaje');
         mensaje.textContent = texto;
@@ -112,6 +153,8 @@
         mensaje.style.display = 'block';
         setTimeout(() => mensaje.style.display = 'none', 4000);
     }
+
+    window.addEventListener('load', () => progreso.style.display = 'none');
 </script>
 
 </body>

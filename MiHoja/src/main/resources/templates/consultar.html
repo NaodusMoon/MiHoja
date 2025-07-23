@@ -7,25 +7,55 @@
 </head>
 <body>
 
-<!-- ✅ NAVBAR -->
+<!-- ============================================= -->
+<!-- 1. ✅ NAVBAR SUPERIOR                         -->
+<!-- ============================================= -->
 <div class="navbar">
-    <div class="logo" href="/consultar">[Logo]</div>
-    <div class="app-name" href="/consultar">MiHoja</div>
+    <a class="logo"
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
+        [Logo]
+    </a>
+
+    <a class="app-name"
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
+        MiHoja
+    </a>
+
     <div class="nav-links">
-        <a class="active" href="/consultar">Consultar</a>
-        <a href="/insertar">Insertar</a>
+        <a th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}"
+           th:classappend="${paginaActual == 'consultar'} ? ' active'">
+            Consultar
+        </a>
+
+        <a th:href="${#strings.isEmpty(filtrosQuery)} ? @{/insertar} : '/insertar?' + ${filtrosQuery}"
+           th:classappend="${paginaActual == 'insertar'} ? ' active'">
+            Insertar
+        </a>
     </div>
+
     <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
 </div>
 
+
+
+
+
+
+
+
+
+
 <div class="main">
-    <!-- ✅ SIDEBAR DE FILTROS -->
+
+    <!-- ============================================= -->
+    <!-- 2. ✅ SIDEBAR DE FILTROS                     -->
+    <!-- ============================================= -->
     <div class="sidebar-filtros">
         <form method="get" action="/consultar">
             <h2 class="filtro-titulo">Filtrar por:</h2>
             <hr class="linea-divisoria">
 
-            <!-- ✅ SEXO -->
+            <!-- 2.1 ✅ FILTRO: SEXO -->
             <div class="filtro-seccion">
                 <h4>Sexo:</h4>
                 <label><input type="checkbox" name="sexo" value="M" th:checked="${sexo != null and sexo.contains('M')}"> M</label><br>
@@ -34,7 +64,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ LUGAR DE EXPEDICIÓN -->
+            <!-- 2.2 ✅ FILTRO: LUGAR DE EXPEDICIÓN -->
             <div class="filtro-seccion">
                 <h4>Lugar de Expedición:</h4>
                 <label><input type="checkbox" name="lugarExpedicion" value="GARAGOA" th:checked="${lugarExpedicion != null and lugarExpedicion.contains('GARAGOA')}"> Garagoa</label><br>
@@ -46,7 +76,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ FORMACIÓN -->
+            <!-- 2.3 ✅ FILTRO: FORMACIÓN ACADÉMICA -->
             <div class="filtro-seccion">
                 <h4>Formación Académica:</h4>
                 <label><input type="checkbox" name="formacion" value="PROFESIONAL" th:checked="${formacion != null and formacion.contains('PROFESIONAL')}"> Profesional</label><br>
@@ -59,7 +89,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ GRADO -->
+            <!-- 2.4 ✅ FILTRO: GRADO -->
             <div class="filtro-seccion">
                 <h4>Grado:</h4>
                 <label><input type="checkbox" name="grado" value="1" th:checked="${grado != null and grado.contains('1')}"> 1</label><br>
@@ -73,7 +103,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ CARGO -->
+            <!-- 2.5 ✅ FILTRO: CARGO -->
             <div class="filtro-seccion">
                 <h4>Cargo:</h4>
                 <label><input type="checkbox" name="cargo" value="PROFESIONAL UNIVERSITARIO" th:checked="${cargo != null and cargo.contains('PROFESIONAL UNIVERSITARIO')}"> Profesional Universitario</label><br>
@@ -86,10 +116,9 @@
                 <label><input type="checkbox" name="cargo" value="AGENTE DE TRANSITO" th:checked="${cargo != null and cargo.contains('AGENTE DE TRANSITO')}"> Agente de Tránsito</label><br>
                 <button type="submit" class="btn-filtro">Aplicar Filtro</button>
             </div>
+            <hr class="linea-divisoria">
 
-                        <hr class="linea-divisoria">
-
-            <!-- ✅ DEPENDENCIA -->
+                        <!-- 2.6 ✅ FILTRO: DEPENDENCIA -->
             <div class="filtro-seccion">
                 <h4>Dependencia:</h4>
                 <label><input type="checkbox" name="dependencia" value="SECRETARIA GENERAL Y DE GOBIERNO" th:checked="${dependencia != null and dependencia.contains('SECRETARIA GENERAL Y DE GOBIERNO')}"> Secretaría General y de Gobierno</label><br>
@@ -103,7 +132,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ RH -->
+            <!-- 2.7 ✅ FILTRO: RH -->
             <div class="filtro-seccion">
                 <h4>RH:</h4>
                 <label><input type="checkbox" name="rh" value="O+" th:checked="${rh != null and rh.contains('O+')}"> O+</label><br>
@@ -116,7 +145,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ EPS -->
+            <!-- 2.8 ✅ FILTRO: EPS -->
             <div class="filtro-seccion">
                 <h4>EPS:</h4>
                 <label><input type="checkbox" name="eps" value="NUEVA EPS" th:checked="${eps != null and eps.contains('NUEVA EPS')}"> Nueva EPS</label><br>
@@ -129,7 +158,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ AFP -->
+            <!-- 2.9 ✅ FILTRO: AFP -->
             <div class="filtro-seccion">
                 <h4>AFP:</h4>
                 <label><input type="checkbox" name="afp" value="PORVENIR" th:checked="${afp != null and afp.contains('PORVENIR')}"> Porvenir</label><br>
@@ -141,7 +170,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ CARNET DE VACUNACIÓN -->
+            <!-- 2.10 ✅ FILTRO: CARNET DE VACUNACIÓN -->
             <div class="filtro-seccion">
                 <h4>Carnet de Vacunación:</h4>
                 <label><input type="checkbox" name="carnetVacunacion" value="SI" th:checked="${carnetVacunacion != null and carnetVacunacion.contains('SI')}"> Sí</label><br>
@@ -150,7 +179,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ RIESGO -->
+            <!-- 2.11 ✅ FILTRO: RIESGO -->
             <div class="filtro-seccion">
                 <h4>Nivel de Riesgo:</h4>
                 <label><input type="checkbox" name="riesgo" value="1" th:checked="${riesgo != null and riesgo.contains('1')}"> 1 (Bajo)</label><br>
@@ -160,7 +189,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ MEDIO DE TRANSPORTE -->
+            <!-- 2.12 ✅ FILTRO: MEDIO DE TRANSPORTE -->
             <div class="filtro-seccion">
                 <h4>Medio de Transporte:</h4>
                 <label><input type="checkbox" name="medioTransporte" value="CARRO" th:checked="${medioTransporte != null and medioTransporte.contains('CARRO')}"> Carro</label><br>
@@ -170,7 +199,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ PROCEDENCIA -->
+            <!-- 2.13 ✅ FILTRO: PROCEDENCIA -->
             <div class="filtro-seccion">
                 <h4>Procedencia:</h4>
                 <label><input type="checkbox" name="procedencia" value="GARAGOA" th:checked="${procedencia != null and procedencia.contains('GARAGOA')}"> Garagoa</label><br>
@@ -182,7 +211,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ INDUCCIÓN -->
+            <!-- 2.14 ✅ FILTRO: INDUCCIÓN -->
             <div class="filtro-seccion">
                 <h4>Inducción:</h4>
                 <label><input type="checkbox" name="induccion" value="SI" th:checked="${induccion != null and induccion.contains('SI')}"> Sí</label><br>
@@ -191,7 +220,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ EXAMEN DE INGRESO -->
+            <!-- 2.15 ✅ FILTRO: EXAMEN DE INGRESO -->
             <div class="filtro-seccion">
                 <h4>Examen de Ingreso:</h4>
                 <label><input type="checkbox" name="examen" value="SI" th:checked="${examen != null and examen.contains('SI')}"> Sí</label><br>
@@ -200,7 +229,7 @@
             </div>
             <hr class="linea-divisoria">
 
-                        <!-- ✅ MESES DE EXPERIENCIA -->
+            <!-- 2.16 ✅ FILTRO: MESES DE EXPERIENCIA -->
             <div class="filtro-seccion">
                 <h4>Meses de Experiencia:</h4>
                 <label><input type="checkbox" name="mesesExperiencia" value="0-12" th:checked="${mesesExperiencia != null and mesesExperiencia.contains('0-12')}"> 0-12</label><br>
@@ -211,7 +240,7 @@
             </div>
             <hr class="linea-divisoria">
 
-            <!-- ✅ DOTACIÓN -->
+                        <!-- 2.17 ✅ FILTRO: DOTACIÓN -->
             <div class="filtro-seccion">
                 <h4>Dotación:</h4>
                 <label><input type="checkbox" name="dotacion" value="SI" th:checked="${dotacion != null and dotacion.contains('SI')}"> Sí</label><br>
@@ -249,9 +278,10 @@
                     <input type="checkbox" class="select-item" th:data-id="${hoja.id}">
 
                     <!-- ✅ Enlace a detalle -->
-                    <a th:href="@{/muestra/{id}(id=${hoja.id})}">
-                        [[${hoja.apellidos}]] [[${hoja.nombres}]]
-                    </a>
+                    <a th:href="@{'/muestra/' + ${hoja.id} + '?' + ${filtrosQuery}}">
+    [[${hoja.apellidos}]] [[${hoja.nombres}]]
+</a>
+
                     <p><strong>N°:</strong> [[${hoja.numero}]]</p>
                     <p><strong>Cédula:</strong> [[${hoja.cedula}]]</p>
                     <p><strong>Cargo:</strong> [[${hoja.cargo} ?: 'Sin cargo registrado']]</p>
@@ -312,7 +342,49 @@
             alert("No hay elementos seleccionados para eliminar.");
         }
     });
+
+
+
+    const barraProgresoEliminar = document.getElementById("barra-progreso-eliminar");
+
+    // ✅ Eliminar persona individual con progreso
+    async function eliminarPersona(boton) {
+        const id = boton.getAttribute("data-id");
+        if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
+
+        try {
+            // Mostrar barra de progreso
+            barraProgresoEliminar.style.display = "flex";
+
+            const response = await fetch(`/eliminar/${id}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                // Ocultar la tarjeta de la persona eliminada (sin recargar)
+                boton.closest("tr").remove();
+                alert("Registro eliminado correctamente.");
+            } else {
+                alert("Error al eliminar el registro.");
+            }
+        } catch (error) {
+            alert("Error de conexión: " + error);
+        } finally {
+            // Ocultar barra de progreso
+            barraProgresoEliminar.style.display = "none";
+        }
+    }
 </script>
 
+<!-- ✅ BARRA DE PROGRESO ELIMINACIÓN -->
+<div id="barra-progreso-eliminar">
+    <div class="spinner"></div>
+    <span>Eliminando registros...</span>
+</div>
+
+
 </body>
+
+
 </html>
+   

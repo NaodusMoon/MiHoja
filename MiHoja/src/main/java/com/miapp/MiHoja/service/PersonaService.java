@@ -174,6 +174,106 @@ public void actualizarPersona(Long id, Persona personaActualizada) {
         return esperado;
     }
 
+
+   @Transactional
+public List<Persona> guardarPersonasEnLote(List<Persona> personas) {
+    List<Persona> guardadas = personaRepository.saveAll(personas);
+    personaRepository.flush();
+    return guardadas;
+}
+
+
+
+@Transactional
+public void guardarFormacionesEnLote(List<Formacion> formaciones) {
+    for (int i = 0; i < formaciones.size(); i++) {
+        entityManager.persist(formaciones.get(i));
+        if (i % 50 == 0) { // 🔄 Flush y clear cada 50 para evitar sobrecarga de memoria
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarPersonaCargoEnLote(List<PersonaCargoLaboral> cargos) {
+    for (int i = 0; i < cargos.size(); i++) {
+        entityManager.persist(cargos.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarInduccionesEnLote(List<InduccionExamen> inducciones) {
+    for (int i = 0; i < inducciones.size(); i++) {
+        entityManager.persist(inducciones.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarRiesgosEnLote(List<RiesgoProcedencia> riesgos) {
+    for (int i = 0; i < riesgos.size(); i++) {
+        entityManager.persist(riesgos.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarSaludEnLote(List<Salud> saludLote) {
+    for (int i = 0; i < saludLote.size(); i++) {
+        entityManager.persist(saludLote.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarContactosEnLote(List<ContactoEmergencia> contactos) {
+    for (int i = 0; i < contactos.size(); i++) {
+        entityManager.persist(contactos.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarEnfermedadesEnLote(List<Enfermedad> enfermedades) {
+    for (int i = 0; i < enfermedades.size(); i++) {
+        entityManager.persist(enfermedades.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+@Transactional
+public void guardarAlergiasEnLote(List<Alergia> alergias) {
+    for (int i = 0; i < alergias.size(); i++) {
+        entityManager.persist(alergias.get(i));
+        if (i % 50 == 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+}
+
+
+
     // Eliminar persona y reorganizar números
     @Transactional
     public void eliminarPersonaYReordenar(Long id) {
