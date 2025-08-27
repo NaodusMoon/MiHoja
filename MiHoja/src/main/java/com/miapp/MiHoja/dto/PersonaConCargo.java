@@ -7,7 +7,7 @@ package com.miapp.MiHoja.dto;
 public interface PersonaConCargo {
 
     // ✅ ID y datos básicos
-    Long getId();                       // ID de la persona (campo "n")
+    Long getId();                       
     String getNombres();
     String getApellidos();
     String getCedula();
@@ -17,7 +17,7 @@ public interface PersonaConCargo {
     String getCargo();
     String getDependencia();
 
-        // ✅ Datos personales y de contacto
+    // ✅ Datos personales y de contacto
     String getLugarExpedicion();
     String getDireccion();
     String getSexo();
@@ -25,7 +25,12 @@ public interface PersonaConCargo {
     String getTelefonoInstitucional();
     String getEnlaceSigep();
 
-        // ✅ Formación (última)
+    // ✅ Nuevos campos agregados
+    String getEstado();
+    Integer getNumeroHijos();
+    String getImagenUrl();
+
+    // ✅ Formación (última)
     String getFormacion();
     String getGrado();
 
@@ -33,7 +38,7 @@ public interface PersonaConCargo {
     String getRh();
     String getEps();
     String getAfp();
-    String getDotacion();               // 🔥 AHORA proviene de SALUD (s.dotacion en la consulta)
+    String getDotacion();
     String getCarnetVacunacion();
 
     // ✅ Riesgo y procedencia
@@ -45,6 +50,6 @@ public interface PersonaConCargo {
     String getInduccion();
     String getExamen();
 
-    // ✅ Meses de experiencia en el cargo más reciente
+    // ✅ Experiencia
     String getMesesExperiencia();
 }

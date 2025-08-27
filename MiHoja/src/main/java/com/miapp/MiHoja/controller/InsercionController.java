@@ -6,14 +6,18 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +26,12 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 
 @Controller
 @RequestMapping("/api")
@@ -90,93 +100,179 @@ public class InsercionController {
         ALIAS_COLUMNAS.put("fecha de egreso", "fechaEgreso");
     }
 
-    // === Inserción desde formulario web manual ===
-    @PostMapping("/insertar")
-    public String insertarDesdeFormulario(@RequestParam Map<String, String> params, RedirectAttributes redirectAttrs) {
-        try {
-            Persona persona = new Persona();
-            persona.setNombres(params.get("nombres"));
-            persona.setApellidos(params.get("apellidos"));
-            persona.setCedula(params.get("cedula"));
-            persona.setLugarExpedicion(params.get("lugarExpedicion"));
-            persona.setFechaNacimiento(LocalDate.parse(params.get("fechaNacimiento")));
-            persona.setDireccion(params.get("direccion"));
-            persona.setSexo(params.get("sexo"));
-            persona.setCorreoInstitucional(params.get("correoInstitucional"));
-            persona.setTelefonoInstitucional(params.get("telefonoInstitucional"));
-            persona.setEnlaceSigep(params.get("enlaceSigep"));
-            personaService.guardarConNumero(persona);
 
-            // Formación Académica
-            Formacion formacion = new Formacion();
-            formacion.setPersona(persona);
-            formacion.setFormacionAcademica(params.get("formacionAcademica"));
-            formacion.setGrado(params.get("grado"));
-            formacion.setTitulo(params.get("titulo"));
-            personaService.guardarFormacion(formacion);
 
-            // Cargo laboral
-            CargoLaboral cargo = personaService.obtenerOCrearCargo(
-                params.get("cargo"), params.get("codigo"), params.get("dependencia")
-            );
+@PostMapping("/insertar")
+public String insertarDesdeFormulario(
+        @RequestParam Map<String, String> params,
+        RedirectAttributes redirectAttrs) {
 
-            PersonaCargoLaboral pcl = new PersonaCargoLaboral();
-            pcl.setPersona(persona);
-            pcl.setCargo(cargo);
-            pcl.setFechaIngreso(LocalDate.parse(params.get("fechaIngreso")));
-            pcl.setFechaFirmaContrato(LocalDate.parse(params.get("fechaFirmaContrato")));
-            pcl.setMesesExperiencia(Integer.parseInt(params.get("mesesExperiencia")));
-            personaService.guardarPersonaCargo(pcl);
+    try {
+        // === Persona ===
+        Persona persona = new Persona();
+        persona.setNombres(params.getOrDefault("nombres", ""));
+        persona.setApellidos(params.getOrDefault("apellidos", ""));
+        persona.setCedula(params.getOrDefault("cedula", ""));
+        persona.setLugarExpedicion(params.getOrDefault("lugarExpedicion", ""));
 
-            // Inducción y examen
-            InduccionExamen ie = new InduccionExamen();
-            ie.setPersonaCargoLaboral(pcl);
-            ie.setInduccion(Boolean.parseBoolean(params.get("induccion")));
-            ie.setExamenIngreso(Boolean.parseBoolean(params.get("examen")));
-            ie.setFechaEgreso(LocalDate.parse(params.get("fechaEgreso")));
-            personaService.guardarInduccion(ie);
-
-            // Riesgo y procedencia
-            RiesgoProcedencia rp = new RiesgoProcedencia();
-            rp.setPersona(persona);
-            rp.setRiesgo(params.get("riesgo"));
-            rp.setMedioTransporte(params.get("medioTransporte"));
-            rp.setProcedenciaTrabajador(params.get("procedencia"));
-            personaService.guardarRiesgo(rp);
-
-            // Salud
-            Salud salud = new Salud();
-            salud.setPersona(persona);
-            salud.setDotacion(params.get("dotacion"));
-            salud.setArl(params.get("arl"));
-            salud.setEps(params.get("eps"));
-            salud.setAfp(params.get("afp"));
-            salud.setCcf(params.get("ccf"));
-            salud.setRh(params.get("rh"));
-            salud.setCarnetVacunacion(Boolean.parseBoolean(params.get("carnetVacunacion")));
-            personaService.guardarSalud(salud);
-
-            // Contacto de emergencia
-            ContactoEmergencia contacto = new ContactoEmergencia();
-            contacto.setPersona(persona);
-            contacto.setNombreContactoEmergencia(params.get("nombreEmergencia"));
-            contacto.setParentesco(params.get("parentesco"));
-            contacto.setTelefonoContactoEmergencia(params.get("telefonoEmergencia"));
-            personaService.guardarContactoEmergencia(contacto);
-
-            // Enfermedades, Alergias y Medicamentos se gestionan en la siguiente parte...
-
-            // Agrega mensaje de éxito
-            redirectAttrs.addFlashAttribute("mensajeExito", "✅ Persona y datos relacionados guardados correctamente.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttrs.addFlashAttribute("mensajeError", "❌ Error al guardar los datos: " + e.getMessage());
+        String fechaNacStr = params.get("fechaNacimiento");
+        if (fechaNacStr != null && !fechaNacStr.isBlank()) {
+            persona.setFechaNacimiento(LocalDate.parse(fechaNacStr));
         }
 
-        return "redirect:/insertar";
+        persona.setDireccion(params.getOrDefault("direccion", ""));
+        persona.setSexo(params.getOrDefault("sexo", ""));
+        persona.setCorreoInstitucional(params.getOrDefault("correoInstitucional", ""));
+        persona.setTelefonoInstitucional(params.getOrDefault("telefonoInstitucional", ""));
+        persona.setEnlaceSigep(params.getOrDefault("enlaceSigep", ""));
+        persona.setEstado(params.getOrDefault("estado", ""));
+
+        String hijosStr = params.get("numero_hijos");
+        persona.setNumeroHijos(
+                (hijosStr != null && !hijosStr.trim().isEmpty()) ? Integer.parseInt(hijosStr) : 0
+        );
+
+        persona.setImagenUrl(params.getOrDefault("imagen_url", ""));
+        personaService.guardarConNumero(persona);
+
+        // === Formación ===
+        Formacion formacion = new Formacion();
+        formacion.setPersona(persona);
+        formacion.setFormacionAcademica(params.getOrDefault("formacionAcademica", ""));
+        formacion.setGrado(params.getOrDefault("grado", ""));
+        formacion.setTitulo(params.getOrDefault("titulo", ""));
+        personaService.guardarFormacion(formacion);
+
+        // === Cargo laboral ===
+        CargoLaboral cargo = personaService.obtenerOCrearCargo(
+                params.getOrDefault("cargo", ""),
+                params.getOrDefault("codigo", ""),
+                params.getOrDefault("dependencia", "")
+        );
+
+        PersonaCargoLaboral pcl = new PersonaCargoLaboral();
+        pcl.setPersona(persona);
+        pcl.setCargo(cargo);
+
+        String fechaIngresoStr = params.get("fechaIngreso");
+        if (fechaIngresoStr != null && !fechaIngresoStr.isBlank()) {
+            pcl.setFechaIngreso(LocalDate.parse(fechaIngresoStr));
+        }
+
+        String fechaFirmaStr = params.get("fechaFirmaContrato");
+        if (fechaFirmaStr != null && !fechaFirmaStr.isBlank()) {
+            pcl.setFechaFirmaContrato(LocalDate.parse(fechaFirmaStr));
+        }
+
+        String mesesStr = params.get("mesesExperiencia");
+        pcl.setMesesExperiencia(
+                (mesesStr != null && !mesesStr.trim().isEmpty()) ? Integer.parseInt(mesesStr) : 0
+        );
+        personaService.guardarPersonaCargo(pcl);
+
+        // === Inducción y Examen ===
+        InduccionExamen ie = new InduccionExamen();
+        ie.setPersonaCargoLaboral(pcl);
+        ie.setInduccion(Boolean.parseBoolean(params.getOrDefault("induccion", "false")));
+        ie.setExamenIngreso(Boolean.parseBoolean(params.getOrDefault("examen", "false")));
+
+        String fechaEgresoStr = params.get("fechaEgreso");
+        if (fechaEgresoStr != null && !fechaEgresoStr.isBlank()) {
+            ie.setFechaEgreso(LocalDate.parse(fechaEgresoStr));
+        }
+        personaService.guardarInduccion(ie);
+
+        // === Riesgo y Procedencia ===
+        RiesgoProcedencia rp = new RiesgoProcedencia();
+        rp.setPersona(persona);
+        rp.setRiesgo(params.getOrDefault("riesgo", ""));
+        rp.setMedioTransporte(params.getOrDefault("medioTransporte", ""));
+
+        String procedencia = params.getOrDefault("procedencia", "");
+        if ("Otro".equalsIgnoreCase(procedencia)) {
+            rp.setProcedenciaTrabajador(params.getOrDefault("otraProcedencia", ""));
+        } else {
+            rp.setProcedenciaTrabajador(procedencia);
+        }
+        personaService.guardarRiesgo(rp);
+
+        // === Salud ===
+        Salud salud = new Salud();
+        salud.setPersona(persona);
+        salud.setDotacion(params.getOrDefault("dotacion", ""));
+        salud.setArl(params.getOrDefault("arl", ""));
+        salud.setEps(params.getOrDefault("eps", ""));
+        salud.setAfp(params.getOrDefault("afp", ""));
+        salud.setCcf(params.getOrDefault("ccf", ""));
+        salud.setRh(params.getOrDefault("rh", ""));
+        salud.setCarnetVacunacion(Boolean.parseBoolean(params.getOrDefault("carnetVacunacion", "false")));
+        personaService.guardarSalud(salud);
+
+        // === Contacto de emergencia ===
+        ContactoEmergencia contacto = new ContactoEmergencia();
+        contacto.setPersona(persona);
+        contacto.setNombreContactoEmergencia(params.getOrDefault("nombreEmergencia", ""));
+        contacto.setParentesco(params.getOrDefault("parentesco", ""));
+        contacto.setTelefonoContactoEmergencia(params.getOrDefault("telefonoEmergencia", ""));
+        personaService.guardarContactoEmergencia(contacto);
+
+        // === Enfermedades (independientes) ===
+        String enfermedadesStr = params.get("enfermedades");
+        if (enfermedadesStr != null && !enfermedadesStr.isBlank()) {
+            String[] enfermedades = enfermedadesStr.split(",");
+            for (String enf : enfermedades) {
+                if (!enf.trim().isEmpty()) {
+                    Enfermedad enfermedad = personaService.obtenerOCrearEnfermedad(enf.trim(), persona);
+                    personaService.guardarEnfermedad(enfermedad);
+                }
+            }
+        }
+
+        // === Alergias (independientes) ===
+        String alergiasStr = params.get("alergias");
+        if (alergiasStr != null && !alergiasStr.isBlank()) {
+            String[] alergias = alergiasStr.split(",");
+            for (String aler : alergias) {
+                if (!aler.trim().isEmpty()) {
+                    Alergia alergia = new Alergia();
+                    alergia.setPersona(persona);
+                    alergia.setNombre(aler.trim());
+                    personaService.guardarAlergia(alergia);
+                }
+            }
+        }
+
+        // === Medicamentos (independientes) ===
+        String medicamentosStr = params.get("medicamentos");
+        if (medicamentosStr != null && !medicamentosStr.isBlank()) {
+            String[] medicamentos = medicamentosStr.split(",");
+            for (String med : medicamentos) {
+                if (!med.trim().isEmpty()) {
+                    Medicamento medicamento = personaService.obtenerOCrearMedicamento(med.trim(), persona);
+                    personaService.guardarMedicamento(medicamento);
+                }
+            }
+        }
+
+        redirectAttrs.addFlashAttribute("mensajeExito", "✅ Persona y todos los datos guardados correctamente.");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        redirectAttrs.addFlashAttribute("mensajeError", "❌ Error al guardar los datos: " + e.getMessage());
     }
 
-       @PostMapping(value = "/insertar/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    return "redirect:/insertar";
+}
+
+
+
+
+
+
+
+
+
+      @PostMapping(value = "/insertar/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") MultipartFile file) {
     try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
         Sheet sheet = workbook.getSheetAt(0);
@@ -208,7 +304,6 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
             persona.setFechaNacimiento(parseFecha(getCellValue(row, colIndex.get("fechaNacimiento"))));
             persona.setDireccion(getCellValue(row, colIndex.get("direccion")));
             persona.setSexo(getCellValue(row, colIndex.get("sexo")));
-            persona.setNumero(parseInteger(getCellValue(row, colIndex.get("numero"))));
             persona.setCorreoInstitucional(getCellValue(row, colIndex.get("correoInstitucional")));
             persona.setTelefonoInstitucional(getCellValue(row, colIndex.get("telefonoInstitucional")));
             persona.setEnlaceSigep(getCellValue(row, colIndex.get("enlaceSigep")));
@@ -219,8 +314,9 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
         // ✅ Guardar personas primero para que tengan N e ID generados
         personasLote = personaService.guardarPersonasEnLote(personasLote);
 
-        // ✅ Reordenar números para asegurar N consecutivos y sin huecos
+        // ✅ Reordenar números SOLO para las nuevas personas (optimizado)
         personaService.reordenarNumeros();
+
 
         // ✅ 2. SEGUNDO: Crear relaciones usando personas ya persistidas (con N asignado)
         List<Formacion> formacionesLote = new ArrayList<>();
@@ -232,6 +328,9 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
         List<Enfermedad> enfermedadesLote = new ArrayList<>();
         List<Alergia> alergiasLote = new ArrayList<>();
 
+        // ✅ Pre-cargar todos los cargos existentes en un mapa (evita consultas repetidas)
+        Map<String, CargoLaboral> cargosCache = personaService.obtenerTodosLosCargosComoMapa();
+
         // ✅ Nuevo índice sincronizado (evita el problema de filas vacías)
         int indexPersona = 0;
 
@@ -240,7 +339,7 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
             if (row == null || esFilaVacia(row)) continue;
 
             Persona persona = personasLote.get(indexPersona);
-            indexPersona++; // ✅ Aumenta solo en filas válidas
+            indexPersona++;
 
             System.out.println("📌 Persona guardada con N: " + persona.getNumero());
 
@@ -251,13 +350,20 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
             formacion.setGrado(getCellValue(row, colIndex.get("grado")));
             formacion.setTitulo(getCellValue(row, colIndex.get("titulo")));
             formacionesLote.add(formacion);
+ 
+            // Cargo optimizado con cache
+            String keyCargo = (getCellValue(row, colIndex.get("cargo")) + "|" +
+                               getCellValue(row, colIndex.get("codigo")) + "|" +
+                               getCellValue(row, colIndex.get("dependencia"))).toUpperCase();
 
-            // Cargo
-            CargoLaboral cargo = personaService.obtenerOCrearCargo(
-                    getCellValue(row, colIndex.get("cargo")),
-                    getCellValue(row, colIndex.get("codigo")),
-                    getCellValue(row, colIndex.get("dependencia"))
-            );
+            CargoLaboral cargo = cargosCache.computeIfAbsent(keyCargo, k -> {
+                CargoLaboral nuevo = new CargoLaboral();
+                nuevo.setCargo(getCellValue(row, colIndex.get("cargo")));
+                nuevo.setCodigo(getCellValue(row, colIndex.get("codigo")));
+                nuevo.setDependencia(getCellValue(row, colIndex.get("dependencia")));
+                return nuevo;
+            });
+
             PersonaCargoLaboral pcl = new PersonaCargoLaboral();
             pcl.setPersona(persona);
             pcl.setCargo(cargo);
@@ -339,16 +445,16 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
             }
         }
 
-        // ✅ 3. Guardar todas las relaciones en lote
+        // ✅ 3. Guardar nuevas relaciones en lote
+        personaService.guardarCargosEnLote(new ArrayList<>(cargosCache.values()));
         personaService.guardarFormacionesEnLote(formacionesLote);
         personaService.guardarPersonaCargoEnLote(cargosLote);
 
-        // 🔥 AQUI ESTA UN LOG PARA VER QUE SE GUARDE EN LOTE FECHA FIRMACONTRATO
-cargosLote.forEach(c -> 
-    System.out.println("✅ Guardado en lote: " + 
-        c.getPersona().getCedula() + 
-        " | FechaFirmaContrato=" + c.getFechaFirmaContrato())
-);
+        cargosLote.forEach(c ->
+            System.out.println("✅ Guardado en lote: " +
+                c.getPersona().getCedula() +
+                " | FechaFirmaContrato=" + c.getFechaFirmaContrato())
+        );
 
         personaService.guardarInduccionesEnLote(induccionesLote);
         personaService.guardarRiesgosEnLote(riesgosLote);
@@ -363,6 +469,8 @@ cargosLote.forEach(c ->
         return ResponseEntity.internalServerError().body("❌ Error al procesar el archivo Excel: " + e.getMessage());
     }
 }
+
+
 
 
 

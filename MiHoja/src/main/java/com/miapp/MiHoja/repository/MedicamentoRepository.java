@@ -27,4 +27,7 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, Long> 
            "JOIN m.enfermedades e " +
            "WHERE e.persona = :persona")
     List<Medicamento> findByPersonaRelacionada(@Param("persona") Persona persona);
+
+     // Busca el primer medicamento por nombre ignorando mayúsculas/minúsculas
+    Medicamento findFirstByNombreIgnoreCase(String nombre);
 }

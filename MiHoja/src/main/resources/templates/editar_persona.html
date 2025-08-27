@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Hoja de Vida</title>
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <!-- (Opcional) Soporte CSRF si usas Spring Security -->
+  <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+</head>
+<body>
+
+<!-- ✅ NAVBAR -->
+<div class="navbar">
+  <a class="logo" th:href="@{/consultar}">[Logo]</a>
+  <a class="app-name" th:href="@{/consultar}">MiHoja</a>
+  <div class="nav-links">
+    <a th:href="@{/consultar}">Consultar</a>
+    <a th:href="@{/insertar}">Insertar</a>
+  </div>
+  <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
+</div>
+
+<!-- ✅ ACCIONES SUPERIORES -->
+<div class="acciones-superiores">
+  <div>
+    <a th:href="@{/consultar}">
+      <button class="cerrar-btn">X</button>
+    </a>
+  </div>
+</div>
+
+<!-- ✅ FORMULARIO EDITAR -->
+<div class="datos-container">
+  <!-- Ya NO se sube archivo en este form, por eso SIN enctype -->
+  <form th:action="@{/editar/{id}(id=${persona.id})}"
+        th:object="${persona}"
+        method="post">
+
+    <!-- 📷 Imagen -->
+    <div class="fila fila--imagen">
+      <div class="dato" style="text-align:center;">
+        <div class="imagen-marco"
+             style="display:inline-block; padding:10px; background:#fff; border:2px solid #ccc; border-radius:12px;">
+          <!-- IMPORTANTE: siempre renderizar el <img> para poder actualizarlo desde JS -->
+          <img id="previewImg"
+               th:src="${#strings.isEmpty(persona.imagenUrl) ? '/img/placeholder.png' : persona.imagenUrl}"
+               alt="Foto"
+               style="max-width:250px; height:auto; border-radius:10px;">
+        </div>
+        <br>
+        <label>Seleccionar Imagen:</label>
+        <!-- El nombre NO importa porque se envía por fetch aparte -->
+        <input type="file" id="imagenInput" accept="image/*">
+
+        <!-- Campo oculto que viaja en el POST de edición -->
+        <input type="hidden" th:field="*{imagenUrl}" id="imagenUrl">
+      </div>
+    </div>
+
+    <!-- 🔹 Fila 1 -->
+    <div class="fila">
+      <div class="dato">
+        <label>N°</label>
+        <input type="number" th:field="*{numero}">
+      </div>
+      <div class="dato">
+        <label>Nombres</label>
+        <input type="text" th:field="*{nombres}" required>
+      </div>
+      <div class="dato">
+        <label>Apellidos</label>
+        <input type="text" th:field="*{apellidos}" required>
+      </div>
+    </div>
+
+    <!-- 🔹 Fila 2 -->
+    <div class="fila">
+      <div class="dato">
+        <label>Cédula</label>
+        <input type="text" th:field="*{cedula}" required>
+      </div>
+      <div class="dato">
+        <label>Lugar de Expedición</label>
+        <input type="text" th:field="*{lugarExpedicion}">
+      </div>
+      <div class="dato">
+        <label>Fecha de Nacimiento</label>
+        <input type="date" th:field="*{fechaNacimiento}">
+      </div>
+    </div>
+
+    <!-- 🔹 Fila 3 -->
+    <div class="fila">
+      <div class="dato">
+        <label>Dirección</label>
+        <input type="text" th:field="*{direccion}">
+      </div>
+      <div class="dato">
+        <label>Sexo</label>
+        <select th:field="*{sexo}">
+          <option value="">Seleccione</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+        </select>
+      </div>
+      <div class="dato">
+        <label>Correo Institucional</label>
+        <input type="email" th:field="*{correoInstitucional}">
+      </div>
+    </div>
+
+    <!-- 🔹 Fila 4 -->
+    <div class="fila">
+      <div class="dato">
+        <label>Teléfono Institucional</label>
+        <input type="text" th:field="*{telefonoInstitucional}">
+      </div>
+      <div class="dato">
+        <label>Enlace SIGEP</label>
+        <input type="text" th:field="*{enlaceSigep}">
+      </div>
+      <div class="dato">
+        <label>Estado</label>
+        <input type="text" th:field="*{estado}">
+      </div>
+    </div>
+
+    <!-- 🔹 Fila 5 -->
+    <div class="fila">
+      <div class="dato">
+        <label>Número de Hijos</label>
+        <input type="number" th:field="*{numeroHijos}">
+      </div>
+    </div>
+
+    <!-- ✅ BOTÓN -->
+    <div style="text-align:center; margin-top:20px;">
+      <button type="submit" class="editar-btn">💾 Guardar Cambios</button>
+    </div>
+
+  </form>
+</div>
+
+<!-- ⚡ Script: subir a /api/imagenes/subir con clave 'imagen' y guardar la URL -->
+<script>
+  const inputArchivo = document.getElementById("imagenInput");
+  const preview = document.getElementById("previewImg");
+  const hiddenUrl = document.getElementById("imagenUrl");
+
+  // CSRF (si usas Spring Security)
+  const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+  inputArchivo.addEventListener("change", async function () {
+    if (!this.files || this.files.length === 0) return;
+
+    const archivo = this.files[0];
+    const formData = new FormData();
+    // 👇 Clave EXACTA que espera tu ImagenController
+    formData.append("imagen", archivo);
+
+    try {
+      const headers = {};
+      if (csrfToken && csrfHeader) {
+        headers[csrfHeader] = csrfToken;
+      }
+
+      const resp = await fetch("/api/imagenes/subir", {
+        method: "POST",
+        body: formData,
+        headers
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error("Respuesta no OK del servidor: " + txt);
+      }
+
+      const data = await resp.json(); // { url: "/uploads/xxxx.png", ... }
+      if (!data.url) {
+        throw new Error("El servidor no devolvió 'url'.");
+      }
+
+      // Actualiza preview y el hidden para que viaje en el POST de edición
+      preview.src = data.url;
+      hiddenUrl.value = data.url;
+      alert("Imagen subida con éxito ✅");
+
+    } catch (err) {
+      console.error(err);
+      alert("Error al subir la imagen ❌ " + err.message);
+    }
+  });
+</script>
+
+</body>
+</html>

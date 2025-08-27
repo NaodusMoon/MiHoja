@@ -260,35 +260,91 @@ body {
 
 /* Estilos Muestra Datos */
 .datos-container {
-    margin: 80px auto;
-    max-width: 1200px;
-    padding: 20px;
+  margin: 80px auto;
+  max-width: 1200px;
+  padding: 20px;
 }
 
 .fila {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    gap: 20px;
-}
-
-.dato {
-    flex: 1;
-    min-width: 200px;
+  display: grid;
+  grid-template-columns: repeat(3, 300px); /* 3 columnas fijas de 300px */
+  gap: 20px;
+  margin-bottom: 20px;
+  justify-content: center; /* 🔹 Centra todos los campos en la fila */
+  text-align: center;      /* 🔹 Centra el texto dentro de cada campo */
 }
 
 .dato label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
 }
 
-.dato .valor {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+.valor {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f9f9f9;
+  word-break: break-word;
 }
+
+/* 📷 Fila de imagen (ocupa todo el ancho y centra) */
+.fila.fila--imagen {
+  grid-template-columns: 1fr; 
+  justify-content: center;
+}
+
+/* Marco de la imagen */
+.imagen-marco {
+  display: inline-block;
+  padding: 10px;
+  border: 3px solid #ccc;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 280px;  
+  max-height: 280px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+/* Imagen dentro del marco */
+.imagen-marco img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* ID específico para la imagen de persona */
+#foto-persona {
+  max-width: 280px;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+}
+
+.editar-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.editar-btn:hover {
+    background-color: #0056b3;
+}
+
+
+
+
 
 .acciones-superiores {
     display: flex;
@@ -385,8 +441,8 @@ body {
 
 .archivo-btn {
     position: fixed;
-    top: 90px;
-    right: 20px;
+    top: 90px;          /* Distancia desde arriba */
+    right: 20px;        /* Distancia desde la derecha */
     background-color: #F8DF7F;
     color: black;
     padding: 0.7rem 1.2rem;
@@ -394,7 +450,31 @@ body {
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    z-index: 999;
+    z-index: 999;       /* Prioridad sobre otros elementos */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Sombra opcional */
+}
+
+/* 📌 Mensajes flotantes tipo toast */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 6px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.toast.success {
+    background-color: #4CAF50; /* Verde */
+}
+
+.toast.error {
+    background-color: #F44336; /* Rojo */
 }
 
 .mensaje {
@@ -456,4 +536,47 @@ body {
     border-radius: 5px;      /* opcional: tamaño más grande */
 }
 
+#progreso {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    z-index: 9999;
+}
 
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+
+/*Muestradatos poner todo en mayuscula*/
+/* 🔹 Convierte a MAYÚSCULAS por defecto */
+.datos-container .valor {
+    text-transform: uppercase;
+}
+
+
+
+.datos-container .valor.no-transform,
+.datos-container .no-transform {
+    text-transform: none;
+}

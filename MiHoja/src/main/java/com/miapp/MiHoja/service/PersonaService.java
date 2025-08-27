@@ -1,7 +1,10 @@
 package com.miapp.MiHoja.service;
 
 import com.miapp.MiHoja.model.*;
+import com.miapp.MiHoja.repository.CargoLaboralRepository;
+import com.miapp.MiHoja.repository.EnfermedadRepository;
 import com.miapp.MiHoja.repository.MedicamentoRepository;
+import com.miapp.MiHoja.repository.PersonaCargoLaboralRepository;
 import com.miapp.MiHoja.repository.PersonaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -15,8 +18,17 @@ import java.util.stream.Collectors;
 @Service
 public class PersonaService {
 
+    
+
+   @Autowired
+private EnfermedadRepository enfermedadRepository;
+
+
     @Autowired
     private PersonaRepository personaRepository;
+
+     @Autowired
+    private CargoLaboralRepository cargoLaboralRepository;
 
     @Autowired
     private MedicamentoRepository medicamentoRepository;
@@ -24,9 +36,17 @@ public class PersonaService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void eliminarVarios(List<Long> ids) {
-        personaRepository.deleteAllById(ids);
+     @Transactional
+public void eliminarVarios(List<Long> ids) {
+    int batchSize = 25;
+    for (int i = 0; i < ids.size(); i += batchSize) {
+        List<Long> subList = ids.subList(i, Math.min(i + batchSize, ids.size()));
+        personaRepository.deleteBatchByIds(subList);
+        entityManager.flush();
+        entityManager.clear();
     }
+}
+
 
     // Guardar una persona con número si no tiene
     @Transactional
@@ -47,11 +67,47 @@ public class PersonaService {
     @Transactional public void guardarEnfermedad(Enfermedad e) { entityManager.persist(e); }
     @Transactional public void guardarAlergia(Alergia a) { entityManager.persist(a); }
 
+
+
+    public Enfermedad obtenerOCrearEnfermedad(String nombreEnfermedad, Persona persona) {
+    if (nombreEnfermedad == null || nombreEnfermedad.trim().isEmpty()) {
+        return null; // Evita guardar enfermedades vacías
+    }
+
+    
+    // Buscar si ya existe la enfermedad en la base de datos
+    Enfermedad enfermedadExistente = enfermedadRepository.findByNombre(nombreEnfermedad.trim());
+
+    if (enfermedadExistente != null) {
+        // Si la persona aún no tiene esta enfermedad, la agregamos
+        if (!persona.getEnfermedades().contains(enfermedadExistente)) {
+            persona.getEnfermedades().add(enfermedadExistente);
+        }
+        return enfermedadExistente;
+    }
+
+    // Si no existe, creamos una nueva
+    Enfermedad nuevaEnfermedad = new Enfermedad();
+    nuevaEnfermedad.setNombre(nombreEnfermedad.trim());
+
+    // Guardar la nueva enfermedad
+    enfermedadRepository.save(nuevaEnfermedad);
+
+    // Asociar la nueva enfermedad a la persona
+    persona.getEnfermedades().add(nuevaEnfermedad);
+
+    return nuevaEnfermedad;
+}
+
+
+
         // Buscar medicamentos asociados a una persona (vía enfermedades)
     @Transactional(readOnly = true)
     public List<Medicamento> obtenerMedicamentosPorPersona(Persona persona) {
         return medicamentoRepository.findByPersonaRelacionada(persona);
     }
+
+    
 
     // Guardar o buscar medicamento por nombre y asociar persona como propietario (solo si aplica)
     @Transactional
@@ -83,6 +139,53 @@ public class PersonaService {
             entityManager.merge(enfermedad);
         }
     }
+
+
+public Enfermedad obtenerOCrearEnfermedad(String nombreEnfermedad) {
+    if (nombreEnfermedad == null || nombreEnfermedad.trim().isEmpty()) {
+        return null;
+    }
+
+    // Busca por nombre exacto
+    Enfermedad enfermedadExistente = enfermedadRepository.findFirstByNombreIgnoreCase(nombreEnfermedad.trim());
+
+    if (enfermedadExistente != null) {
+        return enfermedadExistente;
+    }
+
+    // Si no existe, la crea
+    Enfermedad nuevaEnfermedad = new Enfermedad();
+    nuevaEnfermedad.setNombre(nombreEnfermedad.trim());
+
+    return enfermedadRepository.save(nuevaEnfermedad);
+}
+
+public Medicamento obtenerOCrearMedicamento(String nombreMedicamento) {
+    if (nombreMedicamento == null || nombreMedicamento.trim().isEmpty()) {
+        return null;
+    }
+
+    // Busca por nombre exacto
+    Medicamento medicamentoExistente = medicamentoRepository.findFirstByNombreIgnoreCase(nombreMedicamento.trim());
+
+    if (medicamentoExistente != null) {
+        return medicamentoExistente;
+    }
+
+    // Si no existe, lo crea
+    Medicamento nuevoMedicamento = new Medicamento();
+    nuevoMedicamento.setNombre(nombreMedicamento.trim());
+
+    return medicamentoRepository.save(nuevoMedicamento);
+}
+
+
+
+
+
+
+
+
 
     // Guardar enfermedad y asociar medicamentos
     @Transactional
@@ -135,6 +238,7 @@ public void actualizarPersona(Long id, Persona personaActualizada) {
 }
 
 
+
     // Obtener o crear cargo laboral
     @Transactional
     public CargoLaboral obtenerOCrearCargo(String cargo, String codigo, String dependencia) {
@@ -177,10 +281,76 @@ public void actualizarPersona(Long id, Persona personaActualizada) {
 
    @Transactional
 public List<Persona> guardarPersonasEnLote(List<Persona> personas) {
+    for (Persona persona : personas) {
+        if (persona.getNumero() == null || persona.getNumero() <= 0) {
+            persona.setNumero(obtenerSiguienteNumeroSinHuecos());
+        }
+    }
     List<Persona> guardadas = personaRepository.saveAll(personas);
     personaRepository.flush();
     return guardadas;
 }
+
+@Transactional
+public void guardarCargosEnLote(List<CargoLaboral> cargos) {
+    if (cargos == null || cargos.isEmpty()) return;
+
+    // ✅ Filtrar solo los cargos sin ID (nuevos)
+    List<CargoLaboral> nuevos = cargos.stream()
+            .filter(c -> c.getId() == null)
+            .collect(Collectors.toList());
+
+    if (!nuevos.isEmpty()) {
+        cargoLaboralRepository.saveAll(nuevos);
+        System.out.println("✅ Nuevos cargos guardados en lote: " + nuevos.size());
+    }
+}
+
+public Map<String, CargoLaboral> obtenerTodosLosCargosComoMapa() {
+    List<CargoLaboral> cargosExistentes = cargoLaboralRepository.findAll();
+    Map<String, CargoLaboral> mapa = new HashMap<>();
+
+    for (CargoLaboral c : cargosExistentes) {
+        String key = (c.getCargo() + "|" + c.getCodigo() + "|" + c.getDependencia()).toUpperCase();
+        mapa.put(key, c);
+    }
+
+    System.out.println("✅ Cargos precargados en cache: " + mapa.size());
+    return mapa;
+}
+
+
+
+@Transactional
+public void reordenarNumerosSoloNuevos(List<Persona> nuevasPersonas) {
+    if (nuevasPersonas == null || nuevasPersonas.isEmpty()) return;
+
+    // ✅ Obtener el máximo número actual en la BD
+    Integer maxNumeroActual = personaRepository.findMaxNumero();
+    if (maxNumeroActual == null) maxNumeroActual = 0;
+
+    int numeroAsignado = maxNumeroActual + 1;
+
+    for (Persona persona : nuevasPersonas) {
+        persona.setNumero(numeroAsignado++);
+    }
+
+    // ✅ Guardar solo las nuevas con los números actualizados
+    personaRepository.saveAll(nuevasPersonas);
+
+    System.out.println("✅ Números reasignados solo para nuevos registros. Último número: " + (numeroAsignado - 1));
+
+
+
+
+
+
+    // ✅ Guardar solo los nuevos con los números actualizados
+    personaRepository.saveAll(nuevasPersonas);
+
+    System.out.println("✅ Números reasignados solo para nuevos registros. Último número: " + (numeroAsignado - 1));
+}
+
 
 
 
@@ -239,6 +409,17 @@ public void guardarSaludEnLote(List<Salud> saludLote) {
     }
 }
 
+ // 🔹 Buscar por ID
+    public Persona buscarPorId(Long id) {
+        return personaRepository.findById(id).orElse(null);
+    }
+
+    // 🔹 Guardar (sirve tanto para insertar como para actualizar)
+    public Persona guardar(Persona persona) {
+        return personaRepository.save(persona);
+    }
+
+
 @Transactional
 public void guardarContactosEnLote(List<ContactoEmergencia> contactos) {
     for (int i = 0; i < contactos.size(); i++) {
@@ -288,28 +469,39 @@ public void guardarAlergiasEnLote(List<Alergia> alergias) {
         }
     }
 
+    
+  public void guardarMedicamento(Medicamento medicamento) {
+    if (medicamento == null) {
+        throw new IllegalArgumentException("El medicamento no puede ser nulo.");
+    }
+
+    if (medicamento.getPersona() == null || medicamento.getPersona().getId() == null) {
+        throw new IllegalArgumentException("Debe asociar una persona antes de guardar el medicamento.");
+    }
+
+    System.out.println("📌 Guardando medicamento: " + medicamento.getNombre() +
+                       " para la persona ID: " + medicamento.getPersona().getId());
+
+    medicamentoRepository.save(medicamento);
+    System.out.println("✅ Medicamento guardado correctamente.");
+}
+
+
+
+
+
+
     // Reordenar todos los números
     @Transactional
-    public void reordenarNumeros() {
-        List<Persona> personas = personaRepository.findAll().stream()
-                .sorted(Comparator.comparing(Persona::getNumero, Comparator.nullsLast(Integer::compareTo)))
-                .toList();
-
-        int nuevoNumero = 1;
-        boolean cambios = false;
-
-        for (Persona persona : personas) {
-            if (persona.getNumero() == null || !persona.getNumero().equals(nuevoNumero)) {
-                persona.setNumero(nuevoNumero);
-                cambios = true;
-            }
-            nuevoNumero++;
-        }
-
-        if (cambios) {
-            personaRepository.saveAll(personas);
-        }
+public void reordenarNumeros() {
+    List<Persona> todasLasPersonas = personaRepository.findAllByOrderByIdAsc();
+    int numero = 1;
+    for (Persona persona : todasLasPersonas) {
+        persona.setNumero(numero++);
     }
+    personaRepository.saveAll(todasLasPersonas);
+    System.out.println("✅ Números reordenados correctamente. Total: " + todasLasPersonas.size());
+}
 
     // Obtener persona con todas las relaciones
     @Transactional(readOnly = true)

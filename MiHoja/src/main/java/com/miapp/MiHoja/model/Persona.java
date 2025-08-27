@@ -50,6 +50,15 @@ public class Persona {
     @Column(name = "enlace_sigep")
     private String enlaceSigep;
 
+    @Column(name = "estado")
+    private String estado;
+
+    @Column(name = "numero_hijos")
+    private Integer numeroHijos;
+
+    @Column(name = "imagen_url")
+    private String imagenUrl;
+
     // Relaciones
 
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -122,6 +131,15 @@ public class Persona {
     public String getEnlaceSigep() { return enlaceSigep; }
     public void setEnlaceSigep(String enlaceSigep) { this.enlaceSigep = enlaceSigep; }
 
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public Integer getNumeroHijos() { return numeroHijos; }
+    public void setNumeroHijos(Integer numeroHijos) { this.numeroHijos = numeroHijos; }
+
+    public String getImagenUrl() { return imagenUrl; }
+    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
+
     public Set<Medicamento> getMedicamentos() { return medicamentos; }
     public void setMedicamentos(Set<Medicamento> medicamentos) { this.medicamentos = medicamentos; }
 
@@ -161,6 +179,9 @@ public class Persona {
                 ", correoInstitucional='" + correoInstitucional + '\'' +
                 ", telefonoInstitucional='" + telefonoInstitucional + '\'' +
                 ", enlaceSigep='" + enlaceSigep + '\'' +
+                ", estado='" + estado + '\'' +
+                ", numeroHijos=" + numeroHijos +
+                ", imagenUrl='" + imagenUrl + '\'' +
                 '}';
     }
 }

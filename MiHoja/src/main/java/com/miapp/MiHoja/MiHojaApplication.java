@@ -39,7 +39,7 @@ public class MiHojaApplication {
                             opened = true;
                             break;
                         } catch (Exception e) {
-                            // intentar siguiente navegador
+                            // intentar siguiente navegador  
                         }
                     }
                     if (!opened) {
@@ -74,4 +74,3 @@ public class MiHojaApplication {
         }
     }
 }
- 

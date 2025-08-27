@@ -36,15 +36,6 @@
     <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
 </div>
 
-
-
-
-
-
-
-
-
-
 <div class="main">
 
     <!-- ============================================= -->
@@ -301,8 +292,50 @@
     </div>
 </div>
 
+<div id="progreso" style="display: none;">
+    <div class="spinner"></div>
+    <span>Eliminando registros, por favor espere...</span>
+</div>
+
+
 <!-- ✅ SCRIPT FINAL -->
 <script>
+
+      // Mostrar el spinner
+    function mostrarProgreso() {
+        document.getElementById("progreso").style.display = "flex";
+    }
+
+    // Ocultar el spinner
+    function ocultarProgreso() {
+        document.getElementById("progreso").style.display = "none";
+    }
+
+    // ✅ Para eliminación individual
+    document.querySelectorAll(".btn-eliminar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            if (confirm("¿Estás seguro de que deseas eliminar esta hoja de vida?")) {
+                mostrarProgreso();
+            } else {
+                ocultarProgreso();
+                return false;
+            }
+        });
+    });
+
+    // ✅ Para eliminación múltiple
+    const formEliminarMultiples = document.querySelector('form[action="/eliminar-multiples"]');
+    if (formEliminarMultiples) {
+        formEliminarMultiples.addEventListener("submit", function (e) {
+            if (confirm("¿Eliminar los elementos seleccionados?")) {
+                mostrarProgreso();
+            } else {
+                e.preventDefault();
+                ocultarProgreso();
+            }
+        });
+    }
+    
     // ✅ Mantener posición del scroll al recargar
     window.addEventListener("beforeunload", () => sessionStorage.setItem("scrollY", window.scrollY));
     window.addEventListener("load", () => {

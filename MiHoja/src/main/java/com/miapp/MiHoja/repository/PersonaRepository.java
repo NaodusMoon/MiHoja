@@ -15,46 +15,33 @@ import java.util.Optional;
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
-    // Búsqueda parcial por nombre
+    List<Persona> findAllByOrderByIdAsc();
+
+    @Query("SELECT MAX(p.numero) FROM Persona p")
+    Integer findMaxNumero();
+
+    @Modifying
+    @Query("DELETE FROM Persona p WHERE p.id IN :ids")
+    void deleteBatchByIds(@Param("ids") List<Long> ids);
+
+    // Búsquedas personalizadas
     List<Persona> findByNombresContainingIgnoreCase(String nombres);
-
-    // Búsqueda parcial por apellido
     List<Persona> findByApellidosContainingIgnoreCase(String apellidos);
-
-    // Búsqueda parcial combinada por nombre y apellido
     List<Persona> findByNombresContainingIgnoreCaseAndApellidosContainingIgnoreCase(String nombres, String apellidos);
-
-    // Búsqueda exacta por cédula
     List<Persona> findByCedula(String cedula);
-
-    // Búsqueda parcial por lugar de expedición
     List<Persona> findByLugarExpedicionContainingIgnoreCase(String lugarExpedicion);
-
-    // Búsqueda parcial por dirección
     List<Persona> findByDireccionContainingIgnoreCase(String direccion);
-
-    // Búsqueda exacta por sexo
     List<Persona> findBySexo(String sexo);
-
-    // Búsqueda exacta por correo institucional
     List<Persona> findByCorreoInstitucional(String correoInstitucional);
-
-    // Búsqueda exacta por teléfono institucional
     List<Persona> findByTelefonoInstitucional(String telefonoInstitucional);
-
-    // Búsqueda parcial por enlace SIGEP
     List<Persona> findByEnlaceSigepContainingIgnoreCase(String enlaceSigep);
-
-    // Obtener registros con número mayor al dado, ordenados
     List<Persona> findByNumeroGreaterThanOrderByNumeroAsc(Integer numero);
 
-    // Disminuir en 1 todos los números mayores a cierto número
     @Modifying
     @Query("UPDATE Persona p SET p.numero = p.numero - 1 WHERE p.numero > :numeroEliminado")
     void decrementarNumerosPosteriores(@Param("numeroEliminado") int numeroEliminado);
 
-        // ✅ Cargar persona con todas las relaciones importantes
-    @EntityGraph(attributePaths = {
+        @EntityGraph(attributePaths = {
             "formaciones",
             "contactosEmergencia",
             "riesgoProcedencias",
@@ -69,8 +56,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
     @Query("SELECT p FROM Persona p WHERE p.id = :id")
     Optional<Persona> findByIdWithAllRelations(@Param("id") Long id);
 
-        // ✅ Consulta personalizada de personas con su cargo más reciente + todos los campos necesarios
-    @Query(value = """
+        @Query(value = """
         SELECT 
             p.n AS id,
             p.nombres AS nombres,
@@ -83,6 +69,11 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             p.correo_institucional AS correoInstitucional,
             p.telefono_institucional AS telefonoInstitucional,
             p.enlace_sigep AS enlaceSigep,
+
+            -- ✅ NUEVOS CAMPOS
+            p.estado AS estado,
+            p.numero_hijos AS numeroHijos,
+            p.imagen_url AS imagenUrl,
 
             -- ✅ Cargo más reciente
             cl.cargo AS cargo,
@@ -122,7 +113,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
         FROM persona p
 
-        -- Último cargo (LATERAL)
+        -- Último cargo
         LEFT JOIN LATERAL (
             SELECT DISTINCT ON (persona_id) *
             FROM persona_cargo_laboral
@@ -132,7 +123,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
         LEFT JOIN cargo_laboral cl ON pcl.cargo_id = cl.id_cargo
 
-        -- Última formación (LATERAL)
+        -- Última formación
         LEFT JOIN LATERAL (
             SELECT DISTINCT ON (n) *
             FROM formacion
@@ -140,7 +131,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             ORDER BY n, id_formacion DESC
         ) f ON TRUE
 
-        -- Última salud (LATERAL)
+        -- Última salud
         LEFT JOIN LATERAL (
             SELECT DISTINCT ON (n) *
             FROM salud
@@ -148,7 +139,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             ORDER BY n, id_salud DESC
         ) s ON TRUE
 
-        -- Último riesgo (LATERAL)
+        -- Último riesgo
         LEFT JOIN LATERAL (
             SELECT DISTINCT ON (n) *
             FROM riesgo_procedencia
@@ -156,7 +147,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             ORDER BY n, id_riesgo DESC
         ) rp ON TRUE
 
-        -- Última inducción/examen (LATERAL)
+        -- Última inducción/examen
         LEFT JOIN LATERAL (
             SELECT DISTINCT ON (persona_cargo_id) *
             FROM induccion_examen
@@ -166,3 +157,4 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
         """, nativeQuery = true)
     List<PersonaConCargo> consultarPersonasConCargo();
 }
+

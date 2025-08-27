@@ -12,9 +12,12 @@ public interface EnfermedadRepository extends JpaRepository<Enfermedad, Long> {
     // Buscar todas las enfermedades asociadas a una persona por su ID
     List<Enfermedad> findByPersonaId(Long personaId);
 
-    // Buscar enfermedades por nombre exacto
-    List<Enfermedad> findByNombre(String nombre);
+    // Buscar enfermedad por nombre exacto (retorna solo una o null)
+    Enfermedad findByNombre(String nombre);
 
     // Buscar enfermedades por coincidencia parcial en el nombre (ignora mayúsculas/minúsculas)
     List<Enfermedad> findByNombreContainingIgnoreCase(String nombre);
+
+    // 🔹 Buscar la primera coincidencia por nombre ignorando mayúsculas/minúsculas
+    Enfermedad findFirstByNombreIgnoreCase(String nombre);
 }

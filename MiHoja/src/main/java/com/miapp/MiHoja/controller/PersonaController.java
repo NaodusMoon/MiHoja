@@ -8,9 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -29,7 +35,8 @@ public class PersonaController {
 public String consultar(@RequestParam(required = false) String nombre,
                         @RequestParam(required = false) String apellido,
                         @RequestParam(required = false) String cedula,
-                        @RequestParam(required = false) String lugarExpedicion,
+                        @RequestParam(required = false) List<String> lugarExpedicion,
+
                         @RequestParam(required = false) String direccion,
                         @RequestParam(required = false) String sexo,
                         @RequestParam(required = false) String correo,
@@ -86,12 +93,56 @@ public String consultar(@RequestParam(required = false) String nombre,
                         p.getCedula().equalsIgnoreCase(cedula))
                 .collect(Collectors.toList());
     }
-    if (lugarExpedicion != null && !lugarExpedicion.trim().isEmpty()) {
+  if (lugarExpedicion != null && !lugarExpedicion.isEmpty()) {
+    // Normalizamos los lugares seleccionados
+    List<String> seleccionadasNorm = lugarExpedicion.stream()
+            .map(this::normalizar)
+            .collect(Collectors.toList());
+
+    boolean incluirOtras = seleccionadasNorm.contains("otras");
+
+    // Lista de lugares comunes (normalizados)
+    List<String> conocidasNorm = Arrays.asList("bogota", "tunja", "duitama", "sogamoso", "paipa")
+            .stream().map(this::normalizar)
+            .collect(Collectors.toList());
+
+    if (incluirOtras) {
+        // Quitamos "otras" para trabajar con los demás seleccionados
+        List<String> seleccionadasSinOtras = seleccionadasNorm.stream()
+                .filter(p -> !p.equals("otras"))
+                .collect(Collectors.toList());
+
         personas = personas.stream()
-                .filter(p -> p.getLugarExpedicion() != null &&
-                        normalizar(p.getLugarExpedicion()).contains(normalizar(lugarExpedicion)))
+                .filter(p -> {
+                    String lugar = normalizar(p.getLugarExpedicion());
+                    if (lugar.isEmpty()) return false;
+
+                    boolean esConocida = conocidasNorm.contains(lugar);
+                    boolean coincideConSeleccionadas = seleccionadasSinOtras.contains(lugar);
+
+                    // Si hay lugares específicos + "otras"
+                    if (!seleccionadasSinOtras.isEmpty()) {
+                        return coincideConSeleccionadas || (!esConocida && !coincideConSeleccionadas);
+                    } else {
+                        // Solo "otras" seleccionada: mostrar solo los no conocidos
+                        return !esConocida;
+                    }
+                })
+                .collect(Collectors.toList());
+    } else {
+        // Solo lugares explícitos seleccionados (sin "otras")
+        personas = personas.stream()
+                .filter(p -> {
+                    String lugar = normalizar(p.getLugarExpedicion());
+                    return !lugar.isEmpty() && seleccionadasNorm.contains(lugar);
+                })
                 .collect(Collectors.toList());
     }
+}
+
+
+
+
     if (direccion != null && !direccion.trim().isEmpty()) {
         personas = personas.stream()
                 .filter(p -> p.getDireccion() != null &&
@@ -184,11 +235,57 @@ public String consultar(@RequestParam(required = false) String nombre,
                 .collect(Collectors.toList());
     }
     if (procedencia != null && !procedencia.isEmpty()) {
+    // Normaliza lo que viene seleccionado en el request
+    List<String> seleccionadasNorm = procedencia.stream()
+            .map(this::normalizar)
+            .collect(Collectors.toList());
+
+    boolean incluirOtras = seleccionadasNorm.contains("otras");
+
+    // Usa EXACTAMENTE las opciones que muestras en el HTML como "conocidas"
+    List<String> conocidasNorm = Arrays.asList("GARAGOA","TUNJA","BOGOTA","ALMEIDA").stream()
+            .map(this::normalizar)
+            .collect(Collectors.toList());
+
+    if (incluirOtras) {
+        // Quita "otras" de las seleccionadas explícitas
+        List<String> explicitasNorm = seleccionadasNorm.stream()
+                .filter(p -> !p.equals("otras"))
+                .collect(Collectors.toList());
+
         personas = personas.stream()
-                .filter(p -> p.getProcedencia() != null &&
-                        procedencia.stream().anyMatch(pr -> normalizar(p.getProcedencia()).contains(normalizar(pr))))
+                .filter(p -> {
+                    String proc = normalizar(p.getProcedencia());
+                    if (proc.isEmpty()) return false;
+
+                    // ¿pertenece a una procedencia "conocida"? (coincidencia parcial)
+                    boolean esConocida = conocidasNorm.stream().anyMatch(proc::contains);
+                    // ¿coincide con alguna explicitamente seleccionada? (si hay)
+                    boolean coincideExplicita = !explicitasNorm.isEmpty() &&
+                            explicitasNorm.stream().anyMatch(proc::contains);
+
+                    // Solo "OTRAS": devolver las NO conocidas
+                    if (explicitasNorm.isEmpty()) return !esConocida;
+
+                    // "OTRAS" + otras explícitas: devolver las explícitas o las NO conocidas
+                    return coincideExplicita || !esConocida;
+                })
+                .collect(Collectors.toList());
+    } else {
+        // No se pidió "OTRAS": filtra solo por las seleccionadas explícitas
+        personas = personas.stream()
+                .filter(p -> {
+                    String proc = normalizar(p.getProcedencia());
+                    return !proc.isEmpty() && seleccionadasNorm.stream().anyMatch(proc::contains);
+                })
                 .collect(Collectors.toList());
     }
+}
+
+
+
+
+
     if (induccion != null && !induccion.isEmpty()) {
         personas = personas.stream()
                 .filter(p -> p.getInduccion() != null &&
@@ -394,6 +491,15 @@ public String insertar(@RequestParam Map<String, String> params, Model model) {
         return "Muestra_Datos";
     }
 
+
+    @GetMapping("/muestra_datos")
+public String mostrarDatos(@RequestParam Long id, Model model) {
+    Persona persona = personaService.buscarPorId(id);
+    model.addAttribute("persona", persona);
+    return "muestra_datos"; // este sería el HTML que muestra los datos
+}
+
+
     @GetMapping("/eliminar/{id}")
     public String eliminarPersona(@PathVariable Long id, @RequestParam Map<String, String> params) {
         personaService.eliminarPersonaYReordenar(id);
@@ -417,22 +523,25 @@ public String insertar(@RequestParam Map<String, String> params, Model model) {
     }
 
     @PostMapping("/eliminar-multiples")
-    public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
-        if (ids != null && !ids.isEmpty()) {
-            personaService.eliminarVarios(ids);
-        }
-        return "redirect:/consultar";
+public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
+    if (ids != null && !ids.isEmpty()) {
+        personaService.eliminarVarios(ids);
+        personaService.reordenarNumeros(); // ✅ Reorganiza después de eliminar
     }
+    return "redirect:/consultar";
+}
+
 
     private String normalizar(String texto) {
-        if (texto == null) return "";
-        String normalizado = Normalizer.normalize(texto, Normalizer.Form.NFD);
-        normalizado = Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalizado).replaceAll("");
-        normalizado = normalizado.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\s]", "");
-        normalizado = normalizado.replaceAll("\\s+", " ");
-        normalizado = normalizado.replaceAll("[\\r\\n\\t]", "");
-        return normalizado.trim().toLowerCase();
-    }
+    if (texto == null) return "";
+    return Normalizer.normalize(texto, Normalizer.Form.NFD)
+            .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "") // elimina tildes
+            .replaceAll("[^\\p{ASCII}]", "") // elimina caracteres no ASCII
+            .replaceAll("\\s+", " ")         // espacios múltiples a uno
+            .trim()
+            .toLowerCase();                  // todo a minúsculas
+}
+
 
     @PostMapping("/insertar")
     public String insertarPersona(@ModelAttribute Persona persona,
@@ -466,6 +575,41 @@ public String insertar(@RequestParam Map<String, String> params, Model model) {
             return "error";
         }
     }
+
+// 👉 Mostrar formulario de edición
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEdicion(@PathVariable Long id, Model model) {
+        Persona persona = personaService.buscarPorId(id);
+        model.addAttribute("persona", persona);
+        return "editar_persona"; // vista thymeleaf
+    }
+
+    // 👉 Subida de imagen vía AJAX
+    @PostMapping("/subirImagen")
+    @ResponseBody
+    public String subirImagen(@RequestParam("file") MultipartFile file) throws IOException {
+        // Generar nombre único para evitar choques
+        String nombreArchivo = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        // Guardar dentro de static/uploads
+        Path ruta = Paths.get("src/main/resources/static/uploads/" + nombreArchivo);
+        Files.createDirectories(ruta.getParent());
+        Files.write(ruta, file.getBytes());
+
+        // Retornamos la URL que luego se guarda en BD
+        return "/uploads/" + nombreArchivo;
+    }
+
+    // 👉 Guardar cambios de edición (solo datos, imagen ya está en persona.imagenUrl)
+    @PostMapping("/editar/{id}")                                                                                                                                           
+    public String guardarEdicion(@PathVariable Long id, @ModelAttribute Persona persona) {
+        persona.setId(id);
+        personaService.guardar(persona);
+        return "redirect:/muestra_datos?id=" + id;
+    }
+
+
+
 
     @PostMapping("/actualizar/{id}")
     public String actualizarPersona(@PathVariable Long id,
