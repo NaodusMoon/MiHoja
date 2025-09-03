@@ -33,7 +33,6 @@
 
 <!-- ✅ FORMULARIO EDITAR -->
 <div class="datos-container">
-  <!-- Ya NO se sube archivo en este form, por eso SIN enctype -->
   <form th:action="@{/editar/{id}(id=${persona.id})}"
         th:object="${persona}"
         method="post">
@@ -43,19 +42,16 @@
       <div class="dato" style="text-align:center;">
         <div class="imagen-marco"
              style="display:inline-block; padding:10px; background:#fff; border:2px solid #ccc; border-radius:12px;">
-          <!-- IMPORTANTE: siempre renderizar el <img> para poder actualizarlo desde JS -->
           <img id="previewImg"
-               th:src="${#strings.isEmpty(persona.imagenUrl) ? '/img/placeholder.png' : persona.imagenUrl}"
+               th:src="${#strings.isEmpty(persona.imagen_url) ? '/img/placeholder.png' : persona.imagen_url}"
                alt="Foto"
                style="max-width:250px; height:auto; border-radius:10px;">
         </div>
         <br>
         <label>Seleccionar Imagen:</label>
-        <!-- El nombre NO importa porque se envía por fetch aparte -->
         <input type="file" id="imagenInput" accept="image/*">
-
-        <!-- Campo oculto que viaja en el POST de edición -->
-        <input type="hidden" th:field="*{imagenUrl}" id="imagenUrl">
+        <!-- campo oculto que se envía al guardar la persona -->
+        <input type="hidden" th:field="*{imagen_url}" id="imagen_url">
       </div>
     </div>
 
@@ -83,11 +79,11 @@
       </div>
       <div class="dato">
         <label>Lugar de Expedición</label>
-        <input type="text" th:field="*{lugarExpedicion}">
+        <input type="text" th:field="*{lugar_expedicion}">
       </div>
       <div class="dato">
         <label>Fecha de Nacimiento</label>
-        <input type="date" th:field="*{fechaNacimiento}">
+        <input type="date" th:field="*{fecha_nacimiento}">
       </div>
     </div>
 
@@ -107,7 +103,7 @@
       </div>
       <div class="dato">
         <label>Correo Institucional</label>
-        <input type="email" th:field="*{correoInstitucional}">
+        <input type="email" th:field="*{correo_institucional}">
       </div>
     </div>
 
@@ -115,11 +111,11 @@
     <div class="fila">
       <div class="dato">
         <label>Teléfono Institucional</label>
-        <input type="text" th:field="*{telefonoInstitucional}">
+        <input type="text" th:field="*{telefono_institucional}">
       </div>
       <div class="dato">
         <label>Enlace SIGEP</label>
-        <input type="text" th:field="*{enlaceSigep}">
+        <input type="text" th:field="*{enlace_sigep}">
       </div>
       <div class="dato">
         <label>Estado</label>
@@ -127,11 +123,98 @@
       </div>
     </div>
 
+    <!-- ✅ FORMACION -->
+    <div class="fila">
+      <div class="dato">
+        <label>Formación Académica</label>
+        <textarea th:field="*{formacion}" placeholder="Ej: Bachiller, Técnico, Profesional"></textarea>
+      </div>
+    </div>
+
+    <!-- ✅ CARGO LABORAL -->
+    <div class="fila">
+      <div class="dato">
+        <label>Cargos Laborales</label>
+        <textarea th:field="*{cargo_laboral}" placeholder="Separar por coma"></textarea>
+      </div>
+    </div>
+
+    <!-- ✅ PCL -->
+    <div class="fila">
+      <div class="dato">
+        <label>Contratos (PCL)</label>
+        <textarea th:field="*{personaCargoLaboral}" placeholder="Separar por coma"></textarea>
+      </div>
+    </div>
+
+    <!-- ✅ INDUCCION/EXAMEN -->
+    <div class="fila">
+      <div class="dato">
+        <label>Inducción / Exámenes</label>
+        <textarea th:field="*{induccionExamen}" placeholder="Separar por coma"></textarea>
+      </div>
+    </div>
+
+    <!-- ✅ SALUD -->
+    <div class="fila">
+      <div class="dato"><label>Dotación</label><input type="text" th:field="*{salud.dotacion}"></div>
+      <div class="dato"><label>ARL</label><input type="text" th:field="*{salud.arl}"></div>
+      <div class="dato"><label>EPS</label><input type="text" th:field="*{salud.eps}"></div>
+    </div>
+
+    <div class="fila">
+      <div class="dato"><label>AFP</label><input type="text" th:field="*{salud.afp}"></div>
+      <div class="dato"><label>CCF</label><input type="text" th:field="*{salud.ccf}"></div>
+      <div class="dato"><label>RH</label><input type="text" th:field="*{salud.rh}"></div>
+    </div>
+
+    <div class="fila">
+      <div class="dato">
+        <label>Carnet Vacunación</label>
+        <select th:field="*{salud.carnetVacunacion}">
+          <option value="true">Sí</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ✅ LISTAS -->
+    <div class="fila">
+      <div class="dato">
+        <label>Enfermedades</label>
+        <textarea th:field="*{enfermedad}" placeholder="Separar por coma"></textarea>
+      </div>
+      <div class="dato">
+        <label>Alergias</label>
+        <textarea th:field="*{alergia}" placeholder="Separar por coma"></textarea>
+      </div>
+      <div class="dato">
+        <label>Medicamentos</label>
+        <textarea th:field="*{medicamento}" placeholder="Separar por coma"></textarea>
+      </div>
+    </div>
+
+    <!-- ✅ RIESGO -->
+    <div class="fila">
+      <div class="dato">
+        <label>Riesgos / Procedencia</label>
+        <textarea th:field="*{riesgo_procedencia}" placeholder="Separar por coma"></textarea>
+      </div>
+    </div>
+
+    <!-- ✅ CONTACTO EMERGENCIA -->
+    <div class="fila">
+      <div class="dato">
+        <label>Contactos de Emergencia</label>
+        <textarea th:field="*{contacto_emergencia}" placeholder="Separar por coma"></textarea>
+      </div>
+    </div>
+
     <!-- 🔹 Fila 5 -->
     <div class="fila">
       <div class="dato">
         <label>Número de Hijos</label>
-        <input type="number" th:field="*{numeroHijos}">
+        <input type="number" th:field="*{numero_hijos}">
       </div>
     </div>
 
@@ -139,59 +222,68 @@
     <div style="text-align:center; margin-top:20px;">
       <button type="submit" class="editar-btn">💾 Guardar Cambios</button>
     </div>
-
   </form>
 </div>
 
 <!-- ⚡ Script: subir a /api/imagenes/subir con clave 'imagen' y guardar la URL -->
 <script>
-  const inputArchivo = document.getElementById("imagenInput");
-  const preview = document.getElementById("previewImg");
-  const hiddenUrl = document.getElementById("imagenUrl");
+  document.addEventListener("DOMContentLoaded", () => {
+    const inputArchivo = document.getElementById("imagenInput");
+    const preview = document.getElementById("previewImg");
+    const hiddenUrl = document.getElementById("imagen_url");
 
-  // CSRF (si usas Spring Security)
-  const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
-
-  inputArchivo.addEventListener("change", async function () {
-    if (!this.files || this.files.length === 0) return;
-
-    const archivo = this.files[0];
-    const formData = new FormData();
-    // 👇 Clave EXACTA que espera tu ImagenController
-    formData.append("imagen", archivo);
-
-    try {
-      const headers = {};
-      if (csrfToken && csrfHeader) {
-        headers[csrfHeader] = csrfToken;
-      }
-
-      const resp = await fetch("/api/imagenes/subir", {
-        method: "POST",
-        body: formData,
-        headers
-      });
-
-      if (!resp.ok) {
-        const txt = await resp.text();
-        throw new Error("Respuesta no OK del servidor: " + txt);
-      }
-
-      const data = await resp.json(); // { url: "/uploads/xxxx.png", ... }
-      if (!data.url) {
-        throw new Error("El servidor no devolvió 'url'.");
-      }
-
-      // Actualiza preview y el hidden para que viaje en el POST de edición
-      preview.src = data.url;
-      hiddenUrl.value = data.url;
-      alert("Imagen subida con éxito ✅");
-
-    } catch (err) {
-      console.error(err);
-      alert("Error al subir la imagen ❌ " + err.message);
+    if (!inputArchivo || !preview || !hiddenUrl) {
+      console.warn("⚠️ No se encontraron elementos de imagen (imagenInput, previewImg, imagen_url).");
+      return;
     }
+
+    // ✅ CSRF (si usas Spring Security)
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    inputArchivo.addEventListener("change", async function () {
+      if (!this.files || this.files.length === 0) return;
+
+      const archivo = this.files[0];
+      const formData = new FormData();
+      formData.append("imagen", archivo);
+
+      try {
+        const headers = {};
+        if (csrfToken && csrfHeader) {
+          headers[csrfHeader] = csrfToken;
+        }
+
+        const resp = await fetch("/api/imagenes/subir", {
+          method: "POST",
+          body: formData,
+          headers
+        });
+
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error("Respuesta no OK del servidor: " + txt);
+        }
+
+        const data = await resp.json(); // { url: "/uploads/xxxx.png", ... }
+        if (!data.url) {
+          throw new Error("El servidor no devolvió 'url'.");
+        }
+
+        // ✅ Preview en la pantalla
+        preview.src = data.url;
+        preview.style.display = "block";
+
+        // ✅ Guardar en input hidden
+        hiddenUrl.value = data.url;
+
+        alert("Imagen subida con éxito ✅");
+
+      } catch (err) {
+        console.error("❌ Error al subir imagen:", err);
+        alert("Error al subir la imagen ❌ " + err.message);
+      }
+    });
   });
 </script>
 

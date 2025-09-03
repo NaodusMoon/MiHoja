@@ -1,5 +1,6 @@
 package com.miapp.MiHoja.controller;
 
+import com.miapp.MiHoja.dto.PersonaCompletaDTO;
 import com.miapp.MiHoja.dto.PersonaConCargo;
 import com.miapp.MiHoja.model.*;
 import com.miapp.MiHoja.repository.PersonaRepository;
@@ -576,10 +577,12 @@ public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
         }
     }
 
-// 👉 Mostrar formulario de edición
+  
+    // 👉 Mostrar formulario de edición
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEdicion(@PathVariable Long id, Model model) {
-        Persona persona = personaService.buscarPorId(id);
+        PersonaCompletaDTO persona = personaService.buscarDTOporId(id);
+ // usamos el DTO
         model.addAttribute("persona", persona);
         return "editar_persona"; // vista thymeleaf
     }
@@ -600,15 +603,15 @@ public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
         return "/uploads/" + nombreArchivo;
     }
 
-    // 👉 Guardar cambios de edición (solo datos, imagen ya está en persona.imagenUrl)
-    @PostMapping("/editar/{id}")                                                                                                                                           
-    public String guardarEdicion(@PathVariable Long id, @ModelAttribute Persona persona) {
-        persona.setId(id);
-        personaService.guardar(persona);
+    // 👉 Guardar cambios de edición (solo datos, imagen ya está en persona.imagen_url)
+    @PostMapping("/editar/{id}")
+    public String guardarEdicion(@PathVariable Long id, @ModelAttribute PersonaCompletaDTO persona) {
+        persona.setId(id); // mapeamos el id
+        personaService.guardarDTO(persona); // guardamos con el service
         return "redirect:/muestra_datos?id=" + id;
     }
 
-
+ 
 
 
     @PostMapping("/actualizar/{id}")

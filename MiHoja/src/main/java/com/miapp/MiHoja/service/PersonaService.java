@@ -1,5 +1,6 @@
 package com.miapp.MiHoja.service;
 
+import com.miapp.MiHoja.dto.PersonaCompletaDTO;
 import com.miapp.MiHoja.model.*;
 import com.miapp.MiHoja.repository.CargoLaboralRepository;
 import com.miapp.MiHoja.repository.EnfermedadRepository;
@@ -413,7 +414,7 @@ public void guardarSaludEnLote(List<Salud> saludLote) {
     public Persona buscarPorId(Long id) {
         return personaRepository.findById(id).orElse(null);
     }
-
+    
     // 🔹 Guardar (sirve tanto para insertar como para actualizar)
     public Persona guardar(Persona persona) {
         return personaRepository.save(persona);
@@ -485,6 +486,109 @@ public void guardarAlergiasEnLote(List<Alergia> alergias) {
     medicamentoRepository.save(medicamento);
     System.out.println("✅ Medicamento guardado correctamente.");
 }
+
+
+
+
+
+
+
+
+// 🔹 Convierte de entidad -> DTO
+public PersonaCompletaDTO convertirADTO(Persona persona) {
+    if (persona == null) return null;
+
+    PersonaCompletaDTO dto = new PersonaCompletaDTO();
+    dto.setId(persona.getId());
+    dto.setNombres(persona.getNombres());
+    dto.setApellidos(persona.getApellidos());
+    dto.setCedula(persona.getCedula());
+    dto.setLugar_expedicion(persona.getLugarExpedicion());
+    dto.setFecha_nacimiento(persona.getFechaNacimiento());
+    dto.setDireccion(persona.getDireccion());
+    dto.setSexo(persona.getSexo());
+    dto.setNumero(persona.getNumero());
+    dto.setCorreo_institucional(persona.getCorreoInstitucional());
+    dto.setTelefono_institucional(persona.getTelefonoInstitucional());
+    dto.setEnlace_sigep(persona.getEnlaceSigep());
+    dto.setEstado(persona.getEstado());
+    dto.setNumero_hijos(persona.getNumeroHijos());
+    dto.setImagen_url(persona.getImagenUrl());
+
+    // ⚡ Aquí no conviertes con new ArrayList<>(persona.getFormaciones())
+    // sino que usas map() para convertir cada entidad a su mini DTO
+    if (persona.getFormaciones() != null) {
+        dto.setFormacion(persona.getFormaciones().stream().map(f -> {
+            PersonaCompletaDTO.Formacion fDTO = new PersonaCompletaDTO.Formacion();
+            fDTO.setId_formacion(f.getIdFormacion());
+            fDTO.setFormacion_academica(f.getFormacionAcademica());
+            fDTO.setGrado(f.getGrado());
+            fDTO.setTitulo(f.getTitulo());
+            return fDTO;
+        }).toList());
+    }
+
+    // 👉 repites este patrón para cargo_laboral, enfermedad, medicamento, etc.
+    // (cada uno con su mini DTO)
+
+    return dto;
+}
+
+// 🔹 Convierte de DTO -> entidad
+public Persona convertirAEntidad(PersonaCompletaDTO dto) {
+    if (dto == null) return null;
+
+    Persona persona = new Persona();
+    persona.setId(dto.getId());
+    persona.setNombres(dto.getNombres());
+    persona.setApellidos(dto.getApellidos());
+    persona.setCedula(dto.getCedula());
+    persona.setLugarExpedicion(dto.getLugar_expedicion());
+    persona.setFechaNacimiento(dto.getFecha_nacimiento());
+    persona.setDireccion(dto.getDireccion());
+    persona.setSexo(dto.getSexo());
+    persona.setNumero(dto.getNumero());
+    persona.setCorreoInstitucional(dto.getCorreo_institucional());
+    persona.setTelefonoInstitucional(dto.getTelefono_institucional());
+    persona.setEnlaceSigep(dto.getEnlace_sigep());
+    persona.setEstado(dto.getEstado());
+    persona.setNumeroHijos(dto.getNumero_hijos());
+    persona.setImagenUrl(dto.getImagen_url());
+
+    // ⚡ Para las listas haces lo inverso: mapear DTO -> entidad
+    if (dto.getFormacion() != null) {
+        persona.setFormaciones(dto.getFormacion().stream().map(fDTO -> {
+            Formacion f = new Formacion();
+            f.setIdFormacion(fDTO.getId_formacion());
+            f.setFormacionAcademica(fDTO.getFormacion_academica());
+            f.setGrado(fDTO.getGrado());
+            f.setTitulo(fDTO.getTitulo());
+            f.setPersona(persona); // relación inversa
+            return f;
+        }).collect(Collectors.toSet()));
+    }
+
+    // 👉 repites para cargos, enfermedades, etc.
+
+    return persona;
+}
+
+// 🔹 Buscar por ID pero devolviendo DTO (usa tu método existente)
+public PersonaCompletaDTO buscarDTOporId(Long id) {
+    Persona persona = obtenerPersonaConRelaciones(id);
+    return convertirADTO(persona);
+}
+
+// 🔹 Guardar desde DTO
+@Transactional
+public PersonaCompletaDTO guardarDTO(PersonaCompletaDTO dto) {
+    Persona entidad = convertirAEntidad(dto);
+    Persona guardada = guardar(entidad); // ya lo tienes implementado
+    return convertirADTO(guardada);
+}
+
+
+
 
 
 
