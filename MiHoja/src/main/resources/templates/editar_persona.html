@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Editar Hoja de Vida</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/editar_persona.css">
+
+  
 
   <!-- (Opcional) Soporte CSRF si usas Spring Security -->
   <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
@@ -29,215 +31,230 @@
       <button class="cerrar-btn">X</button>
     </a>
   </div>
+<form th:action="@{/editar/{id}(id=${persona.id})}"
+      th:object="${persona}"
+      method="post"
+      enctype="multipart/form-data"
+      class="form-container">
+
+  <!-- ⚡ ID oculto -->
+  <input type="hidden" th:field="*{id}" />
+
+  <!-- 📷 Imagen -->
+  <div class="fila">
+    <div class="dato full-width" style="text-align: center;">
+      <div class="imagen-marco">
+        <img id="previewImg" th:src="*{imagenUrl}" alt="Vista previa">
+      </div>
+      <br>
+      <input type="file" id="imagenInput" name="imagen" accept="image/*">
+      <input type="hidden" id="imagenUrl" name="imagenUrl" th:value="*{imagenUrl}">
+    </div>
+  </div>
+
+  <!-- ✅ Datos básicos -->
+  <div class="fila">
+    <div class="dato"><label>N°</label><input th:field="*{numero}" type="text"/></div>
+    <div class="dato"><label>Nombres</label><input th:field="*{nombres}" type="text"/></div>
+    <div class="dato"><label>Apellidos</label><input th:field="*{apellidos}" type="text"/></div>
+  </div>
+
+  <div class="fila">
+    <div class="dato"><label>Cédula</label><input th:field="*{cedula}" type="text"/></div>
+    <div class="dato"><label>Lugar de Expedición</label><input th:field="*{lugarExpedicion}" type="text"/></div>
+    <div class="dato"><label>Fecha de Nacimiento</label><input th:field="*{fechaNacimiento}" type="date"/></div>
+  </div>
+
+  <div class="fila">
+    <div class="dato"><label>Dirección</label><input th:field="*{direccion}" type="text"/></div>
+    <div class="dato"><label>Sexo</label><input th:field="*{sexo}" type="text"/></div>
+    <div class="dato"><label>Correo Institucional</label><input th:field="*{correoInstitucional}" type="email"/></div>
+  </div>
+
+  <div class="fila">
+    <div class="dato"><label>Teléfono</label><input th:field="*{telefonoInstitucional}" type="text"/></div>
+    <div class="dato"><label>Estado</label><input th:field="*{estado}" type="text"/></div>
+    <div class="dato"><label>Número de Hijos</label><input th:field="*{numeroHijos}" type="number"/></div>
+  </div>
+
+  <!-- ✅ Formación -->
+  <div th:each="f, iterStat : *{formacion}">
+    <div class="fila">
+      <div class="dato"><label>Formación Académica</label><input th:field="*{formacion[__${iterStat.index}__].formacionAcademica}" type="text"/></div>
+      <div class="dato"><label>Grado</label><input th:field="*{formacion[__${iterStat.index}__].grado}" type="text"/></div>
+      <div class="dato"><label>Título</label><input th:field="*{formacion[__${iterStat.index}__].titulo}" type="text"/></div>
+    </div>
+  </div>
+<!-- ✅ Mostrar siempre al menos una fila -->
+<div th:if="*{cargoLaboral != null}">
+  <div th:each="c, iterStat : *{cargoLaboral}">
+    <div class="fila">
+      <div class="dato">
+        <label>Código</label>
+        <input type="text"
+               th:field="*{cargoLaboral[__${iterStat.index}__].codigo}" />
+      </div>
+      <div class="dato">
+        <label>Cargo</label>
+        <input type="text"
+               th:field="*{cargoLaboral[__${iterStat.index}__].cargo}" />
+      </div>
+      <div class="dato">
+        <label>Dependencia</label>
+        <input type="text"
+               th:field="*{cargoLaboral[__${iterStat.index}__].dependencia}" />
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- ✅ FORMULARIO EDITAR -->
-<div class="datos-container">
-  <form th:action="@{/editar/{id}(id=${persona.id})}"
-        th:object="${persona}"
-        method="post">
-
-    <!-- 📷 Imagen -->
-    <div class="fila fila--imagen">
-      <div class="dato" style="text-align:center;">
-        <div class="imagen-marco"
-             style="display:inline-block; padding:10px; background:#fff; border:2px solid #ccc; border-radius:12px;">
-          <img id="previewImg"
-               th:src="${#strings.isEmpty(persona.imagen_url) ? '/img/placeholder.png' : persona.imagen_url}"
-               alt="Foto"
-               style="max-width:250px; height:auto; border-radius:10px;">
-        </div>
-        <br>
-        <label>Seleccionar Imagen:</label>
-        <input type="file" id="imagenInput" accept="image/*">
-        <!-- campo oculto que se envía al guardar la persona -->
-        <input type="hidden" th:field="*{imagen_url}" id="imagen_url">
-      </div>
+<!-- ✅ Si está vacío, muestro una fila en blanco -->
+<div th:if="*{cargoLaboral == null or #lists.isEmpty(cargoLaboral)}">
+  <div class="fila">
+    <div class="dato">
+      <label>Código</label>
+      <input type="text" name="cargoLaboral[0].codigo" />
     </div>
-
-    <!-- 🔹 Fila 1 -->
-    <div class="fila">
-      <div class="dato">
-        <label>N°</label>
-        <input type="number" th:field="*{numero}">
-      </div>
-      <div class="dato">
-        <label>Nombres</label>
-        <input type="text" th:field="*{nombres}" required>
-      </div>
-      <div class="dato">
-        <label>Apellidos</label>
-        <input type="text" th:field="*{apellidos}" required>
-      </div>
+    <div class="dato">
+      <label>Cargo</label>
+      <input type="text" name="cargoLaboral[0].cargo" />
     </div>
-
-    <!-- 🔹 Fila 2 -->
-    <div class="fila">
-      <div class="dato">
-        <label>Cédula</label>
-        <input type="text" th:field="*{cedula}" required>
-      </div>
-      <div class="dato">
-        <label>Lugar de Expedición</label>
-        <input type="text" th:field="*{lugar_expedicion}">
-      </div>
-      <div class="dato">
-        <label>Fecha de Nacimiento</label>
-        <input type="date" th:field="*{fecha_nacimiento}">
-      </div>
+    <div class="dato">
+      <label>Dependencia</label>
+      <input type="text" name="cargoLaboral[0].dependencia" />
     </div>
-
-    <!-- 🔹 Fila 3 -->
-    <div class="fila">
-      <div class="dato">
-        <label>Dirección</label>
-        <input type="text" th:field="*{direccion}">
-      </div>
-      <div class="dato">
-        <label>Sexo</label>
-        <select th:field="*{sexo}">
-          <option value="">Seleccione</option>
-          <option value="M">Masculino</option>
-          <option value="F">Femenino</option>
-        </select>
-      </div>
-      <div class="dato">
-        <label>Correo Institucional</label>
-        <input type="email" th:field="*{correo_institucional}">
-      </div>
-    </div>
-
-    <!-- 🔹 Fila 4 -->
-    <div class="fila">
-      <div class="dato">
-        <label>Teléfono Institucional</label>
-        <input type="text" th:field="*{telefono_institucional}">
-      </div>
-      <div class="dato">
-        <label>Enlace SIGEP</label>
-        <input type="text" th:field="*{enlace_sigep}">
-      </div>
-      <div class="dato">
-        <label>Estado</label>
-        <input type="text" th:field="*{estado}">
-      </div>
-    </div>
-
-    <!-- ✅ FORMACION -->
-    <div class="fila">
-      <div class="dato">
-        <label>Formación Académica</label>
-        <textarea th:field="*{formacion}" placeholder="Ej: Bachiller, Técnico, Profesional"></textarea>
-      </div>
-    </div>
-
-    <!-- ✅ CARGO LABORAL -->
-    <div class="fila">
-      <div class="dato">
-        <label>Cargos Laborales</label>
-        <textarea th:field="*{cargo_laboral}" placeholder="Separar por coma"></textarea>
-      </div>
-    </div>
-
-    <!-- ✅ PCL -->
-    <div class="fila">
-      <div class="dato">
-        <label>Contratos (PCL)</label>
-        <textarea th:field="*{personaCargoLaboral}" placeholder="Separar por coma"></textarea>
-      </div>
-    </div>
-
-    <!-- ✅ INDUCCION/EXAMEN -->
-    <div class="fila">
-      <div class="dato">
-        <label>Inducción / Exámenes</label>
-        <textarea th:field="*{induccionExamen}" placeholder="Separar por coma"></textarea>
-      </div>
-    </div>
-
-    <!-- ✅ SALUD -->
-    <div class="fila">
-      <div class="dato"><label>Dotación</label><input type="text" th:field="*{salud.dotacion}"></div>
-      <div class="dato"><label>ARL</label><input type="text" th:field="*{salud.arl}"></div>
-      <div class="dato"><label>EPS</label><input type="text" th:field="*{salud.eps}"></div>
-    </div>
-
-    <div class="fila">
-      <div class="dato"><label>AFP</label><input type="text" th:field="*{salud.afp}"></div>
-      <div class="dato"><label>CCF</label><input type="text" th:field="*{salud.ccf}"></div>
-      <div class="dato"><label>RH</label><input type="text" th:field="*{salud.rh}"></div>
-    </div>
-
-    <div class="fila">
-      <div class="dato">
-        <label>Carnet Vacunación</label>
-        <select th:field="*{salud.carnetVacunacion}">
-          <option value="true">Sí</option>
-          <option value="false">No</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- ✅ LISTAS -->
-    <div class="fila">
-      <div class="dato">
-        <label>Enfermedades</label>
-        <textarea th:field="*{enfermedad}" placeholder="Separar por coma"></textarea>
-      </div>
-      <div class="dato">
-        <label>Alergias</label>
-        <textarea th:field="*{alergia}" placeholder="Separar por coma"></textarea>
-      </div>
-      <div class="dato">
-        <label>Medicamentos</label>
-        <textarea th:field="*{medicamento}" placeholder="Separar por coma"></textarea>
-      </div>
-    </div>
-
-    <!-- ✅ RIESGO -->
-    <div class="fila">
-      <div class="dato">
-        <label>Riesgos / Procedencia</label>
-        <textarea th:field="*{riesgo_procedencia}" placeholder="Separar por coma"></textarea>
-      </div>
-    </div>
-
-    <!-- ✅ CONTACTO EMERGENCIA -->
-    <div class="fila">
-      <div class="dato">
-        <label>Contactos de Emergencia</label>
-        <textarea th:field="*{contacto_emergencia}" placeholder="Separar por coma"></textarea>
-      </div>
-    </div>
-
-    <!-- 🔹 Fila 5 -->
-    <div class="fila">
-      <div class="dato">
-        <label>Número de Hijos</label>
-        <input type="number" th:field="*{numero_hijos}">
-      </div>
-    </div>
-
-    <!-- ✅ BOTÓN -->
-    <div style="text-align:center; margin-top:20px;">
-      <button type="submit" class="editar-btn">💾 Guardar Cambios</button>
-    </div>
-  </form>
+  </div>
 </div>
+
+
+<!-- ✅ Datos personales laborales -->
+<div th:each="pcl, iterStat : *{personaCargoLaboral}">
+  <div class="fila">
+    <div class="dato">
+      <label>Meses Experiencia</label>
+      <input type="number"
+             th:field="*{personaCargoLaboral[__${iterStat.index}__].mesesExperiencia}" />
+    </div>
+    <div class="dato">
+      <label>Fecha Ingreso</label>
+      <input type="date"
+             th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaIngreso}" />
+    </div>
+    <div class="dato">
+      <label>Fecha Firma Contrato</label>
+      <input type="date"
+             th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaFirmaContrato}" />
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- ✅ Inducción y examen -->
+  <div th:each="ind, iterStat : *{induccionExamen}">
+    <div class="fila">
+      <div class="dato"><label>Fecha de Egreso</label><input th:field="*{induccionExamen[__${iterStat.index}__].fechaEgreso}" type="date"/></div>
+      <div class="dato"><label>Examen Ingreso</label><input th:field="*{induccionExamen[__${iterStat.index}__].examenIngreso}" type="checkbox"/></div>
+      <div class="dato"><label>Inducción</label><input th:field="*{induccionExamen[__${iterStat.index}__].induccion}" type="checkbox"/></div>
+    </div>
+  </div>
+
+  <!-- ✅ Enlace SIGEP -->
+  <div class="fila">
+    <div class="dato full-width"><label>Enlace SIGEP</label><input th:field="*{enlaceSigep}" type="text"/></div>
+  </div>
+
+  <!-- ✅ Salud -->
+  <div class="fila">
+    <div class="dato"><label>Dotación</label><input th:field="*{salud.dotacion}" type="text"/></div>
+    <div class="dato"><label>ARL</label><input th:field="*{salud.arl}" type="text"/></div>
+    <div class="dato"><label>EPS</label><input th:field="*{salud.eps}" type="text"/></div>
+  </div>
+  <div class="fila">
+    <div class="dato"><label>AFP</label><input th:field="*{salud.afp}" type="text"/></div>
+    <div class="dato"><label>CCF</label><input th:field="*{salud.ccf}" type="text"/></div>
+    <div class="dato"><label>RH</label><input th:field="*{salud.rh}" type="text"/></div>
+  </div>
+  <div class="fila">
+    <div class="dato"><label>Carnet Vacunación</label><input th:field="*{salud.carnetVacunacion}" type="checkbox"/></div>
+    <div class="dato"></div>
+    <div class="dato"></div>
+  </div>
+
+ <!-- Enfermedades -->
+<div th:each="e, iterStat : *{enfermedad}">
+  <div class="fila">
+    <div class="dato full-width">
+      <label>Enfermedad</label>
+      <input th:field="*{enfermedad[__${iterStat.index}__].nombre}" type="text"/>
+    </div>
+  </div>
+</div>
+
+<!-- Alergias -->
+<div th:each="a, iterStat : *{alergia}">
+  <div class="fila">
+    <div class="dato full-width">
+      <label>Alergia</label>
+      <input th:field="*{alergia[__${iterStat.index}__].nombre}" type="text"/>
+    </div>
+  </div>
+</div>
+
+<!-- Medicamentos -->
+<div th:each="m, iterStat : *{medicamento}">
+  <div class="fila">
+    <div class="dato full-width">
+      <label>Medicamento</label>
+      <input th:field="*{medicamento[__${iterStat.index}__].nombre}" type="text"/>
+    </div>
+  </div>
+</div>
+
+
+  <!-- ✅ Riesgo y procedencia -->
+  <div th:each="rp, iterStat : *{riesgoProcedencia}">
+    <div class="fila">
+      <div class="dato"><label>Medio Transporte</label><input th:field="*{riesgoProcedencia[__${iterStat.index}__].medioTransporte}" type="text"/></div>
+      <div class="dato"><label>Procedencia Trabajador</label><input th:field="*{riesgoProcedencia[__${iterStat.index}__].procedenciaTrabajador}" type="text"/></div>
+      <div class="dato"><label>Riesgo</label><input th:field="*{riesgoProcedencia[__${iterStat.index}__].riesgo}" type="text"/></div>
+    </div>
+  </div>
+
+  <!-- ✅ Contacto emergencia -->
+  <div th:each="ce, iterStat : *{contactoEmergencia}">
+    <div class="fila">
+      <div class="dato"><label>Nombre Contacto</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].nombreContactoEmergencia}" type="text"/></div>
+      <div class="dato"><label>Parentesco</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].parentesco}" type="text"/></div>
+      <div class="dato"><label>Teléfono</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].telefonoContactoEmergencia}" type="text"/></div>
+    </div>
+  </div>
+
+  <!-- ✅ Botón -->
+  <div class="fila">
+    <div class="dato full-width" style="text-align:center;">
+      <button type="submit" class="btn-guardar">Guardar</button>
+    </div>
+  </div>
+</form>
+
+
+
+
+
 
 <!-- ⚡ Script: subir a /api/imagenes/subir con clave 'imagen' y guardar la URL -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const inputArchivo = document.getElementById("imagenInput");
     const preview = document.getElementById("previewImg");
-    const hiddenUrl = document.getElementById("imagen_url");
+    const hiddenUrl = document.getElementById("imagenUrl");
 
     if (!inputArchivo || !preview || !hiddenUrl) {
-      console.warn("⚠️ No se encontraron elementos de imagen (imagenInput, previewImg, imagen_url).");
+      console.warn("⚠️ No se encontraron elementos de imagen (imagenInput, previewImg, imagenUrl).");
       return;
     }
 
-    // ✅ CSRF (si usas Spring Security)
     const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
 
@@ -246,7 +263,7 @@
 
       const archivo = this.files[0];
       const formData = new FormData();
-      formData.append("imagen", archivo);
+      formData.append("imagen", archivo); // 👈 debe coincidir con @RequestParam("imagen")
 
       try {
         const headers = {};
@@ -254,7 +271,7 @@
           headers[csrfHeader] = csrfToken;
         }
 
-        const resp = await fetch("/api/imagenes/subir", {
+        const resp = await fetch("/api/imagenes/subir", { // 👈 usa tu endpoint real
           method: "POST",
           body: formData,
           headers
@@ -265,10 +282,8 @@
           throw new Error("Respuesta no OK del servidor: " + txt);
         }
 
-        const data = await resp.json(); // { url: "/uploads/xxxx.png", ... }
-        if (!data.url) {
-          throw new Error("El servidor no devolvió 'url'.");
-        }
+        const data = await resp.json(); // 👈 el backend devuelve JSON
+        if (!data.url) throw new Error("El backend no devolvió la URL de la imagen");
 
         // ✅ Preview en la pantalla
         preview.src = data.url;
@@ -286,6 +301,8 @@
     });
   });
 </script>
+
+
 
 </body>
 </html>

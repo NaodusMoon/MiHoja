@@ -578,14 +578,41 @@ public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
     }
 
   
-    // 👉 Mostrar formulario de edición
-    @GetMapping("/editar/{id}")
-    public String mostrarFormularioEdicion(@PathVariable Long id, Model model) {
-        PersonaCompletaDTO persona = personaService.buscarDTOporId(id);
- // usamos el DTO
-        model.addAttribute("persona", persona);
-        return "editar_persona"; // vista thymeleaf
+     // 👉 Mostrar formulario de edición
+@GetMapping("/editar/{id}")
+public String mostrarFormularioEdicion(@PathVariable Long id, Model model) {
+    PersonaCompletaDTO persona = personaService.buscarDTOporId(id);
+
+    // ✅ Inicializamos listas vacías con las clases internas del DTO
+    if (persona.getFormacion() == null || persona.getFormacion().isEmpty()) {
+        persona.setFormacion(List.of(new PersonaCompletaDTO.Formacion()));
     }
+    if (persona.getPersonaCargoLaboral() == null || persona.getPersonaCargoLaboral().isEmpty()) {
+        persona.setPersonaCargoLaboral(List.of(new PersonaCompletaDTO.PersonaCargoLaboral()));
+    }
+    if (persona.getInduccionExamen() == null || persona.getInduccionExamen().isEmpty()) {
+        persona.setInduccionExamen(List.of(new PersonaCompletaDTO.InduccionExamen()));
+    }
+    if (persona.getRiesgoProcedencia() == null || persona.getRiesgoProcedencia().isEmpty()) {
+        persona.setRiesgoProcedencia(List.of(new PersonaCompletaDTO.RiesgoProcedencia()));
+    }
+    if (persona.getContactoEmergencia() == null || persona.getContactoEmergencia().isEmpty()) {
+        persona.setContactoEmergencia(List.of(new PersonaCompletaDTO.ContactoEmergencia()));
+    }
+    if (persona.getEnfermedad() == null || persona.getEnfermedad().isEmpty()) {
+        persona.setEnfermedad(List.of(new PersonaCompletaDTO.Enfermedad()));
+    }
+    if (persona.getMedicamento() == null || persona.getMedicamento().isEmpty()) {
+        persona.setMedicamento(List.of(new PersonaCompletaDTO.Medicamento()));
+    }
+    if (persona.getAlergia() == null || persona.getAlergia().isEmpty()) {
+        persona.setAlergia(List.of(new PersonaCompletaDTO.Alergia()));
+    }
+
+    model.addAttribute("persona", persona);
+    return "editar_persona"; // vista thymeleaf
+}
+
 
     // 👉 Subida de imagen vía AJAX
     @PostMapping("/subirImagen")
@@ -610,6 +637,9 @@ public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
         personaService.guardarDTO(persona); // guardamos con el service
         return "redirect:/muestra_datos?id=" + id;
     }
+
+
+    
 
  
 

@@ -2,11 +2,15 @@ package com.miapp.MiHoja.service;
 
 import com.miapp.MiHoja.dto.PersonaCompletaDTO;
 import com.miapp.MiHoja.model.*;
+import com.miapp.MiHoja.repository.AlergiaRepository;
 import com.miapp.MiHoja.repository.CargoLaboralRepository;
 import com.miapp.MiHoja.repository.EnfermedadRepository;
+import com.miapp.MiHoja.repository.FormacionRepository;
 import com.miapp.MiHoja.repository.MedicamentoRepository;
 import com.miapp.MiHoja.repository.PersonaCargoLaboralRepository;
 import com.miapp.MiHoja.repository.PersonaRepository;
+import com.miapp.MiHoja.repository.SaludRepository;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -493,7 +497,6 @@ public void guardarAlergiasEnLote(List<Alergia> alergias) {
 
 
 
-
 // 🔹 Convierte de entidad -> DTO
 public PersonaCompletaDTO convertirADTO(Persona persona) {
     if (persona == null) return null;
@@ -503,89 +506,398 @@ public PersonaCompletaDTO convertirADTO(Persona persona) {
     dto.setNombres(persona.getNombres());
     dto.setApellidos(persona.getApellidos());
     dto.setCedula(persona.getCedula());
-    dto.setLugar_expedicion(persona.getLugarExpedicion());
-    dto.setFecha_nacimiento(persona.getFechaNacimiento());
+    dto.setLugarExpedicion(persona.getLugarExpedicion());
+    dto.setFechaNacimiento(persona.getFechaNacimiento());
     dto.setDireccion(persona.getDireccion());
     dto.setSexo(persona.getSexo());
     dto.setNumero(persona.getNumero());
-    dto.setCorreo_institucional(persona.getCorreoInstitucional());
-    dto.setTelefono_institucional(persona.getTelefonoInstitucional());
-    dto.setEnlace_sigep(persona.getEnlaceSigep());
+    dto.setCorreoInstitucional(persona.getCorreoInstitucional());
+    dto.setTelefonoInstitucional(persona.getTelefonoInstitucional());
+    dto.setEnlaceSigep(persona.getEnlaceSigep());
     dto.setEstado(persona.getEstado());
-    dto.setNumero_hijos(persona.getNumeroHijos());
-    dto.setImagen_url(persona.getImagenUrl());
+    dto.setNumeroHijos(persona.getNumeroHijos());
+    dto.setImagenUrl(persona.getImagenUrl());
 
-    // ⚡ Aquí no conviertes con new ArrayList<>(persona.getFormaciones())
-    // sino que usas map() para convertir cada entidad a su mini DTO
+    // ✅ Formaciones
     if (persona.getFormaciones() != null) {
         dto.setFormacion(persona.getFormaciones().stream().map(f -> {
             PersonaCompletaDTO.Formacion fDTO = new PersonaCompletaDTO.Formacion();
-            fDTO.setId_formacion(f.getIdFormacion());
-            fDTO.setFormacion_academica(f.getFormacionAcademica());
+            fDTO.setIdFormacion(f.getIdFormacion());
+            fDTO.setFormacionAcademica(f.getFormacionAcademica());
             fDTO.setGrado(f.getGrado());
             fDTO.setTitulo(f.getTitulo());
             return fDTO;
         }).toList());
     }
 
-    // 👉 repites este patrón para cargo_laboral, enfermedad, medicamento, etc.
-    // (cada uno con su mini DTO)
+    // ✅ Cargos Laborales (PersonaCargoLaboral en tu entidad)
+if (persona.getCargosLaborales() != null) {
+    dto.setCargoLaboral(persona.getCargosLaborales().stream().map(pcl -> {
+        PersonaCompletaDTO.CargoLaboral cDTO = new PersonaCompletaDTO.CargoLaboral();
 
-    return dto;
+        CargoLaboral cargo = pcl.getCargo(); // obtenemos el cargo real
+
+        cDTO.setIdCargo(cargo.getId());      // el ID del cargo
+        cDTO.setCodigo(cargo.getCodigo());   // el código del cargo
+        cDTO.setCargo(cargo.getCargo());     // nombre del cargo
+        cDTO.setDependencia(cargo.getDependencia()); // dependencia
+
+        return cDTO;
+    }).toList());
 }
 
-// 🔹 Convierte de DTO -> entidad
-public Persona convertirAEntidad(PersonaCompletaDTO dto) {
-    if (dto == null) return null;
 
-    Persona persona = new Persona();
-    persona.setId(dto.getId());
-    persona.setNombres(dto.getNombres());
-    persona.setApellidos(dto.getApellidos());
-    persona.setCedula(dto.getCedula());
-    persona.setLugarExpedicion(dto.getLugar_expedicion());
-    persona.setFechaNacimiento(dto.getFecha_nacimiento());
-    persona.setDireccion(dto.getDireccion());
-    persona.setSexo(dto.getSexo());
-    persona.setNumero(dto.getNumero());
-    persona.setCorreoInstitucional(dto.getCorreo_institucional());
-    persona.setTelefonoInstitucional(dto.getTelefono_institucional());
-    persona.setEnlaceSigep(dto.getEnlace_sigep());
-    persona.setEstado(dto.getEstado());
-    persona.setNumeroHijos(dto.getNumero_hijos());
-    persona.setImagenUrl(dto.getImagen_url());
+// ✅ Salud
+if (persona.getRegistrosSalud() != null && !persona.getRegistrosSalud().isEmpty()) {
+    Salud registro = persona.getRegistrosSalud().iterator().next(); // tomamos el primero
+    PersonaCompletaDTO.Salud sDTO = new PersonaCompletaDTO.Salud();
+    sDTO.setIdSalud(registro.getIdSalud());
+    sDTO.setDotacion(registro.getDotacion());
+    sDTO.setArl(registro.getArl());
+    sDTO.setEps(registro.getEps());
+    sDTO.setAfp(registro.getAfp());
+    sDTO.setCcf(registro.getCcf());
+    sDTO.setRh(registro.getRh());
+    sDTO.setCarnetVacunacion(registro.getCarnetVacunacion());
+    dto.setSalud(sDTO);
+}
 
-    // ⚡ Para las listas haces lo inverso: mapear DTO -> entidad
-    if (dto.getFormacion() != null) {
-        persona.setFormaciones(dto.getFormacion().stream().map(fDTO -> {
-            Formacion f = new Formacion();
-            f.setIdFormacion(fDTO.getId_formacion());
-            f.setFormacionAcademica(fDTO.getFormacion_academica());
-            f.setGrado(fDTO.getGrado());
-            f.setTitulo(fDTO.getTitulo());
-            f.setPersona(persona); // relación inversa
-            return f;
-        }).collect(Collectors.toSet()));
+
+
+// ✅ Enfermedad
+if (persona.getEnfermedades() != null && !persona.getEnfermedades().isEmpty()) {
+    dto.setEnfermedad(
+        persona.getEnfermedades().stream()
+            .map(e -> {
+                PersonaCompletaDTO.Enfermedad eDTO = new PersonaCompletaDTO.Enfermedad();
+                eDTO.setIdEnfermedad(e.getId()); // <-- corregido
+                eDTO.setNombre(e.getNombre());
+                return eDTO;
+            })
+            .toList()
+    );
+}
+
+
+// ✅ Alergia
+if (persona.getAlergias() != null && !persona.getAlergias().isEmpty()) {
+    dto.setAlergia(
+        persona.getAlergias().stream()
+            .map(a -> {
+                PersonaCompletaDTO.Alergia aDTO = new PersonaCompletaDTO.Alergia();
+                aDTO.setIdAlergia(a.getId()); // <-- corregido
+                aDTO.setNombre(a.getNombre());
+                return aDTO;
+            })
+            .toList()
+    );
+}
+
+
+// ✅ Medicamento
+if (persona.getMedicamentos() != null && !persona.getMedicamentos().isEmpty()) {
+    dto.setMedicamento(
+        persona.getMedicamentos().stream()
+            .map(m -> {
+                PersonaCompletaDTO.Medicamento mDTO = new PersonaCompletaDTO.Medicamento();
+                mDTO.setIdMedicamento(m.getId()); // <-- corregido
+                mDTO.setNombre(m.getNombre());
+                return mDTO;
+            })
+            .toList()
+    );
+}
+
+
+// ✅ Contacto de Emergencia
+if (persona.getContactosEmergencia() != null && !persona.getContactosEmergencia().isEmpty()) {
+    dto.setContactoEmergencia(
+        persona.getContactosEmergencia().stream()
+            .map(c -> {
+                PersonaCompletaDTO.ContactoEmergencia cDTO = new PersonaCompletaDTO.ContactoEmergencia();
+                cDTO.setIdContacto(c.getIdContacto());
+                cDTO.setNombreContactoEmergencia(c.getNombreContactoEmergencia()); // <-- corregido
+                cDTO.setTelefonoContactoEmergencia(c.getTelefonoContactoEmergencia()); // <-- corregido
+                cDTO.setParentesco(c.getParentesco());
+                return cDTO;
+            })
+            .toList()
+    );
+}
+
+
+// ✅ Riesgo Procedencia
+if (persona.getRiesgoProcedencias() != null && !persona.getRiesgoProcedencias().isEmpty()) {
+    dto.setRiesgoProcedencia(
+        persona.getRiesgoProcedencias().stream()
+            .map(r -> {
+                PersonaCompletaDTO.RiesgoProcedencia rDTO = new PersonaCompletaDTO.RiesgoProcedencia();
+                rDTO.setIdRiesgo(r.getIdRiesgo());
+                rDTO.setRiesgo(r.getRiesgo()); // <-- usamos setRiesgo en lugar de setDescripcion
+                rDTO.setMedioTransporte(r.getMedioTransporte());
+                rDTO.setProcedenciaTrabajador(r.getProcedenciaTrabajador());
+                return rDTO;
+            })
+            .toList()
+    );
+}
+
+
+
+// ✅ Inducción Examen (a través de los cargos laborales)
+if (persona.getCargosLaborales() != null && !persona.getCargosLaborales().isEmpty()) {
+    List<PersonaCompletaDTO.InduccionExamen> inducciones = persona.getCargosLaborales().stream()
+        .filter(pcl -> pcl.getInduccionesExamen() != null && !pcl.getInduccionesExamen().isEmpty()) // obtiene InduccionExamen
+        .flatMap(pcl -> pcl.getInduccionesExamen().stream())
+        .map(i -> {
+            PersonaCompletaDTO.InduccionExamen iDTO = new PersonaCompletaDTO.InduccionExamen();
+            iDTO.setIdInduccion(i.getIdInduccion());
+            iDTO.setInduccion(i.getInduccion());
+            iDTO.setExamenIngreso(i.getExamenIngreso());
+            iDTO.setFechaEgreso(i.getFechaEgreso());
+            return iDTO;
+        })
+        .toList();
+
+    dto.setInduccionExamen(inducciones);
+}
+
+
+
+return dto;
+}
+
+
+  
+
+    @Autowired
+    private PersonaCargoLaboralRepository pclRepository;
+
+    @Autowired
+    private SaludRepository saludRepository;
+
+    @Autowired
+    private FormacionRepository formacionRepository;
+
+    @Autowired
+    private AlergiaRepository alergiaRepository;
+
+   
+
+@Transactional
+    public void guardarDTO(PersonaCompletaDTO dto) {
+        // 1️⃣ Obtener la persona de la BD
+        Persona persona = personaRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
+
+        // 2️⃣ Actualizar campos simples
+        persona.setNombres(dto.getNombres());
+        persona.setApellidos(dto.getApellidos());
+        persona.setCedula(dto.getCedula());
+        persona.setLugarExpedicion(dto.getLugarExpedicion());
+        persona.setFechaNacimiento(dto.getFechaNacimiento());
+        persona.setDireccion(dto.getDireccion());
+        persona.setSexo(dto.getSexo());
+        persona.setNumero(dto.getNumero());
+        persona.setCorreoInstitucional(dto.getCorreoInstitucional());
+        persona.setTelefonoInstitucional(dto.getTelefonoInstitucional());
+        persona.setEnlaceSigep(dto.getEnlaceSigep());
+        persona.setEstado(dto.getEstado());
+        persona.setNumeroHijos(dto.getNumeroHijos());
+        // imagenUrl ya la manejas aparte
+
+        // 3️⃣ Actualizar Salud (1:1)
+        if (dto.getSalud() != null) {
+            Salud salud = persona.getRegistrosSalud().stream().findFirst().orElse(new Salud());
+            PersonaCompletaDTO.Salud sDTO = dto.getSalud();
+            salud.setDotacion(sDTO.getDotacion());
+            salud.setArl(sDTO.getArl());
+            salud.setEps(sDTO.getEps());
+            salud.setAfp(sDTO.getAfp());
+            salud.setCcf(sDTO.getCcf());
+            salud.setRh(sDTO.getRh());
+            salud.setCarnetVacunacion(sDTO.getCarnetVacunacion());
+            salud.setPersona(persona);
+            saludRepository.save(salud);
+            persona.getRegistrosSalud().add(salud);
+        }
+
+        // 4️⃣ Actualizar Cargos Laborales (PersonaCargoLaboral)
+        if (dto.getCargoLaboral() != null) {
+            persona.getCargosLaborales().clear(); // eliminar anteriores si quieres reemplazar
+            for (PersonaCompletaDTO.CargoLaboral cDTO : dto.getCargoLaboral()) {
+                CargoLaboral cargo = cargoLaboralRepository.findById(cDTO.getIdCargo())
+                        .orElseThrow(() -> new RuntimeException("Cargo no encontrado"));
+
+                PersonaCargoLaboral pcl = new PersonaCargoLaboral();
+                pcl.setPersona(persona);
+                pcl.setCargo(cargo);
+                pcl.setFechaIngreso(null); // si lo manejas desde DTO, asignar aquí
+                pcl.setFechaFirmaContrato(null);
+                pcl.setMesesExperiencia(null);
+
+                pclRepository.save(pcl);
+                persona.getCargosLaborales().add(pcl);
+            }
+        }
+
+        // 5️⃣ Actualizar Alergias
+        if (dto.getAlergia() != null) {
+            persona.getAlergias().clear();
+            for (PersonaCompletaDTO.Alergia aDTO : dto.getAlergia()) {
+                Alergia a = alergiaRepository.findById(aDTO.getIdAlergia())
+                        .orElse(new Alergia());
+                a.setNombre(aDTO.getNombre());
+                a.setPersona(persona);
+                alergiaRepository.save(a);
+                persona.getAlergias().add(a);
+            }
+        }
+
+        // 6️⃣ Actualizar Enfermedades
+        if (dto.getEnfermedad() != null) {
+            persona.getEnfermedades().clear();
+            for (PersonaCompletaDTO.Enfermedad eDTO : dto.getEnfermedad()) {
+                Enfermedad e = enfermedadRepository.findById(eDTO.getIdEnfermedad())
+                        .orElse(new Enfermedad());
+                e.setNombre(eDTO.getNombre());
+                e.setPersona(persona);
+                enfermedadRepository.save(e);
+                persona.getEnfermedades().add(e);
+            }
+        }
+
+        // 7️⃣ Actualizar Medicamentos
+        if (dto.getMedicamento() != null) {
+            persona.getMedicamentos().clear();
+            for (PersonaCompletaDTO.Medicamento mDTO : dto.getMedicamento()) {
+                Medicamento m = medicamentoRepository.findById(mDTO.getIdMedicamento())
+                        .orElse(new Medicamento());
+                m.setNombre(mDTO.getNombre());
+                m.setPersona(persona);
+                medicamentoRepository.save(m);
+                persona.getMedicamentos().add(m);
+            }
+        }
+
+        // 8️⃣ Guardar persona final
+        personaRepository.save(persona);
     }
 
-    // 👉 repites para cargos, enfermedades, etc.
 
-    return persona;
-}
+  
 
-// 🔹 Buscar por ID pero devolviendo DTO (usa tu método existente)
-public PersonaCompletaDTO buscarDTOporId(Long id) {
-    Persona persona = obtenerPersonaConRelaciones(id);
-    return convertirADTO(persona);
-}
+    @Transactional(readOnly = true)
+    public PersonaCompletaDTO buscarDTOporId(Long id) {
+        Persona persona = personaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
 
-// 🔹 Guardar desde DTO
-@Transactional
-public PersonaCompletaDTO guardarDTO(PersonaCompletaDTO dto) {
-    Persona entidad = convertirAEntidad(dto);
-    Persona guardada = guardar(entidad); // ya lo tienes implementado
-    return convertirADTO(guardada);
-}
+        PersonaCompletaDTO dto = new PersonaCompletaDTO();
+        // ========================
+        // DATOS PERSONALES
+        // ========================
+        dto.setId(persona.getId());
+        dto.setNombres(persona.getNombres());
+        dto.setApellidos(persona.getApellidos());
+        dto.setCedula(persona.getCedula());
+        dto.setLugarExpedicion(persona.getLugarExpedicion());
+        dto.setFechaNacimiento(persona.getFechaNacimiento());
+        dto.setDireccion(persona.getDireccion());
+        dto.setSexo(persona.getSexo());
+        dto.setNumero(persona.getNumero());
+        dto.setCorreoInstitucional(persona.getCorreoInstitucional());
+        dto.setTelefonoInstitucional(persona.getTelefonoInstitucional());
+        dto.setEnlaceSigep(persona.getEnlaceSigep());
+        dto.setEstado(persona.getEstado());
+        dto.setNumeroHijos(persona.getNumeroHijos());
+        dto.setImagenUrl(persona.getImagenUrl());
+
+        // ========================
+        // FORMACION
+        // ========================
+        List<PersonaCompletaDTO.Formacion> formaciones = persona.getFormaciones().stream().map(f -> {
+            PersonaCompletaDTO.Formacion fDTO = new PersonaCompletaDTO.Formacion();
+            fDTO.setIdFormacion(f.getIdFormacion());
+            fDTO.setN(f.getPersona().getNumero().longValue());
+            fDTO.setFormacionAcademica(f.getFormacionAcademica());
+            fDTO.setGrado(f.getGrado());
+            fDTO.setTitulo(f.getTitulo());
+            return fDTO;
+        }).toList();
+        dto.setFormacion(formaciones);
+
+        // ========================
+        // SALUD (1:1)
+        // ========================
+        if (!persona.getRegistrosSalud().isEmpty()) {
+            Salud s = persona.getRegistrosSalud().stream().findFirst().orElse(null);
+            if (s != null) {
+                PersonaCompletaDTO.Salud sDTO = new PersonaCompletaDTO.Salud();
+                sDTO.setIdSalud(s.getIdSalud());
+                sDTO.setDotacion(s.getDotacion());
+                sDTO.setArl(s.getArl());
+                sDTO.setEps(s.getEps());
+                sDTO.setAfp(s.getAfp());
+                sDTO.setCcf(s.getCcf());
+                sDTO.setRh(s.getRh());
+                sDTO.setCarnetVacunacion(s.getCarnetVacunacion());
+                dto.setSalud(sDTO);
+            }
+        }
+
+        // ========================
+// CARGOS LABORALES
+// ========================
+List<PersonaCompletaDTO.CargoLaboral> cargosDTO = persona.getCargosLaborales().stream()
+        .map(pcl -> {
+            PersonaCompletaDTO.CargoLaboral cDTO = new PersonaCompletaDTO.CargoLaboral();
+            cDTO.setIdCargo(pcl.getCargo().getId()); // <-- CORREGIDO
+            cDTO.setCargo(pcl.getCargo().getCargo());
+            cDTO.setCodigo(pcl.getCargo().getCodigo());
+            cDTO.setDependencia(pcl.getCargo().getDependencia());
+            return cDTO;
+        }).toList();
+dto.setCargoLaboral(cargosDTO);
+
+
+ // ========================
+// ALERGIAS
+// ========================
+List<PersonaCompletaDTO.Alergia> alergiasDTO = persona.getAlergias().stream().map(a -> {
+    PersonaCompletaDTO.Alergia aDTO = new PersonaCompletaDTO.Alergia();
+    aDTO.setIdAlergia(a.getId()); // <-- CORREGIDO
+    aDTO.setN(persona.getNumero().longValue());
+    aDTO.setNombre(a.getNombre());
+    return aDTO;
+}).toList();
+dto.setAlergia(alergiasDTO);
+
+        // ========================
+        // ENFERMEDADES
+        // ========================
+        List<PersonaCompletaDTO.Enfermedad> enfermedadesDTO = persona.getEnfermedades().stream().map(e -> {
+            PersonaCompletaDTO.Enfermedad eDTO = new PersonaCompletaDTO.Enfermedad();
+            eDTO.setIdEnfermedad(e.getId());
+            eDTO.setN(persona.getNumero().longValue());
+            eDTO.setNombre(e.getNombre());
+            return eDTO;
+        }).toList();
+        dto.setEnfermedad(enfermedadesDTO);
+
+        // ========================
+// MEDICAMENTOS
+// ========================
+List<PersonaCompletaDTO.Medicamento> medicamentosDTO = persona.getMedicamentos().stream().map(m -> {
+    PersonaCompletaDTO.Medicamento mDTO = new PersonaCompletaDTO.Medicamento();
+    mDTO.setIdMedicamento(m.getId()); // <-- CORREGIDO
+    mDTO.setNombre(m.getNombre());
+    return mDTO;
+}).toList();
+dto.setMedicamento(medicamentosDTO);
+
+
+        return dto;
+    }
 
 
 
