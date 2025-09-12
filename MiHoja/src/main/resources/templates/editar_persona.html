@@ -62,7 +62,10 @@
   <div class="fila">
     <div class="dato"><label>Cédula</label><input th:field="*{cedula}" type="text"/></div>
     <div class="dato"><label>Lugar de Expedición</label><input th:field="*{lugarExpedicion}" type="text"/></div>
-    <div class="dato"><label>Fecha de Nacimiento</label><input th:field="*{fechaNacimiento}" type="date"/></div>
+    <div class="dato">
+      <label>Fecha de Nacimiento</label>
+      <input type="date" th:field="*{fechaNacimientoStr}"/>
+    </div>
   </div>
 
   <div class="fila">
@@ -85,77 +88,39 @@
       <div class="dato"><label>Título</label><input th:field="*{formacion[__${iterStat.index}__].titulo}" type="text"/></div>
     </div>
   </div>
-<!-- ✅ Mostrar siempre al menos una fila -->
-<div th:if="*{cargoLaboral != null}">
+
+  <!-- ✅ Cargo laboral -->
   <div th:each="c, iterStat : *{cargoLaboral}">
     <div class="fila">
-      <div class="dato">
-        <label>Código</label>
-        <input type="text"
-               th:field="*{cargoLaboral[__${iterStat.index}__].codigo}" />
+      <div class="dato"><label>Código</label><input th:field="*{cargoLaboral[__${iterStat.index}__].codigo}" type="text"/></div>
+      <div class="dato"><label>Cargo</label><input th:field="*{cargoLaboral[__${iterStat.index}__].cargo}" type="text"/></div>
+      <div class="dato"><label>Dependencia</label><input th:field="*{cargoLaboral[__${iterStat.index}__].dependencia}" type="text"/></div>
+    </div>
+  </div>
+
+  <!-- ✅ Datos personales laborales -->
+  <div th:each="pcl, iterStat : *{personaCargoLaboral}">
+    <div class="fila">
+      <div class="dato"><label>Meses Experiencia</label>
+        <input type="number" th:field="*{personaCargoLaboral[__${iterStat.index}__].mesesExperiencia}" />
       </div>
-      <div class="dato">
-        <label>Cargo</label>
-        <input type="text"
-               th:field="*{cargoLaboral[__${iterStat.index}__].cargo}" />
+      <div class="dato"><label>Fecha Ingreso</label>
+        <input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaIngresoStr}" />
       </div>
-      <div class="dato">
-        <label>Dependencia</label>
-        <input type="text"
-               th:field="*{cargoLaboral[__${iterStat.index}__].dependencia}" />
+      <div class="dato"><label>Fecha Firma Contrato</label>
+        <input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaFirmaContratoStr}" />
       </div>
     </div>
   </div>
-</div>
-
-<!-- ✅ Si está vacío, muestro una fila en blanco -->
-<div th:if="*{cargoLaboral == null or #lists.isEmpty(cargoLaboral)}">
-  <div class="fila">
-    <div class="dato">
-      <label>Código</label>
-      <input type="text" name="cargoLaboral[0].codigo" />
-    </div>
-    <div class="dato">
-      <label>Cargo</label>
-      <input type="text" name="cargoLaboral[0].cargo" />
-    </div>
-    <div class="dato">
-      <label>Dependencia</label>
-      <input type="text" name="cargoLaboral[0].dependencia" />
-    </div>
-  </div>
-</div>
-
-
-<!-- ✅ Datos personales laborales -->
-<div th:each="pcl, iterStat : *{personaCargoLaboral}">
-  <div class="fila">
-    <div class="dato">
-      <label>Meses Experiencia</label>
-      <input type="number"
-             th:field="*{personaCargoLaboral[__${iterStat.index}__].mesesExperiencia}" />
-    </div>
-    <div class="dato">
-      <label>Fecha Ingreso</label>
-      <input type="date"
-             th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaIngreso}" />
-    </div>
-    <div class="dato">
-      <label>Fecha Firma Contrato</label>
-      <input type="date"
-             th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaFirmaContrato}" />
-    </div>
-  </div>
-</div>
-
-
 
   <!-- ✅ Inducción y examen -->
   <div th:each="ind, iterStat : *{induccionExamen}">
     <div class="fila">
-      <div class="dato"><label>Fecha de Egreso</label><input th:field="*{induccionExamen[__${iterStat.index}__].fechaEgreso}" type="date"/></div>
-      <div class="dato"><label>Examen Ingreso</label><input th:field="*{induccionExamen[__${iterStat.index}__].examenIngreso}" type="checkbox"/></div>
-      <div class="dato"><label>Inducción</label><input th:field="*{induccionExamen[__${iterStat.index}__].induccion}" type="checkbox"/></div>
+      <div class="dato"><label>Fecha de Egreso</label>
+        <input type="date" th:field="*{induccionExamen[__${iterStat.index}__].fechaEgresoStr}" />
+      </div>
+      <div class="dato"><label>Examen Ingreso</label><input type="checkbox" th:field="*{induccionExamen[__${iterStat.index}__].examenIngreso}" /></div>
+      <div class="dato"><label>Inducción</label><input type="checkbox" th:field="*{induccionExamen[__${iterStat.index}__].induccion}" /></div>
     </div>
   </div>
 
@@ -177,40 +142,22 @@
   </div>
   <div class="fila">
     <div class="dato"><label>Carnet Vacunación</label><input th:field="*{salud.carnetVacunacion}" type="checkbox"/></div>
-    <div class="dato"></div>
-    <div class="dato"></div>
   </div>
 
- <!-- Enfermedades -->
-<div th:each="e, iterStat : *{enfermedad}">
-  <div class="fila">
-    <div class="dato full-width">
-      <label>Enfermedad</label>
-      <input th:field="*{enfermedad[__${iterStat.index}__].nombre}" type="text"/>
-    </div>
+  <!-- ✅ Enfermedades -->
+  <div th:each="e, iterStat : *{enfermedad}">
+    <div class="fila"><div class="dato full-width"><label>Enfermedad</label><input th:field="*{enfermedad[__${iterStat.index}__].nombre}" type="text"/></div></div>
   </div>
-</div>
 
-<!-- Alergias -->
-<div th:each="a, iterStat : *{alergia}">
-  <div class="fila">
-    <div class="dato full-width">
-      <label>Alergia</label>
-      <input th:field="*{alergia[__${iterStat.index}__].nombre}" type="text"/>
-    </div>
+  <!-- ✅ Alergias -->
+  <div th:each="a, iterStat : *{alergia}">
+    <div class="fila"><div class="dato full-width"><label>Alergia</label><input th:field="*{alergia[__${iterStat.index}__].nombre}" type="text"/></div></div>
   </div>
-</div>
 
-<!-- Medicamentos -->
-<div th:each="m, iterStat : *{medicamento}">
-  <div class="fila">
-    <div class="dato full-width">
-      <label>Medicamento</label>
-      <input th:field="*{medicamento[__${iterStat.index}__].nombre}" type="text"/>
-    </div>
+  <!-- ✅ Medicamentos -->
+  <div th:each="m, iterStat : *{medicamento}">
+    <div class="fila"><div class="dato full-width"><label>Medicamento</label><input th:field="*{medicamento[__${iterStat.index}__].nombre}" type="text"/></div></div>
   </div>
-</div>
-
 
   <!-- ✅ Riesgo y procedencia -->
   <div th:each="rp, iterStat : *{riesgoProcedencia}">
@@ -237,6 +184,10 @@
     </div>
   </div>
 </form>
+
+
+
+
 
 
 

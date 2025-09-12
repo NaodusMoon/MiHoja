@@ -895,6 +895,72 @@ List<PersonaCompletaDTO.Medicamento> medicamentosDTO = persona.getMedicamentos()
 }).toList();
 dto.setMedicamento(medicamentosDTO);
 
+// ========================
+// CONTACTO EMERGENCIA
+// ========================
+List<PersonaCompletaDTO.ContactoEmergencia> contactosDTO = persona.getContactosEmergencia().stream().map(c -> {
+    PersonaCompletaDTO.ContactoEmergencia cDTO = new PersonaCompletaDTO.ContactoEmergencia();
+    cDTO.setIdContacto(c.getIdContacto());
+    cDTO.setNombreContactoEmergencia(c.getNombreContactoEmergencia());
+    cDTO.setTelefonoContactoEmergencia(c.getTelefonoContactoEmergencia());
+    cDTO.setParentesco(c.getParentesco());
+    return cDTO;
+}).toList();
+dto.setContactoEmergencia(contactosDTO);
+
+
+// ========================
+// RIESGO PROCEDENCIA
+// ========================
+List<PersonaCompletaDTO.RiesgoProcedencia> riesgosDTO = persona.getRiesgoProcedencias().stream().map(r -> {
+    PersonaCompletaDTO.RiesgoProcedencia rDTO = new PersonaCompletaDTO.RiesgoProcedencia();
+    rDTO.setIdRiesgo(r.getIdRiesgo());
+    rDTO.setRiesgo(r.getRiesgo());
+    rDTO.setMedioTransporte(r.getMedioTransporte());
+    rDTO.setProcedenciaTrabajador(r.getProcedenciaTrabajador());
+    return rDTO;
+}).toList();
+dto.setRiesgoProcedencia(riesgosDTO);
+
+
+// ========================
+// INDUCCION / EXAMEN
+// ========================
+List<PersonaCompletaDTO.InduccionExamen> induccionesDTO = persona.getCargosLaborales().stream()
+    .filter(pcl -> pcl.getInduccionesExamen() != null && !pcl.getInduccionesExamen().isEmpty())
+    .flatMap(pcl -> pcl.getInduccionesExamen().stream())
+    .map(i -> {
+        PersonaCompletaDTO.InduccionExamen iDTO = new PersonaCompletaDTO.InduccionExamen();
+        iDTO.setIdInduccion(i.getIdInduccion());
+        iDTO.setInduccion(i.getInduccion());
+        iDTO.setExamenIngreso(i.getExamenIngreso());
+        iDTO.setFechaEgreso(i.getFechaEgreso());
+        return iDTO;
+    })
+    .toList();
+dto.setInduccionExamen(induccionesDTO);
+
+
+// ========================
+// CARGOS LABORALES (con datos de PersonaCargoLaboral)
+// ========================
+List<PersonaCompletaDTO.PersonaCargoLaboral> cargosLaboralesDTO = persona.getCargosLaborales().stream()
+    .map(pcl -> {
+        PersonaCompletaDTO.PersonaCargoLaboral pclDTO = new PersonaCompletaDTO.PersonaCargoLaboral();
+        pclDTO.setIdPcl(pcl.getId()); // <-- usa getId()
+        pclDTO.setPersonaId(pcl.getPersona() != null ? pcl.getPersona().getId() : null); // <-- persona.getId()
+        pclDTO.setCargoId(pcl.getCargo() != null ? pcl.getCargo().getId() : null);       // <-- cargo.getId()
+        pclDTO.setFechaIngreso(pcl.getFechaIngreso());
+        pclDTO.setFechaFirmaContrato(pcl.getFechaFirmaContrato());
+        pclDTO.setMesesExperiencia(pcl.getMesesExperiencia());
+        return pclDTO;
+    }).toList();
+
+dto.setPersonaCargoLaboral(cargosLaboralesDTO);
+
+
+
+
 
         return dto;
     }

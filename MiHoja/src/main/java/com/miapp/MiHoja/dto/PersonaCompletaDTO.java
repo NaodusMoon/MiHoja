@@ -1,6 +1,7 @@
 package com.miapp.MiHoja.dto;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PersonaCompletaDTO {
@@ -47,6 +48,11 @@ public class PersonaCompletaDTO {
         public void setTitulo(String titulo) { this.titulo = titulo; }
     }
 
+    // ✅ Getter auxiliar para Thymeleaf (input date)
+    public String getFechaNacimientoStr() {
+        return fechaNacimiento != null ? fechaNacimiento.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+    }
+
     // ========================
     // CARGO LABORAL (N:M)
     // ========================
@@ -87,6 +93,16 @@ public class PersonaCompletaDTO {
         public void setFechaFirmaContrato(LocalDate fechaFirmaContrato) { this.fechaFirmaContrato = fechaFirmaContrato; }
         public Integer getMesesExperiencia() { return mesesExperiencia; }
         public void setMesesExperiencia(Integer mesesExperiencia) { this.mesesExperiencia = mesesExperiencia; }
+
+         // ✅ Getters auxiliares en String (para Thymeleaf)
+    public String getFechaIngresoStr() {
+        return fechaIngreso != null ? fechaIngreso.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+    }
+
+    public String getFechaFirmaContratoStr() {
+        return fechaFirmaContrato != null ? fechaFirmaContrato.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+    }
+
     }
 
     // ========================
@@ -110,6 +126,11 @@ public class PersonaCompletaDTO {
         public void setExamenIngreso(Boolean examenIngreso) { this.examenIngreso = examenIngreso; }
         public LocalDate getFechaEgreso() { return fechaEgreso; }
         public void setFechaEgreso(LocalDate fechaEgreso) { this.fechaEgreso = fechaEgreso; }
+
+        // Auxiliar
+    public String getFechaEgresoStr() {
+        return fechaEgreso != null ? fechaEgreso.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+    }
     }
 
     // ========================
