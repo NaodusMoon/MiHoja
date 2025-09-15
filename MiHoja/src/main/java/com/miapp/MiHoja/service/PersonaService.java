@@ -4,11 +4,14 @@ import com.miapp.MiHoja.dto.PersonaCompletaDTO;
 import com.miapp.MiHoja.model.*;
 import com.miapp.MiHoja.repository.AlergiaRepository;
 import com.miapp.MiHoja.repository.CargoLaboralRepository;
+import com.miapp.MiHoja.repository.ContactoEmergenciaRepository;
 import com.miapp.MiHoja.repository.EnfermedadRepository;
 import com.miapp.MiHoja.repository.FormacionRepository;
+import com.miapp.MiHoja.repository.InduccionExamenRepository;
 import com.miapp.MiHoja.repository.MedicamentoRepository;
 import com.miapp.MiHoja.repository.PersonaCargoLaboralRepository;
 import com.miapp.MiHoja.repository.PersonaRepository;
+import com.miapp.MiHoja.repository.RiesgoProcedenciaRepository;
 import com.miapp.MiHoja.repository.SaludRepository;
 
 import jakarta.persistence.EntityManager;
@@ -682,107 +685,227 @@ return dto;
     @Autowired
     private AlergiaRepository alergiaRepository;
 
-   
+    @Autowired
+private InduccionExamenRepository induccionExamenRepository;
 
-@Transactional
-    public void guardarDTO(PersonaCompletaDTO dto) {
-        // 1️⃣ Obtener la persona de la BD
-        Persona persona = personaRepository.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
+ // 🔴 Falta esto para Contacto de emergencia
+    @Autowired
+    private ContactoEmergenciaRepository contactoEmergenciaRepository;
 
-        // 2️⃣ Actualizar campos simples
-        persona.setNombres(dto.getNombres());
-        persona.setApellidos(dto.getApellidos());
-        persona.setCedula(dto.getCedula());
-        persona.setLugarExpedicion(dto.getLugarExpedicion());
-        persona.setFechaNacimiento(dto.getFechaNacimiento());
-        persona.setDireccion(dto.getDireccion());
-        persona.setSexo(dto.getSexo());
-        persona.setNumero(dto.getNumero());
-        persona.setCorreoInstitucional(dto.getCorreoInstitucional());
-        persona.setTelefonoInstitucional(dto.getTelefonoInstitucional());
-        persona.setEnlaceSigep(dto.getEnlaceSigep());
-        persona.setEstado(dto.getEstado());
-        persona.setNumeroHijos(dto.getNumeroHijos());
-        // imagenUrl ya la manejas aparte
+    @Autowired
+    private RiesgoProcedenciaRepository riesgoProcedenciaRepository;
 
-        // 3️⃣ Actualizar Salud (1:1)
-        if (dto.getSalud() != null) {
-            Salud salud = persona.getRegistrosSalud().stream().findFirst().orElse(new Salud());
-            PersonaCompletaDTO.Salud sDTO = dto.getSalud();
-            salud.setDotacion(sDTO.getDotacion());
-            salud.setArl(sDTO.getArl());
-            salud.setEps(sDTO.getEps());
-            salud.setAfp(sDTO.getAfp());
-            salud.setCcf(sDTO.getCcf());
-            salud.setRh(sDTO.getRh());
-            salud.setCarnetVacunacion(sDTO.getCarnetVacunacion());
-            salud.setPersona(persona);
-            saludRepository.save(salud);
-            persona.getRegistrosSalud().add(salud);
-        }
+    
 
-        // 4️⃣ Actualizar Cargos Laborales (PersonaCargoLaboral)
-        if (dto.getCargoLaboral() != null) {
-            persona.getCargosLaborales().clear(); // eliminar anteriores si quieres reemplazar
-            for (PersonaCompletaDTO.CargoLaboral cDTO : dto.getCargoLaboral()) {
-                CargoLaboral cargo = cargoLaboralRepository.findById(cDTO.getIdCargo())
-                        .orElseThrow(() -> new RuntimeException("Cargo no encontrado"));
 
-                PersonaCargoLaboral pcl = new PersonaCargoLaboral();
-                pcl.setPersona(persona);
-                pcl.setCargo(cargo);
-                pcl.setFechaIngreso(null); // si lo manejas desde DTO, asignar aquí
-                pcl.setFechaFirmaContrato(null);
-                pcl.setMesesExperiencia(null);
 
-                pclRepository.save(pcl);
-                persona.getCargosLaborales().add(pcl);
-            }
-        }
-
-        // 5️⃣ Actualizar Alergias
-        if (dto.getAlergia() != null) {
-            persona.getAlergias().clear();
-            for (PersonaCompletaDTO.Alergia aDTO : dto.getAlergia()) {
-                Alergia a = alergiaRepository.findById(aDTO.getIdAlergia())
-                        .orElse(new Alergia());
-                a.setNombre(aDTO.getNombre());
-                a.setPersona(persona);
-                alergiaRepository.save(a);
-                persona.getAlergias().add(a);
-            }
-        }
-
-        // 6️⃣ Actualizar Enfermedades
-        if (dto.getEnfermedad() != null) {
-            persona.getEnfermedades().clear();
-            for (PersonaCompletaDTO.Enfermedad eDTO : dto.getEnfermedad()) {
-                Enfermedad e = enfermedadRepository.findById(eDTO.getIdEnfermedad())
-                        .orElse(new Enfermedad());
-                e.setNombre(eDTO.getNombre());
-                e.setPersona(persona);
-                enfermedadRepository.save(e);
-                persona.getEnfermedades().add(e);
-            }
-        }
-
-        // 7️⃣ Actualizar Medicamentos
-        if (dto.getMedicamento() != null) {
-            persona.getMedicamentos().clear();
-            for (PersonaCompletaDTO.Medicamento mDTO : dto.getMedicamento()) {
-                Medicamento m = medicamentoRepository.findById(mDTO.getIdMedicamento())
-                        .orElse(new Medicamento());
-                m.setNombre(mDTO.getNombre());
-                m.setPersona(persona);
-                medicamentoRepository.save(m);
-                persona.getMedicamentos().add(m);
-            }
-        }
-
-        // 8️⃣ Guardar persona final
-        personaRepository.save(persona);
+ @Transactional
+public void guardarDTO(PersonaCompletaDTO dto) {
+    if (dto.getId() == null) {
+        throw new IllegalArgumentException("El ID del DTO es null, no se puede guardar.");
     }
+
+    Persona persona = personaRepository.findById(dto.getId())
+            .orElseThrow(() -> new RuntimeException("Persona con id " + dto.getId() + " no encontrada"));
+
+    // 1️⃣ Campos simples
+    if (dto.getNombres() != null) persona.setNombres(dto.getNombres());
+    if (dto.getApellidos() != null) persona.setApellidos(dto.getApellidos());
+    if (dto.getCedula() != null) persona.setCedula(dto.getCedula());
+    if (dto.getLugarExpedicion() != null) persona.setLugarExpedicion(dto.getLugarExpedicion());
+    if (dto.getFechaNacimiento() != null) persona.setFechaNacimiento(dto.getFechaNacimiento());
+    if (dto.getDireccion() != null) persona.setDireccion(dto.getDireccion());
+    if (dto.getSexo() != null) persona.setSexo(dto.getSexo());
+    if (dto.getNumero() != null) persona.setNumero(dto.getNumero());
+    if (dto.getCorreoInstitucional() != null) persona.setCorreoInstitucional(dto.getCorreoInstitucional());
+    if (dto.getTelefonoInstitucional() != null) persona.setTelefonoInstitucional(dto.getTelefonoInstitucional());
+    if (dto.getEnlaceSigep() != null) persona.setEnlaceSigep(dto.getEnlaceSigep());
+    if (dto.getEstado() != null) persona.setEstado(dto.getEstado());
+    if (dto.getNumeroHijos() != null) persona.setNumeroHijos(dto.getNumeroHijos());
+    if (dto.getImagenUrl() != null) persona.setImagenUrl(dto.getImagenUrl());
+
+    // 2️⃣ Salud
+    if (dto.getSalud() != null) {
+        Salud salud = persona.getRegistrosSalud().stream().findFirst().orElse(new Salud());
+        PersonaCompletaDTO.Salud sDTO = dto.getSalud();
+        if (sDTO.getDotacion() != null) salud.setDotacion(sDTO.getDotacion());
+        if (sDTO.getArl() != null) salud.setArl(sDTO.getArl());
+        if (sDTO.getEps() != null) salud.setEps(sDTO.getEps());
+        if (sDTO.getAfp() != null) salud.setAfp(sDTO.getAfp());
+        if (sDTO.getCcf() != null) salud.setCcf(sDTO.getCcf());
+        if (sDTO.getRh() != null) salud.setRh(sDTO.getRh());
+        salud.setCarnetVacunacion(sDTO.getCarnetVacunacion());
+        salud.setPersona(persona);
+        saludRepository.save(salud);
+        if (!persona.getRegistrosSalud().contains(salud)) persona.getRegistrosSalud().add(salud);
+    }
+
+    // 3️⃣ Formación académica
+if (dto.getFormacion() != null) {
+    for (PersonaCompletaDTO.Formacion fDTO : dto.getFormacion()) {
+        Formacion f = (fDTO.getIdFormacion() != null)
+                ? formacionRepository.findById(fDTO.getIdFormacion()).orElse(new Formacion())
+                : new Formacion();
+        f.setFormacionAcademica(fDTO.getFormacionAcademica());
+        f.setGrado(fDTO.getGrado());
+        f.setTitulo(fDTO.getTitulo());
+        f.setPersona(persona);
+        formacionRepository.save(f);
+
+        if (!persona.getFormaciones().contains(f)) // ✅ corregido
+            persona.getFormaciones().add(f);
+    }
+}
+
+
+    // 4️⃣ Cargo laboral (base)
+if (dto.getCargoLaboral() != null) {
+    for (PersonaCompletaDTO.CargoLaboral cDTO : dto.getCargoLaboral()) {
+        CargoLaboral c = (cDTO.getIdCargo() != null)
+                ? cargoLaboralRepository.findById(cDTO.getIdCargo()).orElse(new CargoLaboral())
+                : new CargoLaboral();
+        c.setCodigo(cDTO.getCodigo());
+        c.setCargo(cDTO.getCargo());
+        c.setDependencia(cDTO.getDependencia());
+        cargoLaboralRepository.save(c);
+
+        // Crear la relación intermedia PersonaCargoLaboral
+        PersonaCargoLaboral pcl = new PersonaCargoLaboral();
+        pcl.setPersona(persona);
+        pcl.setCargo(c);
+        // opcional: setear fechas y meses si vienen en DTO
+
+        // 🔹 usar el getter correcto
+        persona.getCargosLaborales().add(pcl);
+    }
+}
+
+
+
+    // 5️⃣ PersonaCargoLaboral
+    if (dto.getPersonaCargoLaboral() != null) {
+        for (PersonaCompletaDTO.PersonaCargoLaboral pclDTO : dto.getPersonaCargoLaboral()) {
+            if (pclDTO.getCargoId() != null) {
+                PersonaCargoLaboral pcl = (pclDTO.getIdPcl() != null)
+                        ? pclRepository.findById(pclDTO.getIdPcl()).orElse(new PersonaCargoLaboral())
+                        : new PersonaCargoLaboral();
+                pcl.setPersona(persona);
+                CargoLaboral cargo = cargoLaboralRepository.findById(pclDTO.getCargoId())
+                        .orElseThrow(() -> new RuntimeException("Cargo no encontrado con id " + pclDTO.getCargoId()));
+                pcl.setCargo(cargo);
+                pcl.setFechaIngreso(pclDTO.getFechaIngreso());
+                pcl.setFechaFirmaContrato(pclDTO.getFechaFirmaContrato());
+                pcl.setMesesExperiencia(pclDTO.getMesesExperiencia());
+                pclRepository.save(pcl);
+                if (!persona.getCargosLaborales().contains(pcl)) persona.getCargosLaborales().add(pcl);
+            }
+        }
+    }
+
+    // 6️⃣ Inducción / Examen
+    if (dto.getInduccionExamen() != null) {
+        for (PersonaCompletaDTO.InduccionExamen ieDTO : dto.getInduccionExamen()) {
+            if (ieDTO.getPersonaCargoId() != null) {
+                PersonaCargoLaboral pcl = pclRepository.findById(ieDTO.getPersonaCargoId()).orElse(null);
+                if (pcl != null) {
+                    InduccionExamen ie = (ieDTO.getIdInduccion() != null)
+                            ? induccionExamenRepository.findById(ieDTO.getIdInduccion()).orElse(new InduccionExamen())
+                            : new InduccionExamen();
+                    ie.setPersonaCargoLaboral(pcl);
+                    ie.setInduccion(ieDTO.getInduccion());
+                    ie.setExamenIngreso(ieDTO.getExamenIngreso());
+                    ie.setFechaEgreso(ieDTO.getFechaEgreso());
+                    induccionExamenRepository.save(ie);
+                    if (!pcl.getInduccionesExamen().contains(ie)) pcl.getInduccionesExamen().add(ie);
+                }
+            }
+        }
+    }
+
+    // 7️⃣ Enfermedades
+    if (dto.getEnfermedad() != null) {
+        for (PersonaCompletaDTO.Enfermedad eDTO : dto.getEnfermedad()) {
+            Enfermedad e = (eDTO.getIdEnfermedad() != null)
+                    ? enfermedadRepository.findById(eDTO.getIdEnfermedad()).orElse(new Enfermedad())
+                    : new Enfermedad();
+            e.setNombre(eDTO.getNombre());
+            e.setPersona(persona);
+            enfermedadRepository.save(e);
+            if (!persona.getEnfermedades().contains(e)) persona.getEnfermedades().add(e);
+        }
+    }
+
+    // 8️⃣ Alergias
+    if (dto.getAlergia() != null) {
+        for (PersonaCompletaDTO.Alergia aDTO : dto.getAlergia()) {
+            Alergia a = (aDTO.getIdAlergia() != null)
+                    ? alergiaRepository.findById(aDTO.getIdAlergia()).orElse(new Alergia())
+                    : new Alergia();
+            a.setNombre(aDTO.getNombre());
+            a.setPersona(persona);
+            alergiaRepository.save(a);
+            if (!persona.getAlergias().contains(a)) persona.getAlergias().add(a);
+        }
+    }
+
+    // 9️⃣ Medicamentos
+    if (dto.getMedicamento() != null) {
+        for (PersonaCompletaDTO.Medicamento mDTO : dto.getMedicamento()) {
+            Medicamento m = (mDTO.getIdMedicamento() != null)
+                    ? medicamentoRepository.findById(mDTO.getIdMedicamento()).orElse(new Medicamento())
+                    : new Medicamento();
+            m.setNombre(mDTO.getNombre());
+            m.setPersona(persona);
+            medicamentoRepository.save(m);
+            if (!persona.getMedicamentos().contains(m)) persona.getMedicamentos().add(m);
+        }
+    }
+
+    // 🔟 Riesgo / Procedencia
+if (dto.getRiesgoProcedencia() != null) {
+    for (PersonaCompletaDTO.RiesgoProcedencia rpDTO : dto.getRiesgoProcedencia()) {
+        RiesgoProcedencia rp = (rpDTO.getIdRiesgo() != null)
+                ? riesgoProcedenciaRepository.findById(rpDTO.getIdRiesgo()).orElse(new RiesgoProcedencia())
+                : new RiesgoProcedencia();
+        rp.setMedioTransporte(rpDTO.getMedioTransporte());
+        rp.setProcedenciaTrabajador(rpDTO.getProcedenciaTrabajador());
+        rp.setRiesgo(rpDTO.getRiesgo());
+        rp.setPersona(persona);
+        riesgoProcedenciaRepository.save(rp);
+        if (!persona.getRiesgoProcedencias().contains(rp))  // ⚠️ getter de Persona
+            persona.getRiesgoProcedencias().add(rp);
+    }
+}
+
+
+   
+// 1️⃣1️⃣ Contacto de emergencia
+if (dto.getContactoEmergencia() != null) {
+    for (PersonaCompletaDTO.ContactoEmergencia ceDTO : dto.getContactoEmergencia()) {
+        ContactoEmergencia ce = (ceDTO.getIdContacto() != null)
+                ? contactoEmergenciaRepository.findById(ceDTO.getIdContacto()).orElse(new ContactoEmergencia())
+                : new ContactoEmergencia();
+        ce.setNombreContactoEmergencia(ceDTO.getNombreContactoEmergencia());
+        ce.setParentesco(ceDTO.getParentesco());
+        ce.setTelefonoContactoEmergencia(ceDTO.getTelefonoContactoEmergencia());
+        ce.setPersona(persona);
+        contactoEmergenciaRepository.save(ce);
+        // ✅ Aquí usamos el getter correcto
+        if (!persona.getContactosEmergencia().contains(ce)) 
+            persona.getContactosEmergencia().add(ce);
+    }
+}
+
+
+
+    // ✅ Guardar persona final
+    personaRepository.save(persona);
+}
+
+
+
+
+
 
 
   

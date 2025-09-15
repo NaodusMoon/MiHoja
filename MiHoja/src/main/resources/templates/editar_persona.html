@@ -34,11 +34,10 @@
 <form th:action="@{/editar/{id}(id=${persona.id})}"
       th:object="${persona}"
       method="post"
-      enctype="multipart/form-data"
       class="form-container">
 
   <!-- ⚡ ID oculto -->
-  <input type="hidden" th:field="*{id}" />
+  <input type="hidden" th:field="*{id}" th:value="${persona.id}" />
 
   <!-- 📷 Imagen -->
   <div class="fila">
@@ -47,8 +46,8 @@
         <img id="previewImg" th:src="*{imagenUrl}" alt="Vista previa">
       </div>
       <br>
-      <input type="file" id="imagenInput" name="imagen" accept="image/*">
-      <input type="hidden" id="imagenUrl" name="imagenUrl" th:value="*{imagenUrl}">
+      <input type="file" id="imagenInput" accept="image/*">
+      <input type="hidden" id="imagenUrl" name="imagenUrl" th:field="*{imagenUrl}">
     </div>
   </div>
 
@@ -62,9 +61,8 @@
   <div class="fila">
     <div class="dato"><label>Cédula</label><input th:field="*{cedula}" type="text"/></div>
     <div class="dato"><label>Lugar de Expedición</label><input th:field="*{lugarExpedicion}" type="text"/></div>
-    <div class="dato">
-      <label>Fecha de Nacimiento</label>
-      <input type="date" th:field="*{fechaNacimientoStr}"/>
+    <div class="dato"><label>Fecha de Nacimiento</label>
+      <input type="date" th:field="*{fechaNacimientoStr}" />
     </div>
   </div>
 
@@ -80,7 +78,7 @@
     <div class="dato"><label>Número de Hijos</label><input th:field="*{numeroHijos}" type="number"/></div>
   </div>
 
-  <!-- ✅ Formación -->
+  <!-- ✅ Formación académica -->
   <div th:each="f, iterStat : *{formacion}">
     <div class="fila">
       <div class="dato"><label>Formación Académica</label><input th:field="*{formacion[__${iterStat.index}__].formacionAcademica}" type="text"/></div>
@@ -98,27 +96,19 @@
     </div>
   </div>
 
-  <!-- ✅ Datos personales laborales -->
+  <!-- ✅ PersonaCargoLaboral -->
   <div th:each="pcl, iterStat : *{personaCargoLaboral}">
     <div class="fila">
-      <div class="dato"><label>Meses Experiencia</label>
-        <input type="number" th:field="*{personaCargoLaboral[__${iterStat.index}__].mesesExperiencia}" />
-      </div>
-      <div class="dato"><label>Fecha Ingreso</label>
-        <input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaIngresoStr}" />
-      </div>
-      <div class="dato"><label>Fecha Firma Contrato</label>
-        <input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaFirmaContratoStr}" />
-      </div>
+      <div class="dato"><label>Meses Experiencia</label><input type="number" th:field="*{personaCargoLaboral[__${iterStat.index}__].mesesExperiencia}" /></div>
+      <div class="dato"><label>Fecha Ingreso</label><input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaIngresoStr}" /></div>
+      <div class="dato"><label>Fecha Firma Contrato</label><input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaFirmaContratoStr}" /></div>
     </div>
   </div>
 
   <!-- ✅ Inducción y examen -->
   <div th:each="ind, iterStat : *{induccionExamen}">
     <div class="fila">
-      <div class="dato"><label>Fecha de Egreso</label>
-        <input type="date" th:field="*{induccionExamen[__${iterStat.index}__].fechaEgresoStr}" />
-      </div>
+      <div class="dato"><label>Fecha de Egreso</label><input type="date" th:field="*{induccionExamen[__${iterStat.index}__].fechaEgresoStr}" /></div>
       <div class="dato"><label>Examen Ingreso</label><input type="checkbox" th:field="*{induccionExamen[__${iterStat.index}__].examenIngreso}" /></div>
       <div class="dato"><label>Inducción</label><input type="checkbox" th:field="*{induccionExamen[__${iterStat.index}__].induccion}" /></div>
     </div>
@@ -168,7 +158,7 @@
     </div>
   </div>
 
-  <!-- ✅ Contacto emergencia -->
+  <!-- ✅ Contacto de emergencia -->
   <div th:each="ce, iterStat : *{contactoEmergencia}">
     <div class="fila">
       <div class="dato"><label>Nombre Contacto</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].nombreContactoEmergencia}" type="text"/></div>
@@ -177,7 +167,7 @@
     </div>
   </div>
 
-  <!-- ✅ Botón -->
+  <!-- ✅ Botón Guardar -->
   <div class="fila">
     <div class="dato full-width" style="text-align:center;">
       <button type="submit" class="btn-guardar">Guardar</button>

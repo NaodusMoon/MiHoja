@@ -632,13 +632,32 @@ public String eliminarMultiples(@RequestParam("selectedIds") List<Long> ids) {
         return "/uploads/" + nombreArchivo;
     }
 
-    // 👉 Guardar cambios de edición (solo datos, imagen ya está en persona.imagen_url)
-    @PostMapping("/editar/{id}")
-    public String guardarEdicion(@PathVariable Long id, @ModelAttribute PersonaCompletaDTO persona) {
-        persona.setId(id); // mapeamos el id
-        personaService.guardarDTO(persona); // guardamos con el service
-        return "redirect:/muestra_datos?id=" + id;
+      @Autowired
+    private PersonaRepository personaRepository;
+
+  @PostMapping("/editar/{id}")
+public String guardarEdicion(@PathVariable Long id, @ModelAttribute PersonaCompletaDTO personaDTO, Model model) {
+    // Forzamos siempre el id del path para que nunca llegue null
+    personaDTO.setId(id);
+
+    if (personaDTO.getId() == null) {
+        throw new IllegalArgumentException("El ID no puede ser null al guardar la edición");
     }
+
+    // Guardamos la edición
+    personaService.guardarDTO(personaDTO);
+
+    // Recargamos la entidad completa desde la DB para mostrarla
+    Persona persona = personaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
+
+    model.addAttribute("persona", persona);
+
+    return "muestra_datos";
+}
+
+
+
 
 
 
