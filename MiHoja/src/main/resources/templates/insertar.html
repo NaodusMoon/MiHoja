@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Crear Hojas de Vida</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
     
 </head>
 <body>
@@ -11,9 +11,7 @@
 <!-- Navbar -->
 <div class="navbar">
     <a class="logo"
-       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
-        [Logo]
-    </a>
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">MH</a>
 
     <a class="app-name"
        th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
@@ -30,10 +28,8 @@
            th:classappend="${paginaActual == 'insertar'} ? ' active'">
             Insertar
         </a>
-    </div>
-
-    <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
-</div>
+        <a th:href="@{/configuracion-campos}">Campos</a>
+    </div></div>
 
 
 
@@ -102,8 +98,8 @@
         <div class="form-group"><label for="medioTransporte">Medio de Transporte</label><input type="text" id="medioTransporte" name="medioTransporte"></div>
         <div class="form-group"><label for="procedencia">Procedencia del Trabajador</label><input type="text" id="procedencia" name="procedencia"></div>
         <div class="form-group"><label for="riesgo">Riesgo</label><input type="text" id="riesgo" name="riesgo"></div>
-        <div class="form-group"><label for="examen">Examen de Ingreso</label><input type="text" id="examen" name="examen"></div>
-        <div class="form-group"><label for="induccion">Induccion</label><input type="text" id="induccion" name="induccion"></div>
+        <div class="form-group"><label for="examen">Examen de Ingreso</label><select id="examen" name="examen"><option value="false">No</option><option value="true">Si</option></select></div>
+        <div class="form-group"><label for="induccion">Induccion</label><select id="induccion" name="induccion"><option value="false">No</option><option value="true">Si</option></select></div>
         <div class="form-group"><label for="fechaIngreso">Fecha de Ingreso</label><input type="date" id="fechaIngreso" name="fechaIngreso"></div>
         <div class="form-group"><label for="fechaEgreso">Fecha de Egreso</label><input type="date" id="fechaEgreso" name="fechaEgreso"></div>
         <div class="form-group"><label for="dotacion">Dotacion</label><input type="text" id="dotacion" name="dotacion"></div>
@@ -126,8 +122,7 @@
         <div class="form-group"><label for="nombreEmergencia">En caso de Emergencia llamar a:</label><input type="text" id="nombreEmergencia" name="nombreEmergencia"></div>
         <div class="form-group"><label for="parentesco">Parentesco</label><input type="text" id="parentesco" name="parentesco"></div>
         <div class="form-group"><label for="telefonoEmergencia">Numero telefonico del contacto</label><input type="text" id="telefonoEmergencia" name="telefonoEmergencia"></div>
-        
-        <!-- Campo oculto para incluir la URL de imagen subida -->
+<!-- Campo oculto para incluir la URL de imagen subida -->
         <input type="hidden" id="imagen_url_datos" name="imagen_url">
     </div>
 
@@ -138,7 +133,7 @@
 <!-- Mensaje flotante -->
 <div id="mensaje" class="mensaje" style="display:none"></div>
 
-<!-- 🔹 Mensaje de progreso -->
+<!-- Mensaje de progreso -->
 <div id="progreso" style="display:none;">
     <div class="spinner"></div>
     <span>Subiendo datos, por favor espere...</span>
@@ -231,8 +226,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 📌 Nuevo: Toast flotante
-    function mostrarToast(texto, exito) {
+    // Nuevo: Toast flotante
+    window.mostrarToast = function (texto, exito) {
         const toast = document.createElement('div');
         toast.className = 'toast ' + (exito ? 'success' : 'error');
         toast.textContent = texto;
@@ -244,11 +239,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// 📌 Función para subir archivo Excel con barra de progreso
+// Función para subir archivo Excel con barra de progreso
 async function subirArchivo() {
     const archivoInput = document.getElementById('archivo');
     const file = archivoInput.files[0];
-    const progreso = document.getElementById('progreso'); // 👈 barra de progreso
+    const progreso = document.getElementById('progreso'); // barra de progreso
 
     if (!file) {
         alert("Selecciona un archivo .xlsx");
@@ -256,30 +251,29 @@ async function subirArchivo() {
     }
 
     const formData = new FormData();
-    formData.append('file', file); // 👈 Debe coincidir con @RequestParam("file")
+    formData.append('file', file); // Debe coincidir con @RequestParam("file")
 
-    // 📌 Mostrar barra de progreso
+    // Mostrar barra de progreso
     progreso.style.display = 'flex';
 
     try {
-        const resp = await fetch('/api/insertar/archivo', { // ✅ Endpoint correcto
+        const resp = await fetch('/api/insertar/archivo', { // Endpoint correcto
             method: 'POST',
             body: formData
         });
 
         if (!resp.ok) throw new Error("Error al subir archivo");
 
-        const data = await resp.text(); // 👈 Tu endpoint devuelve texto, no JSON
-        mostrarToast("✅ " + data, true);
+        const data = await resp.text(); // Tu endpoint devuelve texto, no JSON
+        mostrarToast(data, true);
     } catch (err) {
         console.error(err);
-        mostrarToast("❌ Error subiendo archivo", false);
+        mostrarToast("Error subiendo archivo", false);
     } finally {
-        // 📌 Ocultar barra de progreso
+        // Ocultar barra de progreso
         progreso.style.display = 'none';
     }
-}
-</script>
+}</script>
 
 
 
@@ -292,3 +286,12 @@ async function subirArchivo() {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+

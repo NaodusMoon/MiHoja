@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuracion de Campos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="navbar">
+    <a class="logo" th:href="@{/consultar}">MH</a>
+    <a class="app-name" th:href="@{/consultar}">MiHoja</a>
+    <div class="nav-links">
+        <a th:href="@{/consultar}">Consultar</a>
+        <a th:href="@{/insertar}">Insertar</a>
+        <a th:href="@{/configuracion-campos}" class="active">Campos</a>
+    </div></div>
+
+<div class="datos-container" style="margin-top: 20px;">
+    <h2>Campos Del Formulario</h2>
+    <p style="margin: 8px 0 16px 0;">Estos son los campos fijos del formulario de insercion manual.</p>
+
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+        <tr>
+            <th style="text-align:left; border-bottom:1px solid #ccc; padding:8px;">#</th>
+            <th style="text-align:left; border-bottom:1px solid #ccc; padding:8px;">Nombre Tecnico</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="campo, iter : ${camposFormulario}">
+            <td style="padding:8px;" th:text="${iter.count}"></td>
+            <td style="padding:8px;" th:text="${campo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+</body>
+</html>
+

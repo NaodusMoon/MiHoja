@@ -29,6 +29,9 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
     List<Persona> findByApellidosContainingIgnoreCase(String apellidos);
     List<Persona> findByNombresContainingIgnoreCaseAndApellidosContainingIgnoreCase(String nombres, String apellidos);
     List<Persona> findByCedula(String cedula);
+    Optional<Persona> findFirstByCedulaIgnoreCase(String cedula);
+    Optional<Persona> findFirstByCorreoInstitucionalIgnoreCase(String correoInstitucional);
+    Optional<Persona> findFirstByTelefonoInstitucional(String telefonoInstitucional);
     List<Persona> findByLugarExpedicionContainingIgnoreCase(String lugarExpedicion);
     List<Persona> findByDireccionContainingIgnoreCase(String direccion);
     List<Persona> findBySexo(String sexo);
@@ -47,6 +50,7 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             "riesgoProcedencias",
             "registrosSalud",
             "alergias",
+            "medicamentos",
             "enfermedades",
             "enfermedades.medicamentos",
             "cargosLaborales",
@@ -55,6 +59,22 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
     })
     @Query("SELECT p FROM Persona p WHERE p.id = :id")
     Optional<Persona> findByIdWithAllRelations(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {
+            "formaciones",
+            "contactosEmergencia",
+            "riesgoProcedencias",
+            "registrosSalud",
+            "alergias",
+            "medicamentos",
+            "enfermedades",
+            "enfermedades.medicamentos",
+            "cargosLaborales",
+            "cargosLaborales.cargo",
+            "cargosLaborales.induccionesExamen"
+    })
+    @Query("SELECT p FROM Persona p")
+    List<Persona> findAllWithAllRelations();
 
         @Query(value = """
         SELECT 

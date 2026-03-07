@@ -1,10 +1,17 @@
 package com.miapp.MiHoja.controller;
 
 import com.miapp.MiHoja.model.*;
+import com.miapp.MiHoja.repository.ContactoEmergenciaRepository;
+import com.miapp.MiHoja.repository.FormacionRepository;
+import com.miapp.MiHoja.repository.InduccionExamenRepository;
+import com.miapp.MiHoja.repository.PersonaRepository;
+import com.miapp.MiHoja.repository.PersonaCargoLaboralRepository;
+import com.miapp.MiHoja.repository.RiesgoProcedenciaRepository;
+import com.miapp.MiHoja.repository.SaludRepository;
+import com.miapp.MiHoja.service.CampoPersonalizadoService;
 import com.miapp.MiHoja.service.PersonaService;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,11 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.io.File;
-import java.io.IOException;
+import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -26,19 +30,36 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-
-
 @Controller
 @RequestMapping("/api")
 public class InsercionController {
 
     @Autowired
     private PersonaService personaService;
+
+    @Autowired
+    private PersonaRepository personaRepository;
+
+    @Autowired
+    private FormacionRepository formacionRepository;
+
+    @Autowired
+    private RiesgoProcedenciaRepository riesgoProcedenciaRepository;
+
+    @Autowired
+    private SaludRepository saludRepository;
+
+    @Autowired
+    private ContactoEmergenciaRepository contactoEmergenciaRepository;
+
+    @Autowired
+    private PersonaCargoLaboralRepository personaCargoLaboralRepository;
+
+    @Autowired
+    private InduccionExamenRepository induccionExamenRepository;
+
+    @Autowired
+    private CampoPersonalizadoService campoPersonalizadoService;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -134,6 +155,7 @@ public String insertarDesdeFormulario(
 
         persona.setImagenUrl(params.getOrDefault("imagen_url", ""));
         personaService.guardarConNumero(persona);
+        campoPersonalizadoService.guardarValoresDesdeFormulario(persona.getId(), params);
 
         // === Formación ===
         Formacion formacion = new Formacion();
@@ -173,8 +195,8 @@ public String insertarDesdeFormulario(
         // === Inducción y Examen ===
         InduccionExamen ie = new InduccionExamen();
         ie.setPersonaCargoLaboral(pcl);
-        ie.setInduccion(Boolean.parseBoolean(params.getOrDefault("induccion", "false")));
-        ie.setExamenIngreso(Boolean.parseBoolean(params.getOrDefault("examen", "false")));
+        ie.setInduccion(parseBooleanCustom(params.get("induccion")));
+        ie.setExamenIngreso(parseBooleanCustom(params.get("examen")));
 
         String fechaEgresoStr = params.get("fechaEgreso");
         if (fechaEgresoStr != null && !fechaEgresoStr.isBlank()) {
@@ -205,7 +227,7 @@ public String insertarDesdeFormulario(
         salud.setAfp(params.getOrDefault("afp", ""));
         salud.setCcf(params.getOrDefault("ccf", ""));
         salud.setRh(params.getOrDefault("rh", ""));
-        salud.setCarnetVacunacion(Boolean.parseBoolean(params.getOrDefault("carnetVacunacion", "false")));
+        salud.setCarnetVacunacion(parseBooleanCustom(params.get("carnetVacunacion")));
         personaService.guardarSalud(salud);
 
         // === Contacto de emergencia ===
@@ -272,211 +294,273 @@ public String insertarDesdeFormulario(
 
 
 
-      @PostMapping(value = "/insertar/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+      @Transactional
+@PostMapping(value = "/insertar/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") MultipartFile file) {
-    try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
+    int creados = 0;
+    int actualizados = 0;
+    int filasConError = 0;
+    List<String> detalleErrores = new ArrayList<>();
+
+    if (file == null || file.isEmpty()) {
+        return ResponseEntity.badRequest().body("Error: no se recibió archivo o está vacío.");
+    }
+
+    try (InputStream is = file.getInputStream(); Workbook workbook = WorkbookFactory.create(is)) {
         Sheet sheet = workbook.getSheetAt(0);
         Row headerRow = sheet.getRow(0);
+        if (headerRow == null) {
+            return ResponseEntity.badRequest().body("Error: El archivo no tiene encabezados.");
+        }
+
         Map<String, Integer> colIndex = mapearColumnasConJaroWinkler(headerRow);
-
-        // ✅ Log para ver qué columnas fueron mapeadas
-        System.out.println("📌 Mapeo detectado: " + colIndex);
-
-        // ✅ 1. PRIMERO: Guardar solo personas
-        List<Persona> personasLote = new ArrayList<>();
+        Integer idxCarro = buscarColumna(headerRow, "carro");
+        Integer idxMoto = buscarColumna(headerRow, "moto");
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            if (row == null || esFilaVacia(row)) continue;
-
-            Persona persona = new Persona();
-            persona.setNombres(getCellValue(row, colIndex.get("nombres")));
-            persona.setApellidos(getCellValue(row, colIndex.get("apellidos")));
-
-            String cedulaExcel = getCellValue(row, colIndex.get("cedula"));
-            if (cedulaExcel == null || cedulaExcel.trim().isEmpty() || cedulaExcel.equalsIgnoreCase("NO DISPONIBLE")) {
-                persona.setCedula("NO DISPONIBLE_" + UUID.randomUUID().toString().substring(0, 8));
-            } else {
-                persona.setCedula(cedulaExcel.trim());
+            if (row == null || esFilaVacia(row)) {
+                continue;
             }
 
-            persona.setLugarExpedicion(getCellValue(row, colIndex.get("lugarExpedicion")));
-            persona.setFechaNacimiento(parseFecha(getCellValue(row, colIndex.get("fechaNacimiento"))));
-            persona.setDireccion(getCellValue(row, colIndex.get("direccion")));
-            persona.setSexo(getCellValue(row, colIndex.get("sexo")));
-            persona.setCorreoInstitucional(getCellValue(row, colIndex.get("correoInstitucional")));
-            persona.setTelefonoInstitucional(getCellValue(row, colIndex.get("telefonoInstitucional")));
-            persona.setEnlaceSigep(getCellValue(row, colIndex.get("enlaceSigep")));
+            try {
+                String nombresRaw = normalizarTexto(getCellValue(row, colIndex.get("nombres")));
+                String apellidosRaw = normalizarTexto(getCellValue(row, colIndex.get("apellidos")));
+                if (esNoDisponible(apellidosRaw) && !esNoDisponible(nombresRaw)) {
+                    String[] partes = dividirNombreCompleto(nombresRaw);
+                    nombresRaw = partes[0];
+                    apellidosRaw = partes[1];
+                }
 
-            personasLote.add(persona);
-        }
+                String cedulaRaw = normalizarTexto(getCellValue(row, colIndex.get("cedula")));
+                String correoRaw = normalizarTexto(getCellValue(row, colIndex.get("correoInstitucional")));
+                String telefonoRaw = normalizarTexto(getCellValue(row, colIndex.get("telefonoInstitucional")));
+                String transporteRaw = resolverTransporte(
+                        getCellValue(row, colIndex.get("medioTransporte")),
+                        getCellValue(row, idxCarro),
+                        getCellValue(row, idxMoto)
+                );
 
-        // ✅ Guardar personas primero para que tengan N e ID generados
-        personasLote = personaService.guardarPersonasEnLote(personasLote);
+                Optional<Persona> existente = buscarPersonaExistente(cedulaRaw, correoRaw, telefonoRaw);
+                Persona persona;
+                boolean esNuevo = existente.isEmpty();
 
-        // ✅ Reordenar números SOLO para las nuevas personas (optimizado)
-        personaService.reordenarNumeros();
-
-
-        // ✅ 2. SEGUNDO: Crear relaciones usando personas ya persistidas (con N asignado)
-        List<Formacion> formacionesLote = new ArrayList<>();
-        List<PersonaCargoLaboral> cargosLote = new ArrayList<>();
-        List<InduccionExamen> induccionesLote = new ArrayList<>();
-        List<RiesgoProcedencia> riesgosLote = new ArrayList<>();
-        List<Salud> saludLote = new ArrayList<>();
-        List<ContactoEmergencia> contactosLote = new ArrayList<>();
-        List<Enfermedad> enfermedadesLote = new ArrayList<>();
-        List<Alergia> alergiasLote = new ArrayList<>();
-
-        // ✅ Pre-cargar todos los cargos existentes en un mapa (evita consultas repetidas)
-        Map<String, CargoLaboral> cargosCache = personaService.obtenerTodosLosCargosComoMapa();
-
-        // ✅ Nuevo índice sincronizado (evita el problema de filas vacías)
-        int indexPersona = 0;
-
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row == null || esFilaVacia(row)) continue;
-
-            Persona persona = personasLote.get(indexPersona);
-            indexPersona++;
-
-            System.out.println("📌 Persona guardada con N: " + persona.getNumero());
-
-            // Formación
-            Formacion formacion = new Formacion();
-            formacion.setPersona(persona);
-            formacion.setFormacionAcademica(getCellValue(row, colIndex.get("formacionAcademica")));
-            formacion.setGrado(getCellValue(row, colIndex.get("grado")));
-            formacion.setTitulo(getCellValue(row, colIndex.get("titulo")));
-            formacionesLote.add(formacion);
- 
-            // Cargo optimizado con cache
-            String keyCargo = (getCellValue(row, colIndex.get("cargo")) + "|" +
-                               getCellValue(row, colIndex.get("codigo")) + "|" +
-                               getCellValue(row, colIndex.get("dependencia"))).toUpperCase();
-
-            CargoLaboral cargo = cargosCache.computeIfAbsent(keyCargo, k -> {
-                CargoLaboral nuevo = new CargoLaboral();
-                nuevo.setCargo(getCellValue(row, colIndex.get("cargo")));
-                nuevo.setCodigo(getCellValue(row, colIndex.get("codigo")));
-                nuevo.setDependencia(getCellValue(row, colIndex.get("dependencia")));
-                return nuevo;
-            });
-
-            PersonaCargoLaboral pcl = new PersonaCargoLaboral();
-            pcl.setPersona(persona);
-            pcl.setCargo(cargo);
-
-            // ✅ Log para depurar fechaFirmaContrato
-            String fechaFirmaRaw = getCellValue(row, colIndex.get("fechaFirmaContrato"));
-            LocalDate fechaFirmaParseada = parseFecha(fechaFirmaRaw);
-            System.out.println("📌 Fila " + i +
-                    " | Valor crudo Excel FechaFirmaContrato: '" + fechaFirmaRaw + "'" +
-                    " | Parseado: " + fechaFirmaParseada);
-
-            pcl.setFechaIngreso(parseFecha(getCellValue(row, colIndex.get("fechaIngreso"))));
-            pcl.setFechaFirmaContrato(fechaFirmaParseada);
-            pcl.setMesesExperiencia(parseInteger(getCellValue(row, colIndex.get("mesesExperiencia"))));
-            cargosLote.add(pcl);
-
-            // Inducción
-            InduccionExamen ie = new InduccionExamen();
-            ie.setPersonaCargoLaboral(pcl);
-            ie.setInduccion(parseBooleanCustom(getCellValue(row, colIndex.get("induccion"))));
-            ie.setExamenIngreso(parseBooleanCustom(getCellValue(row, colIndex.get("examen"))));
-            ie.setFechaEgreso(parseFecha(getCellValue(row, colIndex.get("fechaEgreso"))));
-            induccionesLote.add(ie);
-
-            // Riesgo
-            RiesgoProcedencia rp = new RiesgoProcedencia();
-            rp.setPersona(persona);
-            rp.setRiesgo(getCellValue(row, colIndex.get("riesgo")));
-            rp.setMedioTransporte(getCellValue(row, colIndex.get("medioTransporte")));
-            rp.setProcedenciaTrabajador(getCellValue(row, colIndex.get("procedencia")));
-            riesgosLote.add(rp);
-
-            // Salud
-            Salud salud = new Salud();
-            salud.setPersona(persona);
-            salud.setDotacion(getCellValue(row, colIndex.get("dotacion")));
-            salud.setArl(getCellValue(row, colIndex.get("arl")));
-            salud.setEps(getCellValue(row, colIndex.get("eps")));
-            salud.setAfp(getCellValue(row, colIndex.get("afp")));
-            salud.setCcf(getCellValue(row, colIndex.get("ccf")));
-            salud.setRh(getCellValue(row, colIndex.get("rh")));
-            salud.setCarnetVacunacion(parseBooleanCustom(getCellValue(row, colIndex.get("carnetVacunacion"))));
-            saludLote.add(salud);
-
-            // Contacto
-            ContactoEmergencia contacto = new ContactoEmergencia();
-            contacto.setPersona(persona);
-            contacto.setNombreContactoEmergencia(getCellValue(row, colIndex.get("nombreEmergencia")));
-            contacto.setParentesco(getCellValue(row, colIndex.get("parentesco")));
-            contacto.setTelefonoContactoEmergencia(getCellValue(row, colIndex.get("telefonoEmergencia")));
-            contactosLote.add(contacto);
-
-            // Enfermedades
-            String enfermedadesRaw = getCellValue(row, colIndex.get("enfermedades"));
-            if (enfermedadesRaw != null && !enfermedadesRaw.isEmpty()) {
-                Arrays.stream(enfermedadesRaw.split(",")).forEach(nombre -> {
-                    nombre = nombre.trim();
-                    if (!nombre.isEmpty()) {
-                        Enfermedad enf = new Enfermedad();
-                        enf.setPersona(persona);
-                        enf.setNombre(nombre);
-                        enfermedadesLote.add(enf);
+                if (esNuevo) {
+                    persona = new Persona();
+                    persona.setNombres(valorFinal(nombresRaw));
+                    persona.setApellidos(valorFinal(apellidosRaw));
+                    persona.setCedula(generarCedulaSiFalta(cedulaRaw));
+                    persona.setLugarExpedicion(valorFinal(normalizarTexto(getCellValue(row, colIndex.get("lugarExpedicion")))));
+                    persona.setFechaNacimiento(parseFecha(getCellValue(row, colIndex.get("fechaNacimiento"))));
+                    persona.setDireccion(valorFinal(normalizarTexto(getCellValue(row, colIndex.get("direccion")))));
+                    persona.setSexo(valorFinal(normalizarTexto(getCellValue(row, colIndex.get("sexo")))));
+                    persona.setCorreoInstitucional(valorFinal(correoRaw));
+                    persona.setTelefonoInstitucional(valorFinal(telefonoRaw));
+                    persona.setEnlaceSigep(valorFinal(normalizarTexto(getCellValue(row, colIndex.get("enlaceSigep")))));
+                    persona.setEstado("NO DISPONIBLE");
+                    persona.setNumeroHijos(0);
+                    persona = personaService.guardarConNumero(persona);
+                    persona = personaService.obtenerPersonaConRelaciones(persona.getId());
+                    creados++;
+                } else {
+                    persona = personaService.obtenerPersonaConRelaciones(existente.get().getId());
+                    persona.setNombres(completarSiFalta(persona.getNombres(), nombresRaw));
+                    persona.setApellidos(completarSiFalta(persona.getApellidos(), apellidosRaw));
+                    persona.setCedula(completarCedula(persona.getCedula(), cedulaRaw));
+                    persona.setLugarExpedicion(completarSiFalta(persona.getLugarExpedicion(), normalizarTexto(getCellValue(row, colIndex.get("lugarExpedicion")))));
+                    if (persona.getFechaNacimiento() == null) {
+                        persona.setFechaNacimiento(parseFecha(getCellValue(row, colIndex.get("fechaNacimiento"))));
                     }
-                });
-            }
+                    persona.setDireccion(completarSiFalta(persona.getDireccion(), normalizarTexto(getCellValue(row, colIndex.get("direccion")))));
+                    persona.setSexo(completarSiFalta(persona.getSexo(), normalizarTexto(getCellValue(row, colIndex.get("sexo")))));
+                    persona.setCorreoInstitucional(completarSiFalta(persona.getCorreoInstitucional(), correoRaw));
+                    persona.setTelefonoInstitucional(completarSiFalta(persona.getTelefonoInstitucional(), telefonoRaw));
+                    persona.setEnlaceSigep(completarSiFalta(persona.getEnlaceSigep(), normalizarTexto(getCellValue(row, colIndex.get("enlaceSigep")))));
+                    personaService.guardar(persona);
+                    actualizados++;
+                }
 
-            // Alergias
-            String alergiasRaw = getCellValue(row, colIndex.get("alergias"));
-            if (alergiasRaw != null && !alergiasRaw.isEmpty()) {
-                Arrays.stream(alergiasRaw.split(",")).forEach(nombre -> {
-                    nombre = nombre.trim();
-                    if (!nombre.isEmpty()) {
-                        Alergia alergia = new Alergia();
-                        alergia.setPersona(persona);
-                        alergia.setNombre(nombre);
-                        alergiasLote.add(alergia);
+                Set<Formacion> formacionesPersona = persona.getFormaciones() == null ? Collections.emptySet() : persona.getFormaciones();
+                Formacion formacion = formacionesPersona.stream().findFirst().orElseGet(Formacion::new);
+                formacion.setPersona(persona);
+                formacion.setFormacionAcademica(completarSiFalta(formacion.getFormacionAcademica(), normalizarTexto(getCellValue(row, colIndex.get("formacionAcademica")))));
+                formacion.setGrado(completarSiFalta(formacion.getGrado(), normalizarTexto(getCellValue(row, colIndex.get("grado")))));
+                formacion.setTitulo(completarSiFalta(formacion.getTitulo(), normalizarTexto(getCellValue(row, colIndex.get("titulo")))));
+                formacionRepository.save(formacion);
+
+                Set<RiesgoProcedencia> riesgosPersona = persona.getRiesgoProcedencias() == null ? Collections.emptySet() : persona.getRiesgoProcedencias();
+                RiesgoProcedencia riesgo = riesgosPersona.stream().findFirst().orElseGet(RiesgoProcedencia::new);
+                riesgo.setPersona(persona);
+                riesgo.setRiesgo(completarSiFalta(riesgo.getRiesgo(), normalizarTexto(getCellValue(row, colIndex.get("riesgo")))));
+                riesgo.setMedioTransporte(completarSiFalta(riesgo.getMedioTransporte(), transporteRaw));
+                riesgo.setProcedenciaTrabajador(completarSiFalta(riesgo.getProcedenciaTrabajador(), normalizarTexto(getCellValue(row, colIndex.get("procedencia")))));
+                riesgoProcedenciaRepository.save(riesgo);
+
+                Set<Salud> saludPersona = persona.getRegistrosSalud() == null ? Collections.emptySet() : persona.getRegistrosSalud();
+                Salud salud = saludPersona.stream().findFirst().orElseGet(Salud::new);
+                salud.setPersona(persona);
+                salud.setDotacion(completarSiFalta(salud.getDotacion(), normalizarTexto(getCellValue(row, colIndex.get("dotacion")))));
+                salud.setArl(completarSiFalta(salud.getArl(), normalizarTexto(getCellValue(row, colIndex.get("arl")))));
+                salud.setEps(completarSiFalta(salud.getEps(), normalizarTexto(getCellValue(row, colIndex.get("eps")))));
+                salud.setAfp(completarSiFalta(salud.getAfp(), normalizarTexto(getCellValue(row, colIndex.get("afp")))));
+                salud.setCcf(completarSiFalta(salud.getCcf(), normalizarTexto(getCellValue(row, colIndex.get("ccf")))));
+                salud.setRh(completarSiFalta(salud.getRh(), normalizarTexto(getCellValue(row, colIndex.get("rh")))));
+                if (salud.getCarnetVacunacion() == null) {
+                    salud.setCarnetVacunacion(parseBooleanCustom(getCellValue(row, colIndex.get("carnetVacunacion"))));
+                }
+                saludRepository.save(salud);
+
+                Set<ContactoEmergencia> contactosPersona = persona.getContactosEmergencia() == null ? Collections.emptySet() : persona.getContactosEmergencia();
+                ContactoEmergencia contacto = contactosPersona.stream().findFirst().orElseGet(ContactoEmergencia::new);
+                contacto.setPersona(persona);
+                contacto.setNombreContactoEmergencia(completarSiFalta(contacto.getNombreContactoEmergencia(), normalizarTexto(getCellValue(row, colIndex.get("nombreEmergencia")))));
+                contacto.setParentesco(completarSiFalta(contacto.getParentesco(), normalizarTexto(getCellValue(row, colIndex.get("parentesco")))));
+                contacto.setTelefonoContactoEmergencia(completarSiFalta(contacto.getTelefonoContactoEmergencia(), normalizarTexto(getCellValue(row, colIndex.get("telefonoEmergencia")))));
+                contactoEmergenciaRepository.save(contacto);
+
+                String cargoValor = valorFinal(normalizarTexto(getCellValue(row, colIndex.get("cargo"))));
+                String codigoValor = valorFinal(normalizarTexto(getCellValue(row, colIndex.get("codigo"))));
+                String dependenciaValor = valorFinal(normalizarTexto(getCellValue(row, colIndex.get("dependencia"))));
+                CargoLaboral cargo = personaService.obtenerOCrearCargo(cargoValor, codigoValor, dependenciaValor);
+
+                Set<PersonaCargoLaboral> cargosPersona = persona.getCargosLaborales() == null ? Collections.emptySet() : persona.getCargosLaborales();
+                PersonaCargoLaboral pcl = cargosPersona.stream().findFirst().orElseGet(PersonaCargoLaboral::new);
+                pcl.setPersona(persona);
+                pcl.setCargo(cargo);
+                if (pcl.getFechaIngreso() == null) {
+                    pcl.setFechaIngreso(parseFecha(getCellValue(row, colIndex.get("fechaIngreso"))));
+                }
+                if (pcl.getFechaFirmaContrato() == null) {
+                    pcl.setFechaFirmaContrato(parseFecha(getCellValue(row, colIndex.get("fechaFirmaContrato"))));
+                }
+                if (pcl.getMesesExperiencia() == null) {
+                    Integer meses = parseInteger(getCellValue(row, colIndex.get("mesesExperiencia")));
+                    if (meses != null) {
+                        pcl.setMesesExperiencia(meses);
                     }
-                });
+                }
+                pcl = personaCargoLaboralRepository.save(pcl);
+
+                InduccionExamen induccion = induccionExamenRepository.findFirstByPersonaCargoLaboralId(pcl.getId())
+                        .orElseGet(InduccionExamen::new);
+                induccion.setPersonaCargoLaboral(pcl);
+                if (induccion.getInduccion() == null) {
+                    induccion.setInduccion(parseBooleanCustom(getCellValue(row, colIndex.get("induccion"))));
+                }
+                if (induccion.getExamenIngreso() == null) {
+                    induccion.setExamenIngreso(parseBooleanCustom(getCellValue(row, colIndex.get("examen"))));
+                }
+                if (induccion.getFechaEgreso() == null) {
+                    induccion.setFechaEgreso(parseFecha(getCellValue(row, colIndex.get("fechaEgreso"))));
+                }
+                induccionExamenRepository.save(induccion);
+
+                guardarEnfermedadesDesdeExcel(persona, getCellValue(row, colIndex.get("enfermedades")));
+                guardarAlergiasDesdeExcel(persona, getCellValue(row, colIndex.get("alergias")));
+                guardarMedicamentosDesdeExcel(persona, getCellValue(row, colIndex.get("medicamentos")));
+            } catch (Exception filaEx) {
+                filasConError++;
+                if (detalleErrores.size() < 10) {
+                    detalleErrores.add("Fila " + (i + 1) + ": " + filaEx.getMessage());
+                }
             }
         }
 
-        // ✅ 3. Guardar nuevas relaciones en lote
-        personaService.guardarCargosEnLote(new ArrayList<>(cargosCache.values()));
-        personaService.guardarFormacionesEnLote(formacionesLote);
-        personaService.guardarPersonaCargoEnLote(cargosLote);
-
-        cargosLote.forEach(c ->
-            System.out.println("✅ Guardado en lote: " +
-                c.getPersona().getCedula() +
-                " | FechaFirmaContrato=" + c.getFechaFirmaContrato())
-        );
-
-        personaService.guardarInduccionesEnLote(induccionesLote);
-        personaService.guardarRiesgosEnLote(riesgosLote);
-        personaService.guardarSaludEnLote(saludLote);
-        personaService.guardarContactosEnLote(contactosLote);
-        personaService.guardarEnfermedadesEnLote(enfermedadesLote);
-        personaService.guardarAlergiasEnLote(alergiasLote);
-
-        return ResponseEntity.ok("✅ Archivo cargado e información insertada en lote correctamente.");
+        StringBuilder resumen = new StringBuilder("Carga completada. Creados: ")
+                .append(creados)
+                .append(" | Actualizados: ")
+                .append(actualizados)
+                .append(" | Filas con error: ")
+                .append(filasConError);
+        if (!detalleErrores.isEmpty()) {
+            resumen.append(" | Detalle: ").append(String.join(" || ", detalleErrores));
+        }
+        return ResponseEntity.ok(resumen.toString());
     } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.internalServerError().body("❌ Error al procesar el archivo Excel: " + e.getMessage());
+        return ResponseEntity.internalServerError().body("Error al procesar el archivo Excel: " + e.getClass().getSimpleName() + " - " + e.getMessage());
     }
 }
-
-
-
-
-
-
-
         // === MÉTODOS AUXILIARES ===
+
+    private Integer buscarColumna(Row headerRow, String clave) {
+        if (headerRow == null) return null;
+        String objetivo = normalizarNombreColumna(clave);
+        for (Cell cell : headerRow) {
+            String nombre = normalizarNombreColumna(getCellValue(cell));
+            if (nombre.contains(objetivo)) return cell.getColumnIndex();
+        }
+        return null;
+    }
+
+    private Optional<Persona> buscarPersonaExistente(String cedula, String correo, String telefono) {
+        if (!esNoDisponible(cedula)) {
+            Optional<Persona> porCedula = personaRepository.findFirstByCedulaIgnoreCase(cedula);
+            if (porCedula.isPresent()) return porCedula;
+        }
+        return Optional.empty();
+    }
+
+    private String valorFinal(String value) {
+        return esNoDisponible(value) ? "NO DISPONIBLE" : value;
+    }
+
+    private String completarSiFalta(String actual, String nuevo) {
+        if (!esNoDisponible(actual)) return actual;
+        return valorFinal(nuevo);
+    }
+
+    private String completarCedula(String actual, String nuevo) {
+        if (!esNoDisponible(actual) && !actual.startsWith("NO DISPONIBLE_")) return actual;
+        return generarCedulaSiFalta(nuevo);
+    }
+
+    private String generarCedulaSiFalta(String cedula) {
+        if (esNoDisponible(cedula)) return "NO DISPONIBLE_" + UUID.randomUUID().toString().substring(0, 8);
+        return cedula;
+    }
+
+    private String normalizarTexto(String value) {
+        if (value == null) return "NO DISPONIBLE";
+        String limpio = value.trim().replaceAll("\\s+", " ").toUpperCase(Locale.ROOT);
+        return limpio.isEmpty() ? "NO DISPONIBLE" : limpio;
+    }
+
+    private boolean esNoDisponible(String value) {
+        if (value == null) return true;
+        String v = value.trim();
+        return v.isEmpty() || v.equalsIgnoreCase("NO DISPONIBLE") || v.equalsIgnoreCase("N/A")
+                || v.equalsIgnoreCase("NA") || v.equalsIgnoreCase("NULL");
+    }
+
+    private String[] dividirNombreCompleto(String nombreCompleto) {
+        String limpio = normalizarTexto(nombreCompleto);
+        if (esNoDisponible(limpio)) return new String[]{"NO DISPONIBLE", "NO DISPONIBLE"};
+        String[] partes = limpio.split(" ");
+        if (partes.length < 2) return new String[]{limpio, "NO DISPONIBLE"};
+        int mitad = Math.max(1, partes.length / 2);
+        String nombres = String.join(" ", Arrays.copyOfRange(partes, 0, mitad));
+        String apellidos = String.join(" ", Arrays.copyOfRange(partes, mitad, partes.length));
+        return new String[]{valorFinal(nombres), valorFinal(apellidos)};
+    }
+
+    private String resolverTransporte(String medioTexto, String marcaCarro, String marcaMoto) {
+        String texto = normalizarNombreColumna(medioTexto);
+        boolean carro = texto.contains("carro") || texto.contains("auto");
+        boolean moto = texto.contains("moto");
+        carro = carro || marcaTransporte(marcaCarro);
+        moto = moto || marcaTransporte(marcaMoto);
+        if (carro && moto) return "CARRO,MOTO";
+        if (carro) return "CARRO";
+        if (moto) return "MOTO";
+        if (texto.contains("ninguno") || texto.contains("ningun")) return "NINGUNO";
+        return "NO DISPONIBLE";
+    }
+
+    private boolean marcaTransporte(String valor) {
+        if (valor == null) return false;
+        String v = normalizarNombreColumna(valor);
+        return v.equals("x") || v.equals("si") || v.equals("1") || v.equals("true");
+    }
 
         private boolean parseBooleanCustom(String valor) {
     if (valor == null) return false;
@@ -484,6 +568,79 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
     return valor.equals("true") || valor.equals("si") || valor.equals("sí") || valor.equals("1") || valor.equals("x");
 }
 
+
+    private void sincronizarCamposPersonalizadosDesdeEncabezado(Row headerRow,
+                                                                Map<String, Integer> colIndex,
+                                                                Integer idxCarro,
+                                                                Integer idxMoto) {
+        if (headerRow == null) return;
+        Set<Integer> columnasSistema = new HashSet<>(colIndex.values());
+        if (idxCarro != null) columnasSistema.add(idxCarro);
+        if (idxMoto != null) columnasSistema.add(idxMoto);
+
+        for (Cell cell : headerRow) {
+            if (columnasSistema.contains(cell.getColumnIndex())) continue;
+            String nombre = getCellValue(cell);
+            if (nombre == null || nombre.trim().isEmpty()) continue;
+            campoPersonalizadoService.crearCampo(nombre.trim());
+        }
+    }
+
+    private void guardarEnfermedadesDesdeExcel(Persona persona, String valorCelda) {
+        Set<Enfermedad> actuales = persona.getEnfermedades() == null ? Collections.emptySet() : persona.getEnfermedades();
+        for (String nombre : dividirValores(valorCelda)) {
+            boolean existe = actuales.stream()
+                    .anyMatch(e -> e.getNombre() != null && e.getNombre().equalsIgnoreCase(nombre));
+            if (!existe) {
+                Enfermedad enfermedad = new Enfermedad();
+                enfermedad.setPersona(persona);
+                enfermedad.setNombre(nombre);
+                personaService.guardarEnfermedad(enfermedad);
+            }
+        }
+    }
+
+    private void guardarAlergiasDesdeExcel(Persona persona, String valorCelda) {
+        Set<Alergia> actuales = persona.getAlergias() == null ? Collections.emptySet() : persona.getAlergias();
+        for (String nombre : dividirValores(valorCelda)) {
+            boolean existe = actuales.stream()
+                    .anyMatch(a -> a.getNombre() != null && a.getNombre().equalsIgnoreCase(nombre));
+            if (!existe) {
+                Alergia alergia = new Alergia();
+                alergia.setPersona(persona);
+                alergia.setNombre(nombre);
+                personaService.guardarAlergia(alergia);
+            }
+        }
+    }
+
+    private void guardarMedicamentosDesdeExcel(Persona persona, String valorCelda) {
+        Set<Medicamento> actuales = persona.getMedicamentos() == null ? Collections.emptySet() : persona.getMedicamentos();
+        for (String nombre : dividirValores(valorCelda)) {
+            boolean existe = actuales.stream()
+                    .anyMatch(m -> m.getNombre() != null && m.getNombre().equalsIgnoreCase(nombre));
+            if (!existe) {
+                Medicamento medicamento = new Medicamento();
+                medicamento.setPersona(persona);
+                medicamento.setNombre(nombre);
+                personaService.guardarMedicamento(medicamento);
+            }
+        }
+    }
+
+    private List<String> dividirValores(String valorCelda) {
+        String normalizado = normalizarTexto(valorCelda);
+        if (esNoDisponible(normalizado)) return Collections.emptyList();
+        String[] partes = normalizado.split("[,;\\n]+");
+        List<String> valores = new ArrayList<>();
+        for (String parte : partes) {
+            String limpio = parte.trim();
+            if (!limpio.isEmpty() && !esNoDisponible(limpio)) {
+                valores.add(limpio);
+            }
+        }
+        return valores;
+    }
 
     private Map<String, Integer> mapearColumnasConJaroWinkler(Row headerRow) {
         Map<String, Integer> mapeo = new HashMap<>();
@@ -590,3 +747,5 @@ if (ALIAS_COLUMNAS.containsKey(valorOriginal) || ALIAS_COLUMNAS.containsKey(norm
 }
 
 }
+
+

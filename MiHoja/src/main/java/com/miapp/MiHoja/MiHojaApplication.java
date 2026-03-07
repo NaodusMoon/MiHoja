@@ -2,9 +2,6 @@ package com.miapp.MiHoja;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -12,11 +9,8 @@ import java.net.URI;
 @SpringBootApplication
 public class MiHojaApplication {
 
-    private static ConfigurableApplicationContext context;
-
     public static void main(String[] args) {
-        context = SpringApplication.run(MiHojaApplication.class, args);
-
+        SpringApplication.run(MiHojaApplication.class, args);
         abrirNavegador("http://localhost:8080");
     }
 
@@ -39,38 +33,18 @@ public class MiHojaApplication {
                             opened = true;
                             break;
                         } catch (Exception e) {
-                            // intentar siguiente navegador  
+                            // Intentar el siguiente navegador.
                         }
                     }
                     if (!opened) {
-                        System.out.println("No se pudo abrir el navegador automáticamente.");
+                        System.out.println("No se pudo abrir el navegador automaticamente.");
                     }
                 } else {
-                    System.out.println("Sistema operativo no soportado para abrir navegador automáticamente.");
+                    System.out.println("Sistema operativo no soportado para abrir navegador automaticamente.");
                 }
             }
         } catch (Exception e) {
             System.out.println("Error al abrir el navegador: " + e.getMessage());
-        }
-    }
-
-    // Controlador para apagar la app al cerrar la pestaña
-    @RestController
-    public static class ShutdownController {
-
-        @PostMapping("/shutdown")
-        public void shutdown() {
-            Thread thread = new Thread(() -> {
-                try {
-                    Thread.sleep(1000); // Espera 1 segundo para terminar procesos
-                    context.close();   // Cierra el contexto de Spring Boot
-                    System.exit(0);    // Apaga la app
-                } catch (InterruptedException e) {
-                    // Ignorar interrupciones
-                }
-            });
-            thread.setDaemon(false);
-            thread.start();
         }
     }
 }
