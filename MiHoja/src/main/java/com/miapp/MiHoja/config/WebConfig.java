@@ -1,22 +1,35 @@
 package com.miapp.MiHoja.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
-        // Mapea /uploads/** a la carpeta física
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath + "/");
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins(frontendUrl)
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

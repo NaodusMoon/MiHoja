@@ -12,7 +12,7 @@
 <!-- NAVBAR -->
 <div class="navbar">
     <a class="logo"
-       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">MH</a>
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}"><span class="logo-monogram" aria-hidden="true"><span>M</span><span>H</span></span></a>
 
     <a class="app-name"
        th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
@@ -185,6 +185,18 @@
     <div class="dato"><label>Parentesco</label><div class="valor" th:text="${contactoEmergencia.parentesco}"></div></div>
     <div class="dato"><label>Teléfono del Contacto</label><div class="valor" th:text="${contactoEmergencia.telefonoContactoEmergencia}"></div></div>
   </div>
+  <th:block th:if="${camposCustom != null and !#lists.isEmpty(camposCustom)}">
+    <div class="fila">
+      <div class="dato" th:each="campo : ${camposCustom}">
+        <label th:text="${campo.etiquetaVisible}">Campo personalizado</label>
+        <div class="valor no-transform"
+             th:text="${valoresCustom != null and valoresCustom[campo.nombre] != null ? valoresCustom[campo.nombre] : 'Sin definir'}">
+          Sin definir
+        </div>
+      </div>
+    </div>
+  </th:block>
+
   <!-- Fila final (2 campos) -->
   <div class="fila">
     <div class="dato"><label>Estado</label><div class="valor" th:text="${persona.estado}"></div></div>

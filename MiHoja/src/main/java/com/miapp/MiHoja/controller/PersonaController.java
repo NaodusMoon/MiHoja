@@ -9,6 +9,7 @@ import com.miapp.MiHoja.service.support.QueryStringService;
 import com.miapp.MiHoja.service.view.PersonaDetalleView;
 import com.miapp.MiHoja.service.view.PersonaViewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,9 @@ import java.util.Map;
 @Controller
 @RequestMapping
 public class PersonaController {
+
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Autowired
     private PersonaService personaService;
@@ -68,55 +72,14 @@ public class PersonaController {
                             @RequestParam(required = false) List<String> mesesExperiencia,
                             @RequestParam(required = false) List<String> dotacion,
                             Model model) {
-
-        model.addAttribute("paginaActual", "consultar");
-
-        PersonaConsultaService.ConsultaResultado resultado = personaConsultaService.consultar(
-                new PersonaConsultaService.PersonaFiltro(
-                        nombre, apellido, cedula, lugarExpedicion, direccion, sexo, correo, telefono, enlaceSigep,
-                        formacion, grado, cargo, dependencia, rh, eps, afp, carnetVacunacion, riesgo,
-                        medioTransporte, procedencia, induccion, examen, mesesExperiencia, dotacion
-                )
-        );
-
-        model.addAttribute("personas", resultado.personas());
-        model.addAttribute("opcionesLugarExpedicion", resultado.opcionesLugarExpedicion());
-        model.addAttribute("opcionesProcedencia", resultado.opcionesProcedencia());
-        model.addAttribute("filtros", resultado.filtrosActivos());
-        model.addAttribute("filtrosQuery", resultado.filtrosQuery());
-
-        model.addAttribute("nombre", nombre);
-        model.addAttribute("apellido", apellido);
-        model.addAttribute("cedula", cedula);
-        model.addAttribute("lugarExpedicion", lugarExpedicion);
-        model.addAttribute("direccion", direccion);
-        model.addAttribute("sexo", sexo);
-        model.addAttribute("correo", correo);
-        model.addAttribute("telefono", telefono);
-        model.addAttribute("enlaceSigep", enlaceSigep);
-        model.addAttribute("formacion", formacion);
-        model.addAttribute("grado", grado);
-        model.addAttribute("cargo", cargo);
-        model.addAttribute("dependencia", dependencia);
-        model.addAttribute("rh", rh);
-        model.addAttribute("eps", eps);
-        model.addAttribute("afp", afp);
-        model.addAttribute("carnetVacunacion", carnetVacunacion);
-        model.addAttribute("riesgo", riesgo);
-        model.addAttribute("medioTransporte", medioTransporte);
-        model.addAttribute("procedencia", procedencia);
-        model.addAttribute("induccion", induccion);
-        model.addAttribute("examen", examen);
-        model.addAttribute("mesesExperiencia", mesesExperiencia);
-        model.addAttribute("dotacion", dotacion);
-
-        return "consultar";
+        return "redirect:" + frontendUrl;
     }
 
     @GetMapping("/insertar")
     public String insertar(@RequestParam Map<String, String> params, Model model) {
         model.addAttribute("filtrosQuery", queryStringService.buildFromMap(params, "edit"));
         model.addAttribute("paginaActual", "insertar");
+        model.addAttribute("camposBaseVisibles", campoPersonalizadoService.listarCamposBaseVisibles(campoPersonalizadoService.camposBasePredeterminados()));
         model.addAttribute("camposCustom", campoPersonalizadoService.listarActivos());
         return "insertar";
     }

@@ -1,64 +1,57 @@
 package com.miapp.MiHoja.controller;
 
+import com.miapp.MiHoja.service.storage.ImageStorageService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/imagenes")
 public class ImagenController {
 
-    // 📂 Carpeta "uploads" en la raíz del proyecto (fuera de src)
-    private static final Path CARPETA_UPLOADS = Paths.get(System.getProperty("user.dir"), "uploads");
+    private static final Set<String> CONTENT_TYPES = Set.of(
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.IMAGE_GIF_VALUE,
+            "image/webp"
+    );
+
+    private final ImageStorageService imageStorageService;
+
+    public ImagenController(ImageStorageService imageStorageService) {
+        this.imageStorageService = imageStorageService;
+    }
 
     @PostMapping("/subir")
     public ResponseEntity<Map<String, Object>> subirImagen(@RequestParam("imagen") MultipartFile file) {
-        Map<String, Object> resp = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
 
         if (file.isEmpty()) {
-            resp.put("error", "Archivo vacío");
-            return ResponseEntity.badRequest().body(resp);
+            response.put("error", "Archivo vacio");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (file.getContentType() == null || !CONTENT_TYPES.contains(file.getContentType())) {
+            response.put("error", "Formato de imagen no soportado");
+            return ResponseEntity.badRequest().body(response);
         }
 
         try {
-            // Crear carpeta si no existe
-            if (!Files.exists(CARPETA_UPLOADS)) {
-                Files.createDirectories(CARPETA_UPLOADS);
-                System.out.println("📂 Carpeta creada: " + CARPETA_UPLOADS.toAbsolutePath());
-            }
-
-            // Obtener extensión del archivo original
-            String extension = "";
-            String originalName = file.getOriginalFilename();
-            if (originalName != null && originalName.contains(".")) {
-                extension = originalName.substring(originalName.lastIndexOf("."));
-            }
-
-            // Generar nombre único
-            String nombreArchivo = UUID.randomUUID().toString() + extension;
-
-            // Guardar archivo físicamente en la carpeta
-            Path rutaArchivo = CARPETA_UPLOADS.resolve(nombreArchivo);
-            Files.copy(file.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
-
-            System.out.println("✅ Imagen guardada en: " + rutaArchivo.toAbsolutePath());
-
-            // URL pública que se usará en el frontend
-            String urlPublica = "/uploads/" + nombreArchivo;
-
-            resp.put("url", urlPublica);
-            return ResponseEntity.ok(resp);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            resp.put("error", "Error al guardar la imagen: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(resp);
+            String publicUrl = imageStorageService.save(file);
+            response.put("url", publicUrl);
+            return ResponseEntity.ok(response);
+        } catch (IOException exception) {
+            response.put("error", "Error al guardar la imagen: " + exception.getMessage());
+            return ResponseEntity.internalServerError().body(response);
         }
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.transaction.annotation.Transactional;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.Normalizer;
 import java.time.LocalDate;
@@ -29,6 +30,8 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 @Controller
 @RequestMapping("/api")
@@ -120,6 +123,8 @@ public class InsercionController {
         ALIAS_COLUMNAS.put("fecha nacimiento", "fechaNacimiento");
         ALIAS_COLUMNAS.put("fecha de egreso", "fechaEgreso");
     }
+
+    private static final Map<String, Map<String, Object>> UPLOAD_JOBS = new ConcurrentHashMap<>();
 
 
 
@@ -306,16 +311,87 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
         return ResponseEntity.badRequest().body("Error: no se recibió archivo o está vacío.");
     }
 
-    try (InputStream is = file.getInputStream(); Workbook workbook = WorkbookFactory.create(is)) {
+    try (InputStream is = file.getInputStream()) {
+        return ResponseEntity.ok(procesarArchivoExcel(is));
+    } catch (Exception e) {
+        return ResponseEntity.internalServerError().body("Error al procesar el archivo Excel: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+    }
+}
+
+@PostMapping(value = "/upload-jobs/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Map<String, Object>> iniciarCargaExcelEnSegundoPlano(@RequestParam("file") MultipartFile file) {
+    if (file == null || file.isEmpty()) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "ok", false,
+                "message", "No se recibiÃ³ archivo o estÃ¡ vacÃ­o."
+        ));
+    }
+
+    try {
+        byte[] contenido = file.getBytes();
+        String jobId = UUID.randomUUID().toString();
+        Map<String, Object> estado = new ConcurrentHashMap<>();
+        estado.put("id", jobId);
+        estado.put("status", "processing");
+        estado.put("title", "Procesando carga");
+        estado.put("message", "Importando datos del archivo en segundo plano...");
+        UPLOAD_JOBS.put(jobId, estado);
+
+        CompletableFuture.runAsync(() -> {
+            try (InputStream is = new ByteArrayInputStream(contenido)) {
+                String resumen = procesarArchivoExcel(is);
+                estado.put("status", "completed");
+                estado.put("title", "Carga completada");
+                estado.put("message", resumen);
+            } catch (Exception ex) {
+                estado.put("status", "failed");
+                estado.put("title", "Carga interrumpida");
+                estado.put("message", ex.getMessage());
+            }
+        });
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
+                "ok", true,
+                "jobId", jobId,
+                "message", "La importaciÃ³n quedÃ³ ejecutÃ¡ndose en segundo plano."
+        ));
+    } catch (Exception ex) {
+        return ResponseEntity.internalServerError().body(Map.of(
+                "ok", false,
+                "message", ex.getMessage()
+        ));
+    }
+}
+
+@GetMapping(value = "/upload-jobs/{jobId}", produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Map<String, Object>> consultarCargaExcel(@PathVariable String jobId) {
+    Map<String, Object> estado = UPLOAD_JOBS.get(jobId);
+    if (estado == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "ok", false,
+                "message", "No se encontrÃ³ la carga solicitada."
+        ));
+    }
+    return ResponseEntity.ok(estado);
+}
+
+private String procesarArchivoExcel(InputStream is) throws Exception {
+    int creados = 0;
+    int actualizados = 0;
+    int filasConError = 0;
+    List<String> detalleErrores = new ArrayList<>();
+
+    try (Workbook workbook = WorkbookFactory.create(is)) {
         Sheet sheet = workbook.getSheetAt(0);
         Row headerRow = sheet.getRow(0);
         if (headerRow == null) {
-            return ResponseEntity.badRequest().body("Error: El archivo no tiene encabezados.");
+            throw new IllegalArgumentException("El archivo no tiene encabezados.");
         }
 
         Map<String, Integer> colIndex = mapearColumnasConJaroWinkler(headerRow);
         Integer idxCarro = buscarColumna(headerRow, "carro");
         Integer idxMoto = buscarColumna(headerRow, "moto");
+        Map<Integer, String> camposCustomPorColumna = sincronizarCamposPersonalizadosDesdeEncabezado(headerRow, colIndex, idxCarro, idxMoto);
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
@@ -458,6 +534,7 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
                 guardarEnfermedadesDesdeExcel(persona, getCellValue(row, colIndex.get("enfermedades")));
                 guardarAlergiasDesdeExcel(persona, getCellValue(row, colIndex.get("alergias")));
                 guardarMedicamentosDesdeExcel(persona, getCellValue(row, colIndex.get("medicamentos")));
+                guardarCamposPersonalizadosDesdeExcel(persona, row, camposCustomPorColumna);
             } catch (Exception filaEx) {
                 filasConError++;
                 if (detalleErrores.size() < 10) {
@@ -475,9 +552,7 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
         if (!detalleErrores.isEmpty()) {
             resumen.append(" | Detalle: ").append(String.join(" || ", detalleErrores));
         }
-        return ResponseEntity.ok(resumen.toString());
-    } catch (Exception e) {
-        return ResponseEntity.internalServerError().body("Error al procesar el archivo Excel: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+        return resumen.toString();
     }
 }
         // === MÉTODOS AUXILIARES ===
@@ -569,11 +644,12 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
 }
 
 
-    private void sincronizarCamposPersonalizadosDesdeEncabezado(Row headerRow,
-                                                                Map<String, Integer> colIndex,
-                                                                Integer idxCarro,
-                                                                Integer idxMoto) {
-        if (headerRow == null) return;
+    private Map<Integer, String> sincronizarCamposPersonalizadosDesdeEncabezado(Row headerRow,
+                                                                                Map<String, Integer> colIndex,
+                                                                                Integer idxCarro,
+                                                                                Integer idxMoto) {
+        Map<Integer, String> camposCustomPorColumna = new LinkedHashMap<>();
+        if (headerRow == null) return camposCustomPorColumna;
         Set<Integer> columnasSistema = new HashSet<>(colIndex.values());
         if (idxCarro != null) columnasSistema.add(idxCarro);
         if (idxMoto != null) columnasSistema.add(idxMoto);
@@ -582,7 +658,24 @@ public ResponseEntity<String> insertarDesdeArchivo(@RequestParam("file") Multipa
             if (columnasSistema.contains(cell.getColumnIndex())) continue;
             String nombre = getCellValue(cell);
             if (nombre == null || nombre.trim().isEmpty()) continue;
-            campoPersonalizadoService.crearCampo(nombre.trim());
+            CampoPersonalizado campo = campoPersonalizadoService.crearCampo(nombre.trim());
+            camposCustomPorColumna.put(cell.getColumnIndex(), campo.getNombre());
+        }
+        return camposCustomPorColumna;
+    }
+
+    private void guardarCamposPersonalizadosDesdeExcel(Persona persona,
+                                                       Row row,
+                                                       Map<Integer, String> camposCustomPorColumna) {
+        if (persona == null || row == null || camposCustomPorColumna == null || camposCustomPorColumna.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<Integer, String> entry : camposCustomPorColumna.entrySet()) {
+            String valor = getCellValue(row, entry.getKey());
+            if (valor == null || valor.trim().isEmpty()) {
+                continue;
+            }
+            campoPersonalizadoService.guardarValorPorNombre(persona, entry.getValue(), valor.trim());
         }
     }
 

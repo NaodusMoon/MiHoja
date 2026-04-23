@@ -1,0 +1,12 @@
+{
+  "name": "mihoja",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "mvnw -Dmaven.test.skip=true spring-boot:run",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "mvnw -DskipTests compile",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

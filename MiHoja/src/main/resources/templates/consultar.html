@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>Consultar Hojas de Vida</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/interactive-ui.css">
 </head>
-<body>
+<body data-page="consultar">
 
 <!-- ============================================= -->
 <!-- 1. ? NAVBAR SUPERIOR                         -->
@@ -13,7 +14,7 @@
 <div class="navbar">
     <a class="logo"
        th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
-        MH
+        <span class="logo-monogram" aria-hidden="true"><span>M</span><span>H</span></span>
     </a>
 
     <a class="app-name"
@@ -44,12 +45,11 @@
     <!-- ============================================= -->
     <div class="sidebar-filtros">
         <form method="get" action="/consultar">
-            <h2 class="filtro-titulo">Filtrar por:</h2>
-            <div class="filtro-acciones-top">
-                <a href="/consultar" class="btn-limpiar-filtros">Limpiar filtros</a>
-                <button type="submit" class="btn-limpiar-filtros" style="margin-top:8px;" formaction="/mantenimiento/limpiar-duplicados" formmethod="post" onclick="return confirm('Se limpiaran duplicados existentes de alergias, medicamentos y enfermedades. Deseas continuar?');">
+            <div class="filtro-acciones-top filtro-acciones-grid">
+                <a href="/consultar" class="btn-limpiar-filtros btn-filtro-ghost">Limpiar filtros</a>
+                <button type="submit" class="btn-limpiar-filtros btn-filtro-accent" formaction="/mantenimiento/limpiar-duplicados" formmethod="post" onclick="return confirm('Se limpiaran duplicados existentes de alergias, medicamentos y enfermedades. Deseas continuar?');">
                         Limpiar duplicados
-                    </button>
+                </button>
             </div>
             <hr class="linea-divisoria">
 
@@ -263,16 +263,30 @@
         <div th:if="${mensajeError}" class="mensaje error" th:text="${mensajeError}"></div>
         <div class="compact-toolbar">
             <button type="button" id="compactModeToggle" class="compact-toggle">Modo compacto: OFF</button>
-            <div class="descargar-todos">
-                <a href="/api/descargar/todos/excel" target="_blank" class="descargar-btn">Excel (todos)</a>
-                <a href="/api/descargar/todos/pdf" target="_blank" class="descargar-btn">PDF (todos)</a>
-                <a href="/api/descargar/todos/word" target="_blank" class="descargar-btn">Word (todos)</a>
-            </div>
+            <details class="export-menu">
+                <summary class="descargar-btn">Descargar reportes</summary>
+                <div class="export-menu-panel">
+                    <a href="/api/descargar/todos/excel" target="_blank" class="export-menu-link">Excel (todos)</a>
+                    <a href="/api/descargar/todos/pdf" target="_blank" class="export-menu-link">PDF (todos)</a>
+                    <a href="/api/descargar/todos/word" target="_blank" class="export-menu-link">Word (todos)</a>
+                </div>
+            </details>
         </div>
         <!-- ?? BUSCADOR POR NOMBRE -->
-        <form method="get" action="/consultar">
-            <input type="text" id="liveSearchInput" name="nombre" placeholder="Buscar por nombre" th:value="${param.nombre}">
-            <button type="submit">Buscar</button>
+        <form method="get" action="/consultar" class="consult-search-form">
+            <div class="consult-search-shell">
+                <span class="consult-search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M10.5 4a6.5 6.5 0 1 0 4.05 11.58l4.43 4.42 1.42-1.41-4.42-4.43A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"></path>
+                    </svg>
+                </span>
+                <input type="text" id="liveSearchInput" name="nombre" placeholder="Buscar por nombre" th:value="${param.nombre}">
+                <button type="submit" class="consult-search-submit" aria-label="Buscar">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M10.5 4a6.5 6.5 0 1 0 4.05 11.58l4.43 4.42 1.42-1.41-4.42-4.43A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"></path>
+                    </svg>
+                </button>
+            </div>
         </form>
 
         <!-- ?? ELIMINACIÓN MÚLTIPLE -->
@@ -449,6 +463,8 @@
     liveSearchInput?.addEventListener("input", aplicarLiveSearch);
     aplicarLiveSearch();
 </script>
+<script src="/js/consultar-enhancements.js"></script>
+<script src="/js/global-upload-tracker.js"></script>
 
 <!-- ? BARRA DE PROGRESO ELIMINACIÓN -->
 <div id="barra-progreso-eliminar">

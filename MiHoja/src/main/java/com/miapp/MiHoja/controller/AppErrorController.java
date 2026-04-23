@@ -1,11 +1,14 @@
 package com.miapp.MiHoja.controller;
 
+import java.util.Map;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
-import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.boot.webmvc.error.ErrorAttributes;
+import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-
-import java.util.Map;
 
 @Controller
 public class AppErrorController implements ErrorController {
@@ -35,6 +36,7 @@ public class AppErrorController implements ErrorController {
         ErrorAttributeOptions options = ErrorAttributeOptions.defaults()
                 .including(ErrorAttributeOptions.Include.MESSAGE)
                 .including(ErrorAttributeOptions.Include.BINDING_ERRORS);
+
         if (detalle) {
             options = options.including(ErrorAttributeOptions.Include.EXCEPTION)
                     .including(ErrorAttributeOptions.Include.STACK_TRACE);
@@ -53,7 +55,8 @@ public class AppErrorController implements ErrorController {
         model.addAttribute("path", attributes.getOrDefault("path", request.getRequestURI()));
         model.addAttribute("timestamp", attributes.get("timestamp"));
         model.addAttribute("errorMessage", attributes.getOrDefault("message", "Ocurrio un error no controlado."));
-        model.addAttribute("exceptionName", attributes.getOrDefault("exception", throwable != null ? throwable.getClass().getName() : null));
+        model.addAttribute("exceptionName",
+                attributes.getOrDefault("exception", throwable != null ? throwable.getClass().getName() : null));
         model.addAttribute("stackTrace", attributes.get("trace"));
         model.addAttribute("showDetails", detalle);
         model.addAttribute("mensajeError", attributes.get("message"));
@@ -68,7 +71,8 @@ public class AppErrorController implements ErrorController {
         }
         try {
             return Integer.parseInt(statusCode.toString());
-        } catch (NumberFormatException exception) {
+        }
+        catch (NumberFormatException exception) {
             return HttpStatus.INTERNAL_SERVER_ERROR.value();
         }
     }

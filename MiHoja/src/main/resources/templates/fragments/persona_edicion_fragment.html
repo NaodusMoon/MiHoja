@@ -163,10 +163,30 @@
     <th:block th:if="${camposCustom != null and !#lists.isEmpty(camposCustom.?[#strings.toLowerCase(nombre) != 'estado'])}">
       <div class="fila">
         <div class="dato" th:each="campo : ${camposCustom.?[#strings.toLowerCase(nombre) != 'estado']}">
-          <label th:text="${campo.nombre}">Campo personalizado</label>
-          <input type="text"
-                 th:name="${'campo_custom_' + campo.id}"
-                 th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+          <label th:text="${campo.etiquetaVisible}">Campo personalizado</label>
+          <th:block th:switch="${campo.tipoDatoNormalizado}">
+            <textarea th:case="'textarea'"
+                      th:name="${'campo_custom_' + campo.id}"
+                      th:text="${valoresCustom != null ? valoresCustom[campo.id] : ''}"></textarea>
+            <input th:case="'numero'"
+                   type="number"
+                   step="any"
+                   th:name="${'campo_custom_' + campo.id}"
+                   th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+            <input th:case="'fecha'"
+                   type="date"
+                   th:name="${'campo_custom_' + campo.id}"
+                   th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+            <select th:case="'booleano'" th:name="${'campo_custom_' + campo.id}">
+              <option value="">Sin definir</option>
+              <option value="SI" th:selected="${valoresCustom != null and valoresCustom[campo.id] == 'SI'}">SI</option>
+              <option value="NO" th:selected="${valoresCustom != null and valoresCustom[campo.id] == 'NO'}">NO</option>
+            </select>
+            <input th:case="*"
+                   type="text"
+                   th:name="${'campo_custom_' + campo.id}"
+                   th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+          </th:block>
         </div>
       </div>
     </th:block>
