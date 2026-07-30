@@ -1,8 +1,11 @@
 import { ExcelImportPanel } from "@/components/excel-import-panel";
 import { PersonForm } from "@/components/person-form";
 import { SimpleAppShell } from "@/components/simple-app-shell";
+import { getCustomFields } from "@/lib/people-service";
 
-export default function InsertPage() {
+export default async function InsertPage() {
+  const customFields = await getCustomFields();
+
   return (
     <SimpleAppShell
       active="/insertar"
@@ -13,9 +16,9 @@ export default function InsertPage() {
       <section className="formSection">
         <header>
           <h2>Nuevo registro individual</h2>
-          <p>Los campos principales se guardan directamente en Supabase.</p>
+          <p>Completa los datos personales, laborales, de salud y contacto.</p>
         </header>
-        <PersonForm />
+        <PersonForm customFields={customFields} />
       </section>
     </SimpleAppShell>
   );

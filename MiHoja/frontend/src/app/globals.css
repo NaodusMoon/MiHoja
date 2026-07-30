@@ -284,6 +284,7 @@
 
 .dataForm input,
 .dataForm select,
+.dataForm textarea,
 .fieldCreator input {
   width: 100%;
   min-height: 44px;
@@ -298,10 +299,39 @@
 
 .dataForm input:focus,
 .dataForm select:focus,
+.dataForm textarea:focus,
 .fieldCreator input:focus {
   outline: 2px solid #90c5a6;
   outline-offset: 1px;
   border-color: #165f39;
+}
+
+.dataForm textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.formGroup {
+  min-width: 0;
+  margin: 0;
+  padding: 22px 0;
+  border: 0;
+  border-bottom: 1px solid #dce3de;
+}
+
+.formGroup:first-child {
+  padding-top: 0;
+}
+
+.formGroup legend {
+  margin-bottom: 16px;
+  color: #165f39;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.formWide {
+  grid-column: span 1;
 }
 
 .formFooter {

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getPersonById, updatePerson } from "@/lib/people-service";
+import {
+  getPersonById,
+  saveCompletePerson,
+  type CompletePersonInput
+} from "@/lib/people-service";
 
 export async function GET(_: NextRequest, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
@@ -13,23 +17,8 @@ export async function GET(_: NextRequest, context: { params: Promise<{ id: strin
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
-    const body = (await request.json()) as Record<string, unknown>;
-    const allowed = [
-      "nombres",
-      "apellidos",
-      "cedula",
-      "correo_institucional",
-      "telefono_institucional",
-      "lugar_expedicion",
-      "fecha_nacimiento",
-      "direccion",
-      "sexo",
-      "estado",
-      "enlace_sigep",
-      "numero_hijos"
-    ];
-    const values = Object.fromEntries(Object.entries(body).filter(([key]) => allowed.includes(key)));
-    const person = await updatePerson(Number(id), values);
+    const body = (await request.json()) as CompletePersonInput;
+    const person = await saveCompletePerson(Number(id), body);
     return person
       ? NextResponse.json({ message: "Registro actualizado.", person })
       : NextResponse.json({ message: "Registro no encontrado." }, { status: 404 });

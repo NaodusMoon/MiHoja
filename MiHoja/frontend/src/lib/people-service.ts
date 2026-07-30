@@ -24,6 +24,7 @@ export type PersonRecord = {
   sexo: string | null;
   telefono_institucional: string | null;
   formacion?: Array<{
+    id_formacion: number;
     formacion_academica: string | null;
     grado: string | null;
     titulo: string | null;
@@ -39,18 +40,27 @@ export type PersonRecord = {
       codigo: string | null;
       dependencia: string | null;
     } | null;
+    induccion_examen?: Array<{
+      id_induccion: number;
+      induccion: boolean | null;
+      examen_ingreso: boolean | null;
+      fecha_egreso: string | null;
+    }>;
   }>;
   contacto_emergencia?: Array<{
+    id_contacto: number;
     nombre_contacto_emergencia: string | null;
     parentesco: string | null;
     telefono_contacto_emergencia: string | null;
   }>;
   riesgo_procedencia?: Array<{
+    id_riesgo: number;
     medio_transporte: string | null;
     procedencia_trabajador: string | null;
     riesgo: string | null;
   }>;
   salud?: Array<{
+    id_salud: number;
     afp: string | null;
     arl: string | null;
     carnet_vacunacion: boolean | null;
@@ -59,14 +69,66 @@ export type PersonRecord = {
     eps: string | null;
     rh: string | null;
   }>;
-  alergia?: Array<{ nombre: string }>;
-  enfermedad?: Array<{ nombre: string }>;
-  medicamento?: Array<{ nombre: string }>;
+  alergia?: Array<{ id_alergia: number; nombre: string }>;
+  enfermedad?: Array<{ id_enfermedad: number; nombre: string }>;
+  medicamento?: Array<{ id_medicamento: number; nombre: string }>;
   persona_campo_valor?: Array<{
     valor: string;
     campo_id: number;
     campo_personalizado: { nombre: string } | null;
   }>;
+};
+
+export type CustomField = {
+  id_campo: number;
+  nombre: string;
+  activo: boolean;
+};
+
+export type CompletePersonInput = {
+  nombres?: string;
+  apellidos?: string;
+  cedula?: string;
+  correoInstitucional?: string;
+  telefonoInstitucional?: string;
+  lugarExpedicion?: string;
+  fechaNacimiento?: string;
+  direccion?: string;
+  sexo?: string;
+  estado?: string;
+  enlaceSigep?: string;
+  numeroHijos?: string;
+  numero?: string;
+  imagenUrl?: string;
+  cargo?: string;
+  codigoCargo?: string;
+  dependencia?: string;
+  fechaIngreso?: string;
+  fechaFirmaContrato?: string;
+  mesesExperiencia?: string;
+  induccion?: string;
+  examenIngreso?: string;
+  fechaEgreso?: string;
+  formacionAcademica?: string;
+  grado?: string;
+  titulo?: string;
+  riesgo?: string;
+  medioTransporte?: string;
+  procedenciaTrabajador?: string;
+  dotacion?: string;
+  arl?: string;
+  eps?: string;
+  afp?: string;
+  ccf?: string;
+  rh?: string;
+  carnetVacunacion?: string;
+  nombreEmergencia?: string;
+  parentesco?: string;
+  telefonoEmergencia?: string;
+  alergias?: string;
+  enfermedades?: string;
+  medicamentos?: string;
+  customFields?: Record<string, string>;
 };
 
 const personSelect = [
@@ -85,14 +147,14 @@ const personSelect = [
   "numero_hijos",
   "sexo",
   "telefono_institucional",
-  "formacion(formacion_academica,grado,titulo)",
-  "persona_cargo_laboral(id_pcl,fecha_ingreso,fecha_firma_contrato,meses_experiencia,cargo_laboral(id_cargo,cargo,codigo,dependencia))",
-  "contacto_emergencia(nombre_contacto_emergencia,parentesco,telefono_contacto_emergencia)",
-  "riesgo_procedencia(medio_transporte,procedencia_trabajador,riesgo)",
-  "salud(afp,arl,carnet_vacunacion,ccf,dotacion,eps,rh)",
-  "alergia(nombre)",
-  "enfermedad(nombre)",
-  "medicamento(nombre)",
+  "formacion(id_formacion,formacion_academica,grado,titulo)",
+  "persona_cargo_laboral(id_pcl,fecha_ingreso,fecha_firma_contrato,meses_experiencia,cargo_laboral(id_cargo,cargo,codigo,dependencia),induccion_examen(id_induccion,induccion,examen_ingreso,fecha_egreso))",
+  "contacto_emergencia(id_contacto,nombre_contacto_emergencia,parentesco,telefono_contacto_emergencia)",
+  "riesgo_procedencia(id_riesgo,medio_transporte,procedencia_trabajador,riesgo)",
+  "salud(id_salud,afp,arl,carnet_vacunacion,ccf,dotacion,eps,rh)",
+  "alergia(id_alergia,nombre)",
+  "enfermedad(id_enfermedad,nombre)",
+  "medicamento(id_medicamento,nombre)",
   "persona_campo_valor(valor,campo_id,campo_personalizado(nombre))"
 ].join(",");
 
@@ -260,6 +322,266 @@ export async function updatePerson(id: number, values: Record<string, unknown>) 
     prefer: "return=representation"
   });
   return rows[0] ?? null;
+}
+
+function textOrNull(value: string | undefined, lowerCase = false) {
+  const text = value?.trim();
+  if (!text) return null;
+  return lowerCase ? text.toLowerCase() : text.toUpperCase();
+}
+
+function dateOrNull(value: string | undefined) {
+  return value?.trim() || null;
+}
+
+function booleanOrNull(value: string | undefined) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+}
+
+function numberOrNull(value: string | undefined) {
+  if (!value?.trim()) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function upsertRelatedRow<T extends Record<string, unknown>>(
+  table: string,
+  foreignKey: string,
+  foreignValue: number,
+  primaryKey: string,
+  values: T
+) {
+  const current = await supabaseRest<Array<Record<string, unknown>>>(
+    `${table}?select=${primaryKey}&${foreignKey}=eq.${encodeFilter(foreignValue)}&limit=1`
+  );
+  const id = current[0]?.[primaryKey];
+  if (id !== undefined) {
+    const rows = await supabaseRest<Array<Record<string, unknown>>>(
+      `${table}?${primaryKey}=eq.${encodeFilter(String(id))}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(values),
+        prefer: "return=representation"
+      }
+    );
+    return rows[0] ?? null;
+  }
+
+  const rows = await supabaseRest<Array<Record<string, unknown>>>(table, {
+    method: "POST",
+    body: JSON.stringify({ ...values, [foreignKey]: foreignValue }),
+    prefer: "return=representation"
+  });
+  return rows[0] ?? null;
+}
+
+function splitList(value: string | undefined) {
+  return Array.from(
+    new Set(
+      (value ?? "")
+        .split(/[,;\n]/)
+        .map((item) => item.trim().toUpperCase())
+        .filter(Boolean)
+    )
+  );
+}
+
+async function syncNamedRows(
+  table: "alergia" | "enfermedad" | "medicamento",
+  primaryKey: string,
+  personId: number,
+  names: string[]
+) {
+  const current = await supabaseRest<Array<Record<string, unknown>>>(
+    `${table}?select=${primaryKey},nombre&n=eq.${encodeFilter(personId)}&order=${primaryKey}.asc`
+  );
+
+  for (let index = 0; index < names.length; index += 1) {
+    const rowId = current[index]?.[primaryKey];
+    if (rowId !== undefined) {
+      await supabaseRest(`${table}?${primaryKey}=eq.${encodeFilter(String(rowId))}`, {
+        method: "PATCH",
+        body: JSON.stringify({ nombre: names[index] }),
+        prefer: "return=minimal"
+      });
+    } else {
+      await supabaseRest(table, {
+        method: "POST",
+        body: JSON.stringify({ n: personId, nombre: names[index] }),
+        prefer: "return=minimal"
+      });
+    }
+  }
+
+  for (const row of current.slice(names.length)) {
+    const rowId = String(row[primaryKey]);
+    if (table === "enfermedad") {
+      await supabaseRest<void>(
+        `enfermedad_medicamento?enfermedad_id=eq.${encodeFilter(rowId)}`,
+        { method: "DELETE", prefer: "return=minimal" }
+      );
+    } else if (table === "medicamento") {
+      await supabaseRest<void>(
+        `enfermedad_medicamento?medicamento_id=eq.${encodeFilter(rowId)}`,
+        { method: "DELETE", prefer: "return=minimal" }
+      );
+    }
+    await supabaseRest<void>(`${table}?${primaryKey}=eq.${encodeFilter(rowId)}`, {
+      method: "DELETE",
+      prefer: "return=minimal"
+    });
+  }
+}
+
+export async function getCustomFields(): Promise<CustomField[]> {
+  return supabaseRest<CustomField[]>(
+    "campo_personalizado?select=id_campo,nombre,activo&activo=eq.true&order=id_campo.asc"
+  );
+}
+
+export async function saveCompletePerson(personId: number | undefined, input: CompletePersonInput) {
+  const personValues = {
+    nombres: textOrNull(input.nombres),
+    apellidos: textOrNull(input.apellidos),
+    cedula: input.cedula?.trim() || null,
+    correo_institucional: textOrNull(input.correoInstitucional, true),
+    telefono_institucional: input.telefonoInstitucional?.trim() || null,
+    lugar_expedicion: textOrNull(input.lugarExpedicion),
+    fecha_nacimiento: dateOrNull(input.fechaNacimiento),
+    direccion: textOrNull(input.direccion),
+    sexo: textOrNull(input.sexo),
+    estado: textOrNull(input.estado) ?? "ACTIVO",
+    enlace_sigep: input.enlaceSigep?.trim() || null,
+    numero_hijos: numberOrNull(input.numeroHijos) ?? 0,
+    numero: numberOrNull(input.numero),
+    imagen_url: input.imagenUrl?.trim() || null
+  };
+
+  const person = personId
+    ? await updatePerson(personId, personValues)
+    : (await upsertPeople([personValues]))[0];
+  if (!person) throw new Error("No se pudo guardar la persona.");
+
+  const id = person.n;
+  await Promise.all([
+    upsertRelatedRow("formacion", "n", id, "id_formacion", {
+      formacion_academica: textOrNull(input.formacionAcademica),
+      grado: textOrNull(input.grado),
+      titulo: textOrNull(input.titulo)
+    }),
+    upsertRelatedRow("contacto_emergencia", "n", id, "id_contacto", {
+      nombre_contacto_emergencia: textOrNull(input.nombreEmergencia),
+      parentesco: textOrNull(input.parentesco),
+      telefono_contacto_emergencia: input.telefonoEmergencia?.trim() || null
+    }),
+    upsertRelatedRow("riesgo_procedencia", "n", id, "id_riesgo", {
+      riesgo: textOrNull(input.riesgo),
+      medio_transporte: textOrNull(input.medioTransporte),
+      procedencia_trabajador: textOrNull(input.procedenciaTrabajador)
+    }),
+    upsertRelatedRow("salud", "n", id, "id_salud", {
+      dotacion: textOrNull(input.dotacion),
+      arl: textOrNull(input.arl),
+      eps: textOrNull(input.eps),
+      afp: textOrNull(input.afp),
+      ccf: textOrNull(input.ccf),
+      rh: textOrNull(input.rh),
+      carnet_vacunacion: booleanOrNull(input.carnetVacunacion)
+    })
+  ]);
+
+  const hasJobData = [
+    input.cargo,
+    input.codigoCargo,
+    input.dependencia,
+    input.fechaIngreso,
+    input.fechaFirmaContrato,
+    input.mesesExperiencia
+  ].some((value) => Boolean(value?.trim()));
+
+  if (hasJobData) {
+    const cargoValues = {
+      cargo: textOrNull(input.cargo),
+      codigo: textOrNull(input.codigoCargo),
+      dependencia: textOrNull(input.dependencia)
+    };
+    const cargos = await supabaseRest<
+      Array<{ id_cargo: number; cargo: string | null; codigo: string | null; dependencia: string | null }>
+    >("cargo_laboral?select=id_cargo,cargo,codigo,dependencia&limit=1000");
+    let cargo = cargos.find(
+      (item) =>
+        item.cargo === cargoValues.cargo &&
+        item.codigo === cargoValues.codigo &&
+        item.dependencia === cargoValues.dependencia
+    );
+    if (!cargo) {
+      [cargo] = await supabaseRest<typeof cargos>("cargo_laboral", {
+        method: "POST",
+        body: JSON.stringify(cargoValues),
+        prefer: "return=representation"
+      });
+    }
+
+    const personJob = await upsertRelatedRow(
+      "persona_cargo_laboral",
+      "persona_id",
+      id,
+      "id_pcl",
+      {
+        cargo_id: cargo.id_cargo,
+        fecha_ingreso: dateOrNull(input.fechaIngreso),
+        fecha_firma_contrato: dateOrNull(input.fechaFirmaContrato),
+        meses_experiencia: numberOrNull(input.mesesExperiencia)
+      }
+    );
+    const personJobId = Number(personJob?.id_pcl);
+    if (Number.isFinite(personJobId)) {
+      await upsertRelatedRow("induccion_examen", "persona_cargo_id", personJobId, "id_induccion", {
+        induccion: booleanOrNull(input.induccion),
+        examen_ingreso: booleanOrNull(input.examenIngreso),
+        fecha_egreso: dateOrNull(input.fechaEgreso)
+      });
+    }
+  }
+
+  await Promise.all([
+    syncNamedRows("alergia", "id_alergia", id, splitList(input.alergias)),
+    syncNamedRows("enfermedad", "id_enfermedad", id, splitList(input.enfermedades)),
+    syncNamedRows("medicamento", "id_medicamento", id, splitList(input.medicamentos))
+  ]);
+
+  const customFields = input.customFields ?? {};
+  await Promise.all(
+    Object.entries(customFields).map(async ([fieldId, rawValue]) => {
+      const campoId = Number(fieldId);
+      if (!Number.isFinite(campoId)) return;
+      const current = await supabaseRest<Array<{ id_valor: number }>>(
+        `persona_campo_valor?select=id_valor&persona_id=eq.${encodeFilter(id)}&campo_id=eq.${encodeFilter(campoId)}&limit=1`
+      );
+      const value = rawValue.trim();
+      if (current[0] && !value) {
+        await supabaseRest<void>(
+          `persona_campo_valor?id_valor=eq.${encodeFilter(current[0].id_valor)}`,
+          { method: "DELETE", prefer: "return=minimal" }
+        );
+      } else if (current[0]) {
+        await supabaseRest(
+          `persona_campo_valor?id_valor=eq.${encodeFilter(current[0].id_valor)}`,
+          { method: "PATCH", body: JSON.stringify({ valor: value }), prefer: "return=minimal" }
+        );
+      } else if (value) {
+        await supabaseRest("persona_campo_valor", {
+          method: "POST",
+          body: JSON.stringify({ persona_id: id, campo_id: campoId, valor: value }),
+          prefer: "return=minimal"
+        });
+      }
+    })
+  );
+
+  return getPersonById(id);
 }
 
 export async function deletePeople(ids: number[]) {
