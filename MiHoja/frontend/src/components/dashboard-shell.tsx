@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useDeferredValue, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useDeferredValue, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Bell,
@@ -87,13 +87,11 @@ const navItems = [
 ];
 
 const reportDownloads = [
-  { id: "word", label: "Descargar Word", logo: "/word-mark.svg", href: "/api/backend/descargar/todos/word" },
-  { id: "pdf", label: "Descargar PDF", logo: "/pdf-mark.svg", href: "/api/backend/descargar/todos/pdf" },
   {
     id: "excel",
-    label: "Descargar Excel",
+    label: "Plantilla Excel de prueba",
     logo: "/excel-mark.svg",
-    href: "/api/backend/descargar/todos/excel"
+    href: "/plantilla-mihoja-datos-ficticios.xlsx"
   }
 ];
 
@@ -165,7 +163,7 @@ export function DashboardShell({ overview }: Props) {
   const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
@@ -189,7 +187,7 @@ export function DashboardShell({ overview }: Props) {
   const deferredFilterSearchQuery = useDeferredValue(filterSearchQuery);
   const selectionScope = useMemo(() => JSON.stringify({ query, filters }), [filters, query]);
 
-  const loadPeople = useEffectEvent(async () => {
+  const loadPeople = useCallback(async () => {
     const requestId = requestSequenceRef.current + 1;
     requestSequenceRef.current = requestId;
     setIsLoading(true);
@@ -220,11 +218,11 @@ export function DashboardShell({ overview }: Props) {
         setIsLoading(false);
       }
     }
-  });
+  }, [currentPage, filters, query, sortBy]);
 
   useEffect(() => {
-    loadPeople();
-  }, [currentPage, filters, loadPeople, query, sortBy]);
+    void loadPeople();
+  }, [loadPeople]);
 
   useEffect(() => {
     if (!toast) {

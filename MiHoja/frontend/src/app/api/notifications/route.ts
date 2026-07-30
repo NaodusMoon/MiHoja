@@ -1,50 +1,18 @@
 import { NextResponse } from "next/server";
 
-const backendBaseUrl =
-  process.env.API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "http://localhost:8080";
-
-type DashboardMetric = {
-  id: string;
-  label: string;
-  value: string;
-  tone: string;
-};
-
-type DashboardPerson = {
-  id: number;
-  nombres: string;
-  apellidos: string;
-  cargo: string | null;
-  dependencia: string | null;
-};
-
-type DashboardOverview = {
-  metrics: DashboardMetric[];
-  recentPeople: DashboardPerson[];
-  highlights: string[];
-};
+import { getDashboardOverviewData } from "@/lib/people-service";
 
 export async function GET() {
   try {
-    const response = await fetch(`${backendBaseUrl}/api/dashboard/overview`, {
-      cache: "no-store"
-    });
-
-    if (!response.ok) {
-      throw new Error(`Notifications request failed (${response.status})`);
-    }
-
-    const overview = (await response.json()) as DashboardOverview;
+    const overview = await getDashboardOverviewData();
     const duplicateMetric = overview.metrics.find((metric) => metric.id === "duplicates");
-    const visibleMetric = overview.metrics.find((metric) => metric.id === "visible");
+    const visibleMetric = overview.metrics.find((metric) => metric.id === "total");
 
     const notifications = [
       {
         id: "summary-visible",
         title: "Registros disponibles",
-        description: `${visibleMetric?.value ?? "0"} hojas visibles en el tablero.`,
+        description: `${visibleMetric?.value ?? "0"} registros ficticios visibles en el tablero.`,
         tone: "neutral"
       },
       {
@@ -59,23 +27,17 @@ export async function GET() {
       ...overview.recentPeople.slice(0, 3).map((person) => ({
         id: `person-${person.id}`,
         title: `${person.apellidos} ${person.nombres}`.trim(),
-        description: `${person.cargo ?? "Sin cargo"} · ${person.dependencia ?? "Sin dependencia"}`,
+        description: `${person.cargo ?? "Sin cargo"} - ${person.dependencia ?? "Sin dependencia"}`,
         tone: "neutral"
       }))
     ];
 
-    return NextResponse.json({
-      notifications,
-      unreadCount: notifications.length
-    });
+    return NextResponse.json({ notifications, unreadCount: notifications.length });
   } catch (error) {
-    return NextResponse.json(
-      {
-        notifications: [],
-        unreadCount: 0,
-        message: error instanceof Error ? error.message : "No se pudieron cargar las notificaciones."
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      notifications: [],
+      unreadCount: 0,
+      message: error instanceof Error ? error.message : "No se pudieron cargar las notificaciones."
+    });
   }
 }

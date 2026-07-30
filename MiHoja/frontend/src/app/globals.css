@@ -33,6 +33,482 @@
   --icon-meta: 16px;
 }
 
+.simpleRoot {
+  min-height: 100vh;
+  background: #f4f6f4;
+  color: #17221c;
+}
+
+.simpleTopbar {
+  min-height: 76px;
+  padding: 14px clamp(18px, 4vw, 56px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #dce3de;
+}
+
+.simpleBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #17221c;
+  text-decoration: none;
+}
+
+.simpleBrand img {
+  border-radius: 6px;
+}
+
+.simpleBrand span {
+  display: grid;
+}
+
+.simpleBrand strong {
+  font-size: 18px;
+}
+
+.simpleBrand small {
+  color: #66736b;
+  font-size: 12px;
+}
+
+.simpleNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.simpleNav a {
+  min-height: 40px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #536159;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.simpleNav a:hover,
+.simpleNav a.isActive {
+  background: #e8f2ec;
+  color: #14623a;
+}
+
+.simpleNav svg,
+.primaryAction svg,
+.secondaryAction svg,
+.iconAction svg {
+  width: 18px;
+  height: 18px;
+}
+
+.simplePage {
+  width: min(1180px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 42px 0 64px;
+}
+
+.simplePageHeader {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.simplePageHeader h1 {
+  margin: 0 0 6px;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.simplePageHeader p,
+.formSection > header p,
+.fieldListHeader p,
+.importBand p {
+  margin: 0;
+  color: #657169;
+}
+
+.simplePageActions {
+  display: flex;
+  gap: 8px;
+}
+
+.primaryAction,
+.secondaryAction,
+.iconAction {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.primaryAction {
+  padding: 10px 16px;
+  background: #165f39;
+  color: #ffffff;
+}
+
+.primaryAction:hover {
+  background: #0e4b2c;
+}
+
+.primaryAction:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.secondaryAction {
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid #cbd5ce;
+  color: #25372c;
+}
+
+.iconAction {
+  width: 42px;
+  background: #e8f2ec;
+  color: #165f39;
+}
+
+.importBand {
+  padding: 22px;
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  background: #fff8df;
+  border: 1px solid #e7d58f;
+  border-radius: 6px;
+}
+
+.importBandCopy {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.importBand h2,
+.formSection h2,
+.fieldListHeader h2,
+.detailGroup h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  letter-spacing: 0;
+}
+
+.importIcon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: #165f39;
+  color: #ffffff;
+}
+
+.importIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.importActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.importMessage {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #704f00;
+  font-weight: 600;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.formSection,
+.fieldsWorkspace,
+.detailGroup {
+  margin-top: 22px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #dce3de;
+  border-radius: 6px;
+}
+
+.formSection > header {
+  margin-bottom: 22px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dataForm label,
+.fieldCreator label {
+  display: grid;
+  gap: 7px;
+  color: #34453a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dataForm input,
+.dataForm select,
+.fieldCreator input {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid #c9d3cc;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #17221c;
+  font: inherit;
+  font-size: 14px;
+}
+
+.dataForm input:focus,
+.dataForm select:focus,
+.fieldCreator input:focus {
+  outline: 2px solid #90c5a6;
+  outline-offset: 1px;
+  border-color: #165f39;
+}
+
+.formFooter {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.formMessage,
+.inlineStatus {
+  margin: 0;
+  color: #165f39;
+  font-weight: 700;
+}
+
+.fieldCreator {
+  padding-bottom: 22px;
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  border-bottom: 1px solid #dce3de;
+}
+
+.fieldListHeader {
+  padding: 22px 0 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fieldRows {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldRow {
+  min-height: 64px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #f6f8f6;
+  border-left: 4px solid #cca928;
+}
+
+.fieldRow > div {
+  display: grid;
+  gap: 3px;
+}
+
+.fieldRow span {
+  color: #6a766e;
+  font-size: 12px;
+}
+
+.switchControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.switchControl input {
+  width: 18px;
+  height: 18px;
+  accent-color: #165f39;
+}
+
+.detailGroups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.detailGroup {
+  margin-top: 0;
+}
+
+.detailGroup dl {
+  margin: 16px 0 0;
+  display: grid;
+}
+
+.detailGroup dl > div {
+  padding: 10px 0;
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid #e4e9e5;
+}
+
+.detailGroup dt {
+  color: #68756d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detailGroup dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.notFoundPage {
+  min-height: 100vh;
+  padding: 30px;
+  display: grid;
+  place-content: center;
+  justify-items: start;
+  background: #f4f6f4;
+}
+
+.notFoundPage > span {
+  color: #cca928;
+  font-size: 72px;
+  font-weight: 800;
+}
+
+.notFoundPage h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: 0;
+}
+
+.notFoundPage p {
+  max-width: 520px;
+  color: #657169;
+}
+
+@media (max-width: 900px) {
+  .simpleTopbar,
+  .simplePageHeader,
+  .importBand {
+    align-items: stretch;
+  }
+
+  .simpleTopbar,
+  .simplePageHeader {
+    flex-direction: column;
+  }
+
+  .simpleNav {
+    overflow-x: auto;
+  }
+
+  .importBand {
+    grid-template-columns: 1fr;
+  }
+
+  .importActions {
+    justify-content: flex-start;
+  }
+
+  .formGrid,
+  .detailGroups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .simpleNav a {
+    flex: 1 0 auto;
+    justify-content: center;
+  }
+
+  .simpleNav a span {
+    display: none;
+  }
+
+  .simplePage {
+    width: min(100% - 24px, 1180px);
+    padding-top: 28px;
+  }
+
+  .simplePageHeader h1 {
+    font-size: 30px;
+  }
+
+  .formGrid,
+  .detailGroups,
+  .fieldCreator {
+    grid-template-columns: 1fr;
+  }
+
+  .formSection,
+  .fieldsWorkspace,
+  .detailGroup,
+  .importBand {
+    padding: 18px;
+  }
+
+  .importActions,
+  .importActions > *,
+  .formFooter {
+    width: 100%;
+  }
+
+  .formFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1325,4 +1801,65 @@ svg {
     width: min(224px, calc(100vw - 48px));
   }
 
+  .sidebar {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .brandBlock {
+    align-items: center;
+    padding: 0;
+  }
+
+  .brandMark {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+  }
+
+  .brandCopy {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brandCopy h1 {
+    font-size: 1.45rem;
+  }
+
+  .brandCopy p {
+    max-width: none;
+    margin: 0;
+    font-size: 0.78rem;
+  }
+
+  .sidebarNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 0;
+  }
+
+  .navAction {
+    min-height: 44px;
+    justify-content: center;
+    gap: 7px;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+  }
+
+  .navAction svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .filtersPanel {
+    display: none;
+  }
+
+}
+
+.visuallyHidden {
+  width: 1px !important;
+  height: 1px !important;
 }

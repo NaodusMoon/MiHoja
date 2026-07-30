@@ -3,14 +3,8 @@ import type {
   DashboardDeleteResponse,
   DashboardFilters,
   DashboardNotificationsResponse,
-  DashboardOverview,
   DashboardPeopleResponse
 } from "@/lib/types";
-
-const serverApiBaseUrl =
-  process.env.API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "http://localhost:8080";
 
 const clientApiBaseUrl = "/api/backend";
 
@@ -53,15 +47,6 @@ async function ensureOk(response: Response, errorLabel: string) {
   if (!response.ok) {
     throw new Error(`${errorLabel} (${response.status})`);
   }
-}
-
-export async function getDashboardOverview(): Promise<DashboardOverview> {
-  const response = await fetch(`${serverApiBaseUrl}/api/dashboard/overview`, {
-    cache: "no-store"
-  });
-
-  await ensureOk(response, "Dashboard request failed");
-  return response.json() as Promise<DashboardOverview>;
 }
 
 export async function getDashboardPeople(params: {
