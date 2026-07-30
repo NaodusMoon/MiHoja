@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const backendBaseUrl = process.env.API_BASE_URL ?? "http://localhost:8080";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -22,75 +24,75 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/insertar",
-        destination: "http://localhost:8080/insertar"
+        destination: `${backendBaseUrl}/insertar`
       },
       {
         source: "/configuracion-campos",
-        destination: "http://localhost:8080/configuracion-campos"
+        destination: `${backendBaseUrl}/configuracion-campos`
       },
       {
         source: "/muestra/:path*",
-        destination: "http://localhost:8080/muestra/:path*"
+        destination: `${backendBaseUrl}/muestra/:path*`
       },
       {
         source: "/muestra_datos",
-        destination: "http://localhost:8080/muestra_datos"
+        destination: `${backendBaseUrl}/muestra_datos`
       },
       {
         source: "/editar/:path*",
-        destination: "http://localhost:8080/editar/:path*"
+        destination: `${backendBaseUrl}/editar/:path*`
       },
       {
         source: "/error",
-        destination: "http://localhost:8080/error"
+        destination: `${backendBaseUrl}/error`
       },
       {
         source: "/css/:path*",
-        destination: "http://localhost:8080/css/:path*"
+        destination: `${backendBaseUrl}/css/:path*`
       },
       {
         source: "/js/:path*",
-        destination: "http://localhost:8080/js/:path*"
+        destination: `${backendBaseUrl}/js/:path*`
       },
       {
         source: "/img/:path*",
-        destination: "http://localhost:8080/img/:path*"
+        destination: `${backendBaseUrl}/img/:path*`
       },
       {
         source: "/upload-jobs/:path*",
-        destination: "http://localhost:8080/api/upload-jobs/:path*"
+        destination: `${backendBaseUrl}/api/upload-jobs/:path*`
       },
       {
         source: "/api/insertar",
-        destination: "http://localhost:8080/api/insertar"
+        destination: `${backendBaseUrl}/api/insertar`
       },
       {
         source: "/api/insertar/:path*",
-        destination: "http://localhost:8080/api/insertar/:path*"
+        destination: `${backendBaseUrl}/api/insertar/:path*`
       },
       {
         source: "/api/backend/:path*",
-        destination: "http://localhost:8080/api/:path*"
+        destination: `${backendBaseUrl}/api/:path*`
       },
       {
         source: "/api/descargar/:path*",
-        destination: "http://localhost:8080/api/descargar/:path*"
+        destination: `${backendBaseUrl}/api/descargar/:path*`
       },
       {
         source: "/eliminar/:path*",
-        destination: "http://localhost:8080/eliminar/:path*"
+        destination: `${backendBaseUrl}/eliminar/:path*`
       },
       {
         source: "/eliminar-multiples",
-        destination: "http://localhost:8080/eliminar-multiples"
+        destination: `${backendBaseUrl}/eliminar-multiples`
       },
       {
         source: "/mantenimiento/:path*",
-        destination: "http://localhost:8080/mantenimiento/:path*"
+        destination: `${backendBaseUrl}/mantenimiento/:path*`
       },
       {
         source: "/configuracion-campos/:path*",
-        destination: "http://localhost:8080/configuracion-campos/:path*"
+        destination: `${backendBaseUrl}/configuracion-campos/:path*`
       }
     ];
   }
