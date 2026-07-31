@@ -24,15 +24,18 @@ export function SimpleAppShell({
 }) {
   return (
     <main className="simpleRoot">
-      <header className="simpleTopbar">
+      <aside className="simpleSidebar">
         <Link className="simpleBrand" href="/">
-          <Image alt="MiHoja" height={44} priority src="/logo-mihoja.png" width={44} />
-          <span>
+          <span className="simpleBrandMark">
+            <Image alt="MiHoja" height={54} priority src="/logo-mihoja.png" width={54} />
+          </span>
+          <span className="simpleBrandCopy">
             <strong>MiHoja</strong>
             <small>Datos de personal</small>
           </span>
         </Link>
         <nav className="simpleNav" aria-label="Navegacion principal">
+          <span className="simpleNavLabel">MENU PRINCIPAL</span>
           {links.map((link) => {
             const Icon = link.icon;
             return (
@@ -43,17 +46,34 @@ export function SimpleAppShell({
             );
           })}
         </nav>
-      </header>
+        <div className="simpleSidebarNote">
+          <span>MiHoja</span>
+          <small>Gestion de personal</small>
+        </div>
+      </aside>
 
-      <section className="simplePage">
-        <header className="simplePageHeader">
-          <div>
-            <h1>{title}</h1>
-            <p>{description}</p>
+      <section className="simpleWorkspace">
+        <header className="simpleTopbar">
+          <div className="simpleTopbarIdentity">
+            <span className="simpleTopbarAvatar"><UserRound aria-hidden="true" /></span>
+            <span>
+              <strong>Hola, Sandra</strong>
+              <small>Administradora</small>
+            </span>
           </div>
-          {actions ? <div className="simplePageActions">{actions}</div> : null}
+          <span className="simpleTopbarSection">{title}</span>
         </header>
-        {children}
+        <section className="simplePage">
+          <header className="simplePageHeader">
+            <div>
+              <span className="simpleEyebrow">MIHOJA / {active === "/" ? "CONSULTAR" : active.slice(1).replaceAll("-", " ").toUpperCase()}</span>
+              <h1>{title}</h1>
+              <p>{description}</p>
+            </div>
+            {actions ? <div className="simplePageActions">{actions}</div> : null}
+          </header>
+          {children}
+        </section>
       </section>
     </main>
   );
