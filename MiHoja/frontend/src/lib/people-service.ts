@@ -584,6 +584,196 @@ export async function saveCompletePerson(personId: number | undefined, input: Co
   return getPersonById(id);
 }
 
+async function insertBatch<T extends Record<string, unknown>>(table: string, rows: T[]) {
+  if (rows.length === 0) return [] as Array<Record<string, unknown>>;
+  return supabaseRest<Array<Record<string, unknown>>>(table, {
+    method: "POST",
+    body: JSON.stringify(rows),
+    prefer: "return=representation"
+  });
+}
+
+async function deleteBatch(table: string, where: string) {
+  await supabaseRest<void>(`${table}?${where}`, {
+    method: "DELETE",
+    prefer: "return=minimal"
+  });
+}
+
+function distinctText(values: Array<string | undefined>) {
+  return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[]));
+}
+
+function splitImportList(value: string | undefined) {
+  return distinctText((value ?? "").split(/[,;\n]/).map((item) => item.toUpperCase()));
+}
+
+export async function importCompletePeople(inputs: CompletePersonInput[]) {
+  if (inputs.length === 0) return [] as PersonRecord[];
+
+  const people = await upsertPeople(
+    inputs.map((input) => ({
+      numero: numberOrNull(input.numero),
+      nombres: textOrNull(input.nombres),
+      apellidos: textOrNull(input.apellidos),
+      cedula: input.cedula?.trim() || null,
+      lugar_expedicion: textOrNull(input.lugarExpedicion),
+      fecha_nacimiento: dateOrNull(input.fechaNacimiento),
+      direccion: textOrNull(input.direccion),
+      sexo: textOrNull(input.sexo),
+      correo_institucional: textOrNull(input.correoInstitucional, true),
+      telefono_institucional: input.telefonoInstitucional?.trim() || null,
+      enlace_sigep: input.enlaceSigep?.trim() || null,
+      numero_hijos: numberOrNull(input.numeroHijos) ?? 0,
+      estado: textOrNull(input.estado) ?? "ACTIVO",
+      imagen_url: input.imagenUrl?.trim() || null
+    }))
+  );
+
+  const personByCedula = new Map(people.map((person) => [person.cedula?.trim(), person]));
+  const imported = inputs
+    .map((input) => ({ input, person: personByCedula.get(input.cedula?.trim()) }))
+    .filter((item): item is { input: CompletePersonInput; person: PersonRecord } => Boolean(item.person?.n));
+  const personIds = imported.map(({ person }) => person.n);
+  const personFilter = personIds.join(",");
+
+  const [currentJobs, currentDiseases, currentMedicines] = await Promise.all([
+    supabaseRest<Array<{ id_pcl: number }>>(
+      `persona_cargo_laboral?select=id_pcl&persona_id=in.(${personFilter})`
+    ),
+    supabaseRest<Array<{ id_enfermedad: number }>>(
+      `enfermedad?select=id_enfermedad&n=in.(${personFilter})`
+    ),
+    supabaseRest<Array<{ id_medicamento: number }>>(
+      `medicamento?select=id_medicamento&n=in.(${personFilter})`
+    )
+  ]);
+
+  const jobIds = currentJobs.map((row) => row.id_pcl);
+  const diseaseIds = currentDiseases.map((row) => row.id_enfermedad);
+  const medicineIds = currentMedicines.map((row) => row.id_medicamento);
+  if (diseaseIds.length > 0) {
+    await deleteBatch("enfermedad_medicamento", `enfermedad_id=in.(${diseaseIds.join(",")})`);
+  }
+  if (medicineIds.length > 0) {
+    await deleteBatch("enfermedad_medicamento", `medicamento_id=in.(${medicineIds.join(",")})`);
+  }
+  if (jobIds.length > 0) {
+    await deleteBatch("induccion_examen", `persona_cargo_id=in.(${jobIds.join(",")})`);
+  }
+  await Promise.all([
+    deleteBatch("persona_campo_valor", `persona_id=in.(${personFilter})`),
+    deleteBatch("formacion", `n=in.(${personFilter})`),
+    deleteBatch("riesgo_procedencia", `n=in.(${personFilter})`),
+    deleteBatch("salud", `n=in.(${personFilter})`),
+    deleteBatch("contacto_emergencia", `n=in.(${personFilter})`),
+    deleteBatch("alergia", `n=in.(${personFilter})`),
+    deleteBatch("enfermedad", `n=in.(${personFilter})`),
+    deleteBatch("medicamento", `n=in.(${personFilter})`)
+  ]);
+  if (jobIds.length > 0) {
+    await deleteBatch("persona_cargo_laboral", `persona_id=in.(${personFilter})`);
+  }
+
+  const cargoRows = await supabaseRest<
+    Array<{ id_cargo: number; cargo: string | null; codigo: string | null; dependencia: string | null }>
+  >("cargo_laboral?select=id_cargo,cargo,codigo,dependencia&limit=1000");
+  const cargoByKey = new Map(
+    cargoRows.map((cargo) => [`${cargo.cargo}|${cargo.codigo}|${cargo.dependencia}`, cargo.id_cargo])
+  );
+  const missingCargoRows = distinctText(
+    imported.map(({ input }) =>
+      `${textOrNull(input.cargo)}|${textOrNull(input.codigoCargo)}|${textOrNull(input.dependencia)}`
+    )
+  )
+    .map((key) => {
+      const [cargo, codigo, dependencia] = key.split("|");
+      return { key, cargo, codigo, dependencia };
+    })
+    .filter(({ key }) => !cargoByKey.has(key))
+    .map(({ cargo, codigo, dependencia }) => ({ cargo, codigo, dependencia }));
+  const createdCargos = await insertBatch("cargo_laboral", missingCargoRows);
+  for (const cargo of createdCargos) {
+    cargoByKey.set(`${cargo.cargo}|${cargo.codigo}|${cargo.dependencia}`, Number(cargo.id_cargo));
+  }
+
+  const formationRows: Array<Record<string, unknown>> = [];
+  const jobRows: Array<Record<string, unknown>> = [];
+  const riskRows: Array<Record<string, unknown>> = [];
+  const healthRows: Array<Record<string, unknown>> = [];
+  const contactRows: Array<Record<string, unknown>> = [];
+  const allergyRows: Array<Record<string, unknown>> = [];
+  const diseaseRows: Array<Record<string, unknown>> = [];
+  const medicineRows: Array<Record<string, unknown>> = [];
+
+  for (const { input, person } of imported) {
+    const cargoKey = `${textOrNull(input.cargo)}|${textOrNull(input.codigoCargo)}|${textOrNull(input.dependencia)}`;
+    const cargoId = cargoByKey.get(cargoKey);
+    formationRows.push({
+      n: person.n,
+      formacion_academica: textOrNull(input.formacionAcademica),
+      grado: textOrNull(input.grado),
+      titulo: textOrNull(input.titulo)
+    });
+    if (cargoId) {
+      jobRows.push({
+        persona_id: person.n,
+        cargo_id: cargoId,
+        fecha_ingreso: dateOrNull(input.fechaIngreso),
+        fecha_firma_contrato: dateOrNull(input.fechaFirmaContrato),
+        meses_experiencia: numberOrNull(input.mesesExperiencia)
+      });
+    }
+    riskRows.push({
+      n: person.n,
+      riesgo: textOrNull(input.riesgo),
+      medio_transporte: textOrNull(input.medioTransporte),
+      procedencia_trabajador: textOrNull(input.procedenciaTrabajador)
+    });
+    healthRows.push({
+      n: person.n,
+      dotacion: textOrNull(input.dotacion),
+      arl: textOrNull(input.arl),
+      eps: textOrNull(input.eps),
+      afp: textOrNull(input.afp),
+      ccf: textOrNull(input.ccf),
+      rh: textOrNull(input.rh),
+      carnet_vacunacion: booleanOrNull(input.carnetVacunacion)
+    });
+    contactRows.push({
+      n: person.n,
+      nombre_contacto_emergencia: textOrNull(input.nombreEmergencia),
+      parentesco: textOrNull(input.parentesco),
+      telefono_contacto_emergencia: input.telefonoEmergencia?.trim() || null
+    });
+    for (const nombre of splitImportList(input.alergias)) allergyRows.push({ n: person.n, nombre });
+    for (const nombre of splitImportList(input.enfermedades)) diseaseRows.push({ n: person.n, nombre });
+    for (const nombre of splitImportList(input.medicamentos)) medicineRows.push({ n: person.n, nombre });
+  }
+
+  const insertedJobs = await insertBatch("persona_cargo_laboral", jobRows);
+  await Promise.all([
+    insertBatch("formacion", formationRows),
+    insertBatch("riesgo_procedencia", riskRows),
+    insertBatch("salud", healthRows),
+    insertBatch("contacto_emergencia", contactRows),
+    insertBatch("alergia", allergyRows),
+    insertBatch("enfermedad", diseaseRows),
+    insertBatch("medicamento", medicineRows)
+  ]);
+  await insertBatch(
+    "induccion_examen",
+    insertedJobs.map((job) => ({
+      persona_cargo_id: job.id_pcl,
+      induccion: booleanOrNull(imported.find(({ person }) => person.n === job.persona_id)?.input.induccion),
+      examen_ingreso: booleanOrNull(imported.find(({ person }) => person.n === job.persona_id)?.input.examenIngreso),
+      fecha_egreso: dateOrNull(imported.find(({ person }) => person.n === job.persona_id)?.input.fechaEgreso)
+    }))
+  );
+
+  return people;
+}
+
 export async function deletePeople(ids: number[]) {
   const cleanIds = Array.from(
     new Set(ids.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0))
