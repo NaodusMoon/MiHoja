@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <title>Datos de Hoja de Vida</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
 </head>
 <body>
 
-<!-- ✅ NAVBAR -->
+<!-- NAVBAR -->
 <div class="navbar">
     <a class="logo"
-       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
-        [Logo]
-    </a>
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}"><span class="logo-monogram" aria-hidden="true"><span>M</span><span>H</span></span></a>
 
     <a class="app-name"
        th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
@@ -29,46 +29,42 @@
            th:classappend="${paginaActual == 'insertar'} ? ' active'">
             Insertar
         </a>
-    </div>
-
-    <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
-</div>
+        <a th:href="@{/configuracion-campos}">Campos</a>
+    </div></div>
 
 
 
 
-<!-- ✅ ACCIONES SUPERIORES -->
+<!-- ACCIONES SUPERIORES -->
 <div class="acciones-superiores">
-    <!-- 🔙 Botón para regresar manteniendo todos los filtros -->
-    <div>
+    <div class="acciones-grupo">
         <a th:href="@{'/consultar?' + ${filtrosQuery}}">
             <button class="cerrar-btn">X</button>
         </a>
     </div>
 
-    <!-- 📥 Menú de descarga -->
-    <div th:if="${persona != null}">
+    <div class="acciones-grupo" th:if="${persona != null}">
         <button class="descargar-btn" onclick="toggleMenu()">Descargar</button>
+        <a th:if="${!editMode}" th:href="@{'/muestra/' + ${persona.id} + '?' + ${filtrosQuery} + '&edit=true'}"><button class="editar-btn">Editar En Esta Tarjeta</button></a>
+        <a th:if="${editMode}" th:href="@{'/muestra/' + ${persona.id} + '?' + ${filtrosQuery}}"><button class="editar-btn">Cerrar Edicion</button></a>
         <div class="descargar-menu" id="menuDescarga" style="display:none;">
-            <a th:href="@{/api/descargar/{id}/pdf(id=${persona.id})}" target="_blank">PDF</a>
-            <a th:href="@{/api/descargar/{id}/excel(id=${persona.id})}" target="_blank">Excel</a>
-            <a th:href="@{/api/descargar/{id}/word(id=${persona.id})}" target="_blank">Word</a>
+            <a th:href="@{/api/descargar/{id}/pdf(id=${persona.id})}" target="_blank">PDF (registro)</a>
+            <a th:href="@{/api/descargar/{id}/excel(id=${persona.id})}" target="_blank">Excel (registro)</a>
+            <a th:href="@{/api/descargar/{id}/word(id=${persona.id})}" target="_blank">Word (registro)</a>
+            <a href="/api/descargar/todos/pdf" target="_blank">PDF (todos)</a>
+            <a href="/api/descargar/todos/excel" target="_blank">Excel (todos)</a>
+            <a href="/api/descargar/todos/word" target="_blank">Word (todos)</a>
         </div>
     </div>
 </div>
-
-<!-- ✅ BOTÓN EDITAR -->
-<div th:if="${persona != null}" style="margin-top: 10px; text-align: right; padding-right: 2rem;">
-    <a th:href="@{/editar/{id}(id=${persona.id})}">
-        <button class="editar-btn">Editar</button>
-    </a>
+<div class="datos-container" th:if="${editMode and persona != null}" style="margin-top: 16px;">
+    <h3 style="margin: 0 0 12px 0;">Edicion directa</h3>
+    <div th:replace="~{fragments/persona_edicion_fragment :: personaEditForm(${camposCustom}, ${valoresCustomEdit}, @{/editar/{id}(id=${persona.id})}, ${filtrosQuery})}"></div>
 </div>
+<!-- DATOS DE LA PERSONA -->
+<div class="datos-container" th:if="${persona != null and !editMode}">
 
-
-<!-- ✅ DATOS DE LA PERSONA -->
-<div class="datos-container" th:if="${persona != null}">
-
- <!-- 📷 Imagen (ocupa una fila, centrada) -->
+ <!-- Imagen (ocupa una fila, centrada) -->
 <div class="fila fila--imagen" th:if="${persona.imagenUrl != null}">
   <div class="dato" style="text-align:center;">
     
@@ -146,7 +142,7 @@
   </div>
 
   <div class="fila" th:if="${salud != null}">
-    <div class="dato"><label>Carnet de Vacunación</label><div class="valor" th:text="${salud.carnetVacunacion ? 'Sí' : 'No'}"></div></div>
+    <div class="dato"><label>Carnet de Vacunacion</label><div class="valor" th:text="${salud.carnetVacunacion == null ? 'Sin definir' : (salud.carnetVacunacion ? 'SI' : 'NO')}"></div></div>
     <div class="dato"><label>Enfermedades</label>
       <div class="valor">
         <ul th:if="${enfermedades != null and !enfermedades.isEmpty()}">
@@ -174,8 +170,8 @@
         <span th:if="${medicamentos == null or medicamentos.isEmpty()}">N/A</span>
       </div>
     </div>
-    <div class="dato" th:if="${induccionExamen != null}"><label>Examen de Ingreso</label><div class="valor" th:text="${induccionExamen.examenIngreso}"></div></div>
-    <div class="dato" th:if="${induccionExamen != null}"><label>Inducción</label><div class="valor" th:text="${induccionExamen.induccion}"></div></div>
+    <div class="dato" th:if="${induccionExamen != null}"><label>Examen de Ingreso</label><div class="valor" th:text="${induccionExamen.examenIngreso == null ? 'Sin definir' : (induccionExamen.examenIngreso ? 'SI' : 'NO')}"></div></div>
+    <div class="dato" th:if="${induccionExamen != null}"><label>Induccion</label><div class="valor" th:text="${induccionExamen.induccion == null ? 'Sin definir' : (induccionExamen.induccion ? 'SI' : 'NO')}"></div></div>
   </div>
 
   <div class="fila" th:if="${riesgoProcedencia != null}">
@@ -189,6 +185,17 @@
     <div class="dato"><label>Parentesco</label><div class="valor" th:text="${contactoEmergencia.parentesco}"></div></div>
     <div class="dato"><label>Teléfono del Contacto</label><div class="valor" th:text="${contactoEmergencia.telefonoContactoEmergencia}"></div></div>
   </div>
+  <th:block th:if="${camposCustom != null and !#lists.isEmpty(camposCustom)}">
+    <div class="fila">
+      <div class="dato" th:each="campo : ${camposCustom}">
+        <label th:text="${campo.etiquetaVisible}">Campo personalizado</label>
+        <div class="valor no-transform"
+             th:text="${valoresCustom != null and valoresCustom[campo.nombre] != null ? valoresCustom[campo.nombre] : 'Sin definir'}">
+          Sin definir
+        </div>
+      </div>
+    </div>
+  </th:block>
 
   <!-- Fila final (2 campos) -->
   <div class="fila">
@@ -201,10 +208,7 @@
 
 
 
-    </div>
-</div>
-
-<!-- ✅ MENSAJE SI NO SE ENCUENTRA -->
+<!-- MENSAJE SI NO SE ENCUENTRA -->
 <div th:if="${persona == null}" style="padding: 2rem; text-align: center;">
     <h2 style="color: red;">No se encontró la hoja de vida solicitada.</h2>
     <a th:href="@{/consultar(
@@ -220,7 +224,7 @@
     </a>
 </div>
 
-<!-- ✅ SCRIPT PARA DESCARGA -->
+<!-- SCRIPT PARA DESCARGA -->
 <script>
     function toggleMenu() {
         const menu = document.getElementById("menuDescarga");
@@ -243,8 +247,15 @@
         img.style.objectFit = "cover"; // recorta sin deformar
         img.style.borderRadius = "8px"; // opcional, esquinas redondeadas
     });
-});
-</script>
+});</script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+

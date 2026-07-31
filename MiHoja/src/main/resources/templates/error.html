@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Error | MiHoja</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --text: #1d2733;
+            --muted: #5c6b7a;
+            --line: #d6dde6;
+            --danger: #c62828;
+            --danger-soft: #fdeaea;
+            --btn: #0f5ba7;
+            --btn-hover: #0c4c8c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: radial-gradient(circle at top, #ffffff 0%, var(--bg) 60%);
+            color: var(--text);
+        }
+        .wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            width: min(940px, 100%);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(15, 25, 40, 0.08);
+            padding: 24px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .2px;
+            color: var(--danger);
+            background: var(--danger-soft);
+            border: 1px solid #f7c9c9;
+        }
+        h1 {
+            margin: 10px 0 8px 0;
+            font-size: 28px;
+            line-height: 1.2;
+        }
+        .lead {
+            margin: 0 0 14px 0;
+            color: var(--muted);
+        }
+        .meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .meta div {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: #fbfcfe;
+        }
+        .k {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .v {
+            word-break: break-word;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+        }
+        .message {
+            border-left: 4px solid var(--danger);
+            background: var(--danger-soft);
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin: 14px 0 18px 0;
+            white-space: pre-wrap;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .btn {
+            text-decoration: none;
+            border: 1px solid var(--btn);
+            color: #fff;
+            background: var(--btn);
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .btn:hover { background: var(--btn-hover); }
+        .btn.alt {
+            background: #fff;
+            color: var(--btn);
+        }
+        .btn.alt:hover {
+            background: #eef5fd;
+        }
+        details {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        summary {
+            cursor: pointer;
+            padding: 12px 14px;
+            font-weight: 600;
+            background: #f9fbff;
+            border-bottom: 1px solid var(--line);
+        }
+        pre {
+            margin: 0;
+            max-height: 320px;
+            overflow: auto;
+            padding: 12px 14px;
+            background: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            font-family: Consolas, "Courier New", monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="card">
+        <span class="badge" th:text="'HTTP ' + (statusCode != null ? statusCode : 500)">HTTP 500</span>
+        <h1 th:text="${statusText != null ? statusText : 'Error interno del servidor'}">Error interno del servidor</h1>
+        <p class="lead">Ocurrio un problema procesando la solicitud. Puedes volver e intentarlo nuevamente.</p>
+
+        <div class="meta">
+            <div>
+                <span class="k">Ruta</span>
+                <span class="v" th:text="${path != null ? path : '/error'}">/error</span>
+            </div>
+            <div>
+                <span class="k">Fecha/Hora</span>
+                <span class="v" th:text="${timestamp != null ? timestamp : 'No disponible'}">No disponible</span>
+            </div>
+        </div>
+
+        <div class="message" th:text="${mensajeError != null ? mensajeError : (errorMessage != null ? errorMessage : 'Error no disponible.')}">Error no disponible.</div>
+
+        <div class="actions">
+            <a href="/consultar" class="btn">Ir a consultar</a>
+            <a href="javascript:history.back()" class="btn alt">Volver atras</a>
+            <a class="btn alt"
+               th:if="${showDetails != true}"
+               th:href="@{/error(detalle=true)}">Ver detalle tecnico</a>
+            <a class="btn alt"
+               th:if="${showDetails == true}"
+               th:href="@{/error}">Ocultar detalle</a>
+        </div>
+
+        <details th:open="${showDetails == true}" th:if="${exceptionName != null or stackTrace != null}">
+            <summary>Detalle tecnico</summary>
+            <pre th:text="'Exception: ' + (exceptionName != null ? exceptionName : 'N/A') + '\n\n' + (stackTrace != null ? stackTrace : 'No hay stacktrace disponible.')">No hay stacktrace disponible.</pre>
+        </details>
+    </section>
+</div>
+</body>
+</html>

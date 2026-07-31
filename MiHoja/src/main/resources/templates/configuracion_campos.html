@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuracion de Campos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-page="configuracion">
+<div class="navbar">
+    <a class="logo" th:href="@{/consultar}"><span class="logo-monogram" aria-hidden="true"><span>M</span><span>H</span></span></a>
+    <a class="app-name" th:href="@{/consultar}">MiHoja</a>
+    <div class="nav-links">
+        <a th:href="@{/consultar}">Consultar</a>
+        <a th:href="@{/insertar}">Insertar</a>
+        <a th:href="@{/configuracion-campos}" class="active">Campos</a>
+    </div>
+</div>
+
+<div th:if="${mensajeExito}" class="mensaje exito" th:text="${mensajeExito}"></div>
+<div th:if="${mensajeError}" class="mensaje error" th:text="${mensajeError}"></div>
+
+<div class="datos-container config-page" style="margin-top: 20px;">
+    <section class="config-hero">
+        <div class="config-hero-card">
+            <p class="config-kicker">Arquitectura de datos</p>
+            <h1 class="config-title">Campos y estructura del formulario</h1>
+            <p class="config-copy">
+                Aqui administras como se nombran y se presentan los campos del sistema.
+                Puedes editar tanto los campos base como los personalizados, y los cambios
+                se guardan en vivo sin romper la carga por Excel.
+            </p>
+            <div class="config-hero-stats">
+                <div class="config-stat">
+                    <strong th:text="${camposBaseTotal}">0</strong>
+                    <span>campos base</span>
+                </div>
+                <div class="config-stat">
+                    <strong th:text="${camposPersonalizadosTotal}">0</strong>
+                    <span>campos personalizados</span>
+                </div>
+                <div class="config-stat">
+                    <strong>Excel</strong>
+                    <span>compatible con nuevos campos</span>
+                </div>
+            </div>
+        </div>
+
+        <aside class="config-add-card">
+            <div class="config-section-header">
+                <div>
+                    <h2 class="config-section-title">Nuevo campo</h2>
+                    <p class="config-section-copy">Agrega un campo nuevo y configuralo desde el mismo panel.</p>
+                </div>
+            </div>
+
+            <form class="config-add-form" method="post" th:action="@{/configuracion-campos/agregar}">
+                <div class="config-form-grid config-form-grid--top">
+                    <div class="config-control">
+                        <label for="nombre">Nombre tecnico</label>
+                        <input id="nombre" name="nombre" type="text" placeholder="ej. tallaCamisa" required>
+                    </div>
+                    <div class="config-control config-control--spacious">
+                        <label for="tipoDato">Tipo de dato</label>
+                        <div class="config-select-wrap">
+                            <select id="tipoDato" name="tipoDato" class="config-select">
+                                <option value="texto">Texto</option>
+                                <option value="textarea">Texto largo</option>
+                                <option value="numero">Numero</option>
+                                <option value="fecha">Fecha</option>
+                                <option value="booleano">Si / No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="config-control full">
+                        <label for="etiqueta">Nombre visible</label>
+                        <input id="etiqueta" name="etiqueta" type="text" placeholder="ej. Talla de camisa">
+                    </div>
+                </div>
+                <div class="config-actions">
+                    <button class="config-btn primary" type="submit">Crear campo</button>
+                </div>
+            </form>
+        </aside>
+    </section>
+
+    <section class="config-section">
+        <div class="config-section-header">
+            <div>
+                <h2 class="config-section-title">Campos</h2>
+                <p class="config-section-copy">Edita el nombre visible y el tipo de dato. Todo queda guardado en vivo.</p>
+            </div>
+        </div>
+
+        <div class="config-grid" id="configGrid">
+            <article class="config-field-card"
+                     th:each="campo : ${camposConfigurables}"
+                     th:classappend="${campo.origen == 'base'} ? ' system' : (${campo.origen == 'inactivo'} ? ' inactive' : '')"
+                     draggable="true"
+                     th:attr="data-field-key=${campo.origen == 'base'} ? ${campo.nombre} : ${campo.id},data-field-origin=${campo.origen}">
+                <div class="config-field-meta">
+                    <div>
+                        <h3 class="config-field-name" th:text="${campo.etiqueta}">Campo</h3>
+                        <div class="config-field-key" th:text="${campo.nombre}">nombreTecnico</div>
+                    </div>
+                    <div class="config-field-tools">
+                        <span class="config-field-state" th:text="${campo.origen == 'base' ? 'base' : (campo.origen == 'inactivo' ? 'inactivo' : 'personalizado')}">base</span>
+                        <button class="config-icon-btn drag-handle" type="button" title="Arrastrar para ordenar" aria-label="Arrastrar para ordenar">⋮⋮</button>
+                        <form class="config-delete-form"
+                              th:if="${campo.origen == 'base'}"
+                              th:action="@{/configuracion-campos/base/{nombre}/eliminar(nombre=${campo.nombre})}">
+                            <button class="config-icon-btn danger" type="submit" title="Eliminar campo" aria-label="Eliminar campo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM6 9h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9z"/></svg>
+                            </button>
+                        </form>
+                        <form class="config-delete-form"
+                              th:if="${campo.origen != 'base'}"
+                              th:action="@{/configuracion-campos/{id}/eliminar(id=${campo.id})}">
+                            <button class="config-icon-btn danger" type="submit" title="Eliminar campo" aria-label="Eliminar campo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM6 9h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9z"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <form class="config-field-form"
+                      th:attr="data-update-url=${campo.origen == 'base'} ? @{/configuracion-campos/base/{nombre}/actualizar(nombre=${campo.nombre})} : @{/configuracion-campos/{id}/actualizar(id=${campo.id})}">
+                    <div class="config-control">
+                        <label>Nombre visible</label>
+                        <input type="text" name="etiqueta" th:value="${campo.etiqueta}" required>
+                    </div>
+                    <div class="config-control">
+                        <label>Tipo de dato</label>
+                        <div class="config-select-wrap">
+                            <select name="tipoDato" class="config-select">
+                                <option value="texto" th:selected="${campo.tipoDato == 'texto'}">Texto</option>
+                                <option value="textarea" th:selected="${campo.tipoDato == 'textarea'}">Texto largo</option>
+                                <option value="numero" th:selected="${campo.tipoDato == 'numero'}">Numero</option>
+                                <option value="fecha" th:selected="${campo.tipoDato == 'fecha'}">Fecha</option>
+                                <option value="booleano" th:selected="${campo.tipoDato == 'booleano'}">Si / No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="config-actions">
+                        <button class="config-btn secondary" type="submit">Guardar cambios</button>
+                    </div>
+                </form>
+
+            </article>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        if (document.body.dataset.page !== "configuracion") {
+            return;
+        }
+
+        const forms = document.querySelectorAll(".config-field-form");
+        const deleteForms = document.querySelectorAll(".config-delete-form");
+        const configGrid = document.getElementById("configGrid");
+        let draggedCard = null;
+
+        function hydrateSelect(select) {
+            if (!(select instanceof HTMLSelectElement)) {
+                return;
+            }
+
+            const wrap = select.closest(".config-select-wrap");
+            if (!wrap) {
+                return;
+            }
+
+            const selectedOption = select.options[select.selectedIndex];
+            wrap.dataset.value = selectedOption ? selectedOption.textContent.trim() : "";
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement("div");
+            toast.className = "toast " + (type === "error" ? "error" : "success");
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 500);
+            }, 2200);
+        }
+
+        document.querySelectorAll(".config-select").forEach((select) => {
+            hydrateSelect(select);
+            select.addEventListener("change", () => hydrateSelect(select));
+        });
+
+        forms.forEach((form) => {
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const submitButton = form.querySelector("button[type='submit']");
+                const formData = new FormData(form);
+
+                if (submitButton instanceof HTMLButtonElement) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = "Guardando...";
+                }
+
+                try {
+                    const response = await fetch(form.dataset.updateUrl, {
+                        method: "POST",
+                        body: new URLSearchParams(formData)
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.ok) {
+                        throw new Error(data.message || "No fue posible actualizar el campo.");
+                    }
+                    const card = form.closest(".config-field-card");
+                    const title = card?.querySelector(".config-field-name");
+                    const select = form.querySelector(".config-select");
+                    if (title) {
+                        title.textContent = data.etiqueta;
+                    }
+                    if (select instanceof HTMLSelectElement) {
+                        select.value = data.tipoDato;
+                        hydrateSelect(select);
+                    }
+                    showToast("Campo actualizado.", "success");
+                } catch (error) {
+                    showToast(error.message || "No fue posible guardar.", "error");
+                } finally {
+                    if (submitButton instanceof HTMLButtonElement) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = "Guardar cambios";
+                    }
+                }
+            });
+        });
+
+        deleteForms.forEach((form) => {
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                if (!window.confirm("Este campo dejara de estar disponible en insercion y edicion. Deseas continuar?")) {
+                    return;
+                }
+
+                const button = form.querySelector("button[type='submit']");
+                if (button instanceof HTMLButtonElement) {
+                    button.disabled = true;
+                    button.textContent = "Eliminando...";
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.ok) {
+                        throw new Error(data.message || "No fue posible eliminar el campo.");
+                    }
+
+                    const card = form.closest(".config-field-card");
+                    card?.style.setProperty("opacity", "0");
+                    card?.style.setProperty("transform", "translateY(12px) scale(0.98)");
+                    setTimeout(() => card?.remove(), 220);
+                    showToast("Campo eliminado en tiempo real.", "success");
+                } catch (error) {
+                    showToast(error.message || "No fue posible eliminar el campo.", "error");
+                    if (button instanceof HTMLButtonElement) {
+                        button.disabled = false;
+                        button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM6 9h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9z"/></svg>';
+                    }
+                }
+            });
+        });
+
+        async function persistOrder() {
+            if (!configGrid) {
+                return;
+            }
+
+            const payload = Array.from(configGrid.querySelectorAll(".config-field-card")).map((card) => ({
+                key: card.dataset.fieldKey,
+                origen: card.dataset.fieldOrigin
+            }));
+
+            const response = await fetch("/configuracion-campos/reordenar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || "No fue posible guardar el nuevo orden.");
+            }
+        }
+
+        configGrid?.querySelectorAll(".config-field-card").forEach((card) => {
+            card.addEventListener("dragstart", (event) => {
+                draggedCard = card;
+                card.classList.add("is-dragging");
+                event.dataTransfer?.setData("text/plain", card.dataset.fieldKey || "");
+                event.dataTransfer.effectAllowed = "move";
+            });
+
+            card.addEventListener("dragend", async () => {
+                card.classList.remove("is-dragging");
+                draggedCard = null;
+                try {
+                    await persistOrder();
+                    showToast("Orden actualizado para toda la configuracion.", "success");
+                } catch (error) {
+                    showToast(error.message || "No fue posible guardar el orden.", "error");
+                }
+            });
+
+            card.addEventListener("dragover", (event) => {
+                event.preventDefault();
+                if (!draggedCard || draggedCard === card || !configGrid) {
+                    return;
+                }
+                const rect = card.getBoundingClientRect();
+                const shouldInsertBefore = event.clientY < rect.top + rect.height / 2;
+                if (shouldInsertBefore) {
+                    configGrid.insertBefore(draggedCard, card);
+                } else {
+                    configGrid.insertBefore(draggedCard, card.nextElementSibling);
+                }
+            });
+        });
+    });
+</script>
+<script src="/js/global-upload-tracker.js"></script>
+</body>
+</html>

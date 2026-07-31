@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Crear Hojas de Vida</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/interactive-ui.css">
     
 </head>
-<body>
+<body data-page="insertar">
 
 <!-- Navbar -->
 <div class="navbar">
     <a class="logo"
-       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
-        [Logo]
-    </a>
+       th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}"><span class="logo-monogram" aria-hidden="true"><span>M</span><span>H</span></span></a>
 
     <a class="app-name"
        th:href="${#strings.isEmpty(filtrosQuery)} ? @{/consultar} : '/consultar?' + ${filtrosQuery}">
@@ -30,10 +29,8 @@
            th:classappend="${paginaActual == 'insertar'} ? ' active'">
             Insertar
         </a>
-    </div>
-
-    <button id="shutdownBtn" class="btn-apagar">Apagar App</button>
-</div>
+        <a th:href="@{/configuracion-campos}">Campos</a>
+    </div></div>
 
 
 
@@ -54,11 +51,16 @@
 <input type="file" id="archivo" name="archivo" accept=".xlsx" style="display:none" onchange="subirArchivo()">
 <!-- Formulario SOLO para la imagen -->
 <form id="form-imagen" method="post" enctype="multipart/form-data" style="margin-top: 80px;">
-    <div style="text-align: center; margin-bottom: 30px;">
-        <div style="width: 180px; height: 180px; margin: 0 auto; border: 2px dashed #aaa; border-radius: 10px; overflow: hidden;">
+    <div class="image-upload-panel">
+        <div class="image-upload-preview">
             <img id="previewImagen" src="" alt="Previsualización" style="width: 100%; height: 100%; object-fit: cover; display: none;">
         </div>
-        <input type="file" id="imagen" name="imagen" accept="image/*" style="margin-top: 10px;">
+        <label class="image-upload-trigger" for="imagen">
+            <span class="image-upload-trigger-icon" aria-hidden="true">+</span>
+            <span>Seleccionar imagen</span>
+        </label>
+        <div class="image-upload-status" id="imagenNombre">Ninguna imagen seleccionada</div>
+        <input type="file" id="imagen" name="imagen" accept="image/*" class="sr-only-file">
         <!-- Campo oculto para guardar la URL de la imagen subida -->
         <input type="hidden" id="imagen_url" name="imagen_url">
     </div>
@@ -67,67 +69,62 @@
 <!-- Formulario principal SOLO para datos -->
 <form id="formulario-insercion" method="post" action="/api/insertar" style="margin-top: 40px;">
     <div class="form-container">
-
-        <div class="form-group"><label for="nombres">Nombres</label><input type="text" id="nombres" name="nombres" required></div>
-        <div class="form-group"><label for="apellidos">Apellidos</label><input type="text" id="apellidos" name="apellidos" required></div>
-        <div class="form-group"><label for="cedula">Cedula</label><input type="text" id="cedula" name="cedula" required></div>
-        <div class="form-group"><label for="lugarExpedicion">Lugar de Expedicion</label><input type="text" id="lugarExpedicion" name="lugarExpedicion"></div>
-        <div class="form-group"><label for="fechaNacimiento">Fecha de Nacimiento</label><input type="date" id="fechaNacimiento" name="fechaNacimiento"></div>
-
-        <div class="form-group">
-            <label for="estado">Estado</label>
-            <select id="estado" name="estado">
-                <option value="activo">Activo</option>
-                <option value="retirado">Retirado</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="numero_hijos">Número de Hijos</label>
-            <input type="number" id="numero_hijos" name="numero_hijos" min="0">
-        </div>
-
-        <div class="form-group"><label for="formacionAcademica">Formacion Academica</label><input type="text" id="formacionAcademica" name="formacionAcademica"></div>
-        <div class="form-group"><label for="codigo">Codigo</label><input type="text" id="codigo" name="codigo"></div>
-        <div class="form-group"><label for="grado">Grado</label><input type="text" id="grado" name="grado"></div>
-        <div class="form-group"><label for="cargo">Cargo</label><input type="text" id="cargo" name="cargo"></div>
-        <div class="form-group"><label for="dependencia">Dependencia</label><input type="text" id="dependencia" name="dependencia"></div>
-        <div class="form-group"><label for="enlaceSigep">Enlace Sigep</label><input type="text" id="enlaceSigep" name="enlaceSigep"></div>
-        <div class="form-group"><label for="correoInstitucional">Correo</label><input type="email" id="correoInstitucional" name="correoInstitucional"></div>
-        <div class="form-group"><label for="telefonoInstitucional">Telefono</label><input type="text" id="telefonoInstitucional" name="telefonoInstitucional"></div>
-        <div class="form-group"><label for="direccion">Direccion</label><input type="text" id="direccion" name="direccion"></div>
-        <div class="form-group"><label for="sexo">Sexo</label><input type="text" id="sexo" name="sexo"></div>
-        <div class="form-group"><label for="titulo">Titulo</label><input type="text" id="titulo" name="titulo"></div>
-        <div class="form-group"><label for="mesesExperiencia">Meses de Experiencia</label><input type="number" id="mesesExperiencia" name="mesesExperiencia"></div>
-        <div class="form-group"><label for="medioTransporte">Medio de Transporte</label><input type="text" id="medioTransporte" name="medioTransporte"></div>
-        <div class="form-group"><label for="procedencia">Procedencia del Trabajador</label><input type="text" id="procedencia" name="procedencia"></div>
-        <div class="form-group"><label for="riesgo">Riesgo</label><input type="text" id="riesgo" name="riesgo"></div>
-        <div class="form-group"><label for="examen">Examen de Ingreso</label><input type="text" id="examen" name="examen"></div>
-        <div class="form-group"><label for="induccion">Induccion</label><input type="text" id="induccion" name="induccion"></div>
-        <div class="form-group"><label for="fechaIngreso">Fecha de Ingreso</label><input type="date" id="fechaIngreso" name="fechaIngreso"></div>
-        <div class="form-group"><label for="fechaEgreso">Fecha de Egreso</label><input type="date" id="fechaEgreso" name="fechaEgreso"></div>
-        <div class="form-group"><label for="dotacion">Dotacion</label><input type="text" id="dotacion" name="dotacion"></div>
-        <div class="form-group"><label for="arl">ARL</label><input type="text" id="arl" name="arl"></div>
-        <div class="form-group"><label for="eps">EPS</label><input type="text" id="eps" name="eps"></div>
-        <div class="form-group"><label for="afp">AFP</label><input type="text" id="afp" name="afp"></div>
-        <div class="form-group"><label for="ccf">CCF</label><input type="text" id="ccf" name="ccf"></div>
-        <div class="form-group"><label for="rh">RH</label><input type="text" id="rh" name="rh"></div>
-        <div class="form-group">
-            <label for="carnetVacunacion">Carnet de Vacunacion</label>
-            <select id="carnetVacunacion" name="carnetVacunacion">
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-            </select>
-        </div>
-        <div class="form-group"><label for="enfermedades">Enfermedades</label><textarea id="enfermedades" name="enfermedades"></textarea></div>
-        <div class="form-group"><label for="alergias">Alergias</label><textarea id="alergias" name="alergias"></textarea></div>
-        <div class="form-group"><label for="medicamentos">Medicamentos</label><textarea id="medicamentos" name="medicamentos"></textarea></div>
-        <div class="form-group"><label for="fechaFirmaContrato">Fecha de Firma de Contrato</label><input type="date" id="fechaFirmaContrato" name="fechaFirmaContrato"></div>
-        <div class="form-group"><label for="nombreEmergencia">En caso de Emergencia llamar a:</label><input type="text" id="nombreEmergencia" name="nombreEmergencia"></div>
-        <div class="form-group"><label for="parentesco">Parentesco</label><input type="text" id="parentesco" name="parentesco"></div>
-        <div class="form-group"><label for="telefonoEmergencia">Numero telefonico del contacto</label><input type="text" id="telefonoEmergencia" name="telefonoEmergencia"></div>
-        
-        <!-- Campo oculto para incluir la URL de imagen subida -->
+        <th:block th:if="${camposBaseVisibles != null}">
+            <th:block th:each="campo : ${camposBaseVisibles}">
+                <th:block th:if="${campo.nombre != 'imagen_url'}">
+                    <div class="form-group">
+                        <label th:for="${campo.nombre}" th:text="${campo.etiqueta}">Campo</label>
+                        <th:block th:if="${campo.nombre == 'estado'}">
+                            <select th:id="${campo.nombre}" th:name="${campo.nombre}">
+                                <option value="activo">Activo</option>
+                                <option value="retirado">Retirado</option>
+                            </select>
+                        </th:block>
+                        <th:block th:unless="${campo.nombre == 'estado'}">
+                            <th:block th:if="${campo.nombre == 'examen' or campo.nombre == 'induccion' or campo.nombre == 'carnetVacunacion'}">
+                                <select th:id="${campo.nombre}" th:name="${campo.nombre}">
+                                    <option value="false">No</option>
+                                    <option value="true">Sí</option>
+                                </select>
+                            </th:block>
+                            <th:block th:unless="${campo.nombre == 'examen' or campo.nombre == 'induccion' or campo.nombre == 'carnetVacunacion'}">
+                                <th:block th:switch="${campo.tipoDato}">
+                                    <textarea th:case="'textarea'" th:id="${campo.nombre}" th:name="${campo.nombre}"></textarea>
+                                    <input th:case="'numero'" type="number" step="any" th:id="${campo.nombre}" th:name="${campo.nombre}"
+                                           th:attr="min=${campo.nombre == 'numero_hijos' ? 0 : null}">
+                                    <input th:case="'fecha'" type="date" th:id="${campo.nombre}" th:name="${campo.nombre}">
+                                    <select th:case="'booleano'" th:id="${campo.nombre}" th:name="${campo.nombre}">
+                                        <option value="">Sin definir</option>
+                                        <option value="SI">Si</option>
+                                        <option value="NO">No</option>
+                                    </select>
+                                    <input th:case="*" th:type="${campo.nombre == 'correoInstitucional' ? 'email' : 'text'}"
+                                           th:id="${campo.nombre}" th:name="${campo.nombre}"
+                                           th:attr="required=${campo.nombre == 'nombres' or campo.nombre == 'apellidos' or campo.nombre == 'cedula' ? 'required' : null}">
+                                </th:block>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </th:block>
+            </th:block>
+        </th:block>
+        <th:block th:if="${camposCustom != null and !#lists.isEmpty(camposCustom)}">
+            <th:block th:each="campo : ${camposCustom}">
+                <div class="form-group" th:switch="${campo.tipoDatoNormalizado}">
+                    <label th:for="${'campo_custom_' + campo.id}" th:text="${campo.etiquetaVisible}">Campo personalizado</label>
+                    <textarea th:case="'textarea'" th:id="${'campo_custom_' + campo.id}" th:name="${'campo_custom_' + campo.id}"></textarea>
+                    <input th:case="'numero'" type="number" step="any" th:id="${'campo_custom_' + campo.id}" th:name="${'campo_custom_' + campo.id}">
+                    <input th:case="'fecha'" type="date" th:id="${'campo_custom_' + campo.id}" th:name="${'campo_custom_' + campo.id}">
+                    <select th:case="'booleano'" th:id="${'campo_custom_' + campo.id}" th:name="${'campo_custom_' + campo.id}">
+                        <option value="">Sin definir</option>
+                        <option value="SI">Si</option>
+                        <option value="NO">No</option>
+                    </select>
+                    <input th:case="*" type="text" th:id="${'campo_custom_' + campo.id}" th:name="${'campo_custom_' + campo.id}">
+                </div>
+            </th:block>
+        </th:block>
+<!-- Campo oculto para incluir la URL de imagen subida -->
         <input type="hidden" id="imagen_url_datos" name="imagen_url">
     </div>
 
@@ -138,10 +135,17 @@
 <!-- Mensaje flotante -->
 <div id="mensaje" class="mensaje" style="display:none"></div>
 
-<!-- 🔹 Mensaje de progreso -->
+<!-- Mensaje de progreso -->
 <div id="progreso" style="display:none;">
-    <div class="spinner"></div>
-    <span>Subiendo datos, por favor espere...</span>
+    <div class="progress-orb" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="progress-copy">
+        <strong>Procesando carga</strong>
+        <span>Subiendo datos, por favor espere...</span>
+    </div>
 </div>
 
 <script>
@@ -149,6 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const imagenInput = document.getElementById('imagen');
     const preview = document.getElementById('previewImagen');
     const progreso = document.getElementById('progreso');
+    const imagenNombre = document.getElementById('imagenNombre');
 
     // Campo oculto para guardar la URL de la imagen
     const inputHidden = document.createElement('input');
@@ -163,7 +168,14 @@ document.addEventListener("DOMContentLoaded", function () {
             preview.src = '';
             preview.style.display = 'none';
             inputHidden.value = '';
+            if (imagenNombre) {
+                imagenNombre.textContent = 'Ninguna imagen seleccionada';
+            }
             return;
+        }
+
+        if (imagenNombre) {
+            imagenNombre.textContent = file.name;
         }
 
         // Previsualizar
@@ -231,8 +243,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 📌 Nuevo: Toast flotante
-    function mostrarToast(texto, exito) {
+    // Nuevo: Toast flotante
+    window.mostrarToast = function (texto, exito) {
         const toast = document.createElement('div');
         toast.className = 'toast ' + (exito ? 'success' : 'error');
         toast.textContent = texto;
@@ -244,11 +256,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// 📌 Función para subir archivo Excel con barra de progreso
+// Función para subir archivo Excel con barra de progreso
 async function subirArchivo() {
     const archivoInput = document.getElementById('archivo');
     const file = archivoInput.files[0];
-    const progreso = document.getElementById('progreso'); // 👈 barra de progreso
 
     if (!file) {
         alert("Selecciona un archivo .xlsx");
@@ -256,30 +267,29 @@ async function subirArchivo() {
     }
 
     const formData = new FormData();
-    formData.append('file', file); // 👈 Debe coincidir con @RequestParam("file")
-
-    // 📌 Mostrar barra de progreso
-    progreso.style.display = 'flex';
+    formData.append('file', file); // Debe coincidir con @RequestParam("file")
 
     try {
-        const resp = await fetch('/api/insertar/archivo', { // ✅ Endpoint correcto
+        const resp = await fetch('/api/upload-jobs/excel', {
             method: 'POST',
             body: formData
         });
 
-        if (!resp.ok) throw new Error("Error al subir archivo");
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) throw new Error(data.message || "Error al subir archivo");
 
-        const data = await resp.text(); // 👈 Tu endpoint devuelve texto, no JSON
-        mostrarToast("✅ " + data, true);
+        if (window.miHojaTrackUpload) {
+            window.miHojaTrackUpload(data.jobId);
+        }
+        mostrarToast("La carga sigue ejecutándose aunque cambies de página.", true);
+        archivoInput.value = "";
     } catch (err) {
         console.error(err);
-        mostrarToast("❌ Error subiendo archivo", false);
-    } finally {
-        // 📌 Ocultar barra de progreso
-        progreso.style.display = 'none';
+        mostrarToast(err.message || "Error subiendo archivo", false);
     }
-}
-</script>
+}</script>
+<script src="/js/insertar-enhancements.js"></script>
+<script src="/js/global-upload-tracker.js"></script>
 
 
 
@@ -292,3 +302,12 @@ async function subirArchivo() {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+

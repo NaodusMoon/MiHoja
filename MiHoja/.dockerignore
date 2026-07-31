@@ -1,0 +1,14 @@
+target/
+.git/
+.idea/
+.vscode/
+frontend/node_modules/
+frontend/.next/
+data/
+uploads/
+*.log
+cp.txt
+JdbcProbe*.java
+JdbcProbe*.class
+run.out
+run.err

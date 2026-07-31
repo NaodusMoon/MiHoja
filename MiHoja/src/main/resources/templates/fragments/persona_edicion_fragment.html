@@ -1,0 +1,263 @@
+﻿<div th:fragment="personaEditForm(camposCustom, valoresCustom, actionUrl, returnQuery)">
+  <form th:action="${actionUrl}"
+        th:object="${personaEditable}"
+        method="post"
+        class="form-container persona-edit-form">
+
+    <input type="hidden" th:field="*{id}" th:value="*{id}" />
+    <input type="hidden" name="returnQuery" th:value="${returnQuery}" />
+
+    <div class="fila fila-imagen">
+      <div class="dato full-width bloque-imagen">
+        <div class="imagen-marco avatar-marco">
+          <img id="previewImg"
+               th:src="*{imagenUrl} ?: '/img/default-avatar.svg'"
+               src="/img/default-avatar.svg"
+               onerror="this.onerror=null;this.src='/img/default-avatar.svg';"
+               alt="Vista previa">
+        </div>
+        <input class="input-imagen" type="file" id="imagenInput" accept="image/*">
+        <input type="hidden" id="imagenUrl" name="imagenUrl" th:field="*{imagenUrl}">
+      </div>
+    </div>
+
+    <div class="fila">
+      <div class="dato"><label>N°</label><input th:field="*{numero}" type="text"/></div>
+      <div class="dato"><label>Nombres</label><input th:field="*{nombres}" type="text"/></div>
+      <div class="dato"><label>Apellidos</label><input th:field="*{apellidos}" type="text"/></div>
+    </div>
+
+    <div class="fila">
+      <div class="dato"><label>Cédula</label><input th:field="*{cedula}" type="text"/></div>
+      <div class="dato"><label>Lugar de Expedición</label><input th:field="*{lugarExpedicion}" type="text"/></div>
+      <div class="dato"><label>Fecha de Nacimiento</label>
+        <input type="date" th:field="*{fechaNacimiento}" />
+      </div>
+    </div>
+
+    <div class="fila">
+      <div class="dato"><label>Dirección</label><input th:field="*{direccion}" type="text"/></div>
+      <div class="dato"><label>Sexo</label><input th:field="*{sexo}" type="text"/></div>
+      <div class="dato"><label>Correo Institucional</label><input th:field="*{correoInstitucional}" type="email"/></div>
+    </div>
+
+    <div class="fila">
+      <div class="dato"><label>Teléfono</label><input th:field="*{telefonoInstitucional}" type="text"/></div>
+      <div class="dato"><label>Número de Hijos</label><input th:field="*{numeroHijos}" type="number"/></div>
+      <div class="dato"><label>Enlace SIGEP</label><input th:field="*{enlaceSigep}" type="text"/></div>
+    </div>
+
+    <div th:each="f, iterStat : *{formacion}">
+      <input type="hidden" th:field="*{formacion[__${iterStat.index}__].idFormacion}" />
+      <div class="fila">
+        <div class="dato"><label>Formación Académica</label><input th:field="*{formacion[__${iterStat.index}__].formacionAcademica}" type="text"/></div>
+        <div class="dato"><label>Grado</label><input th:field="*{formacion[__${iterStat.index}__].grado}" type="text"/></div>
+        <div class="dato"><label>Título</label><input th:field="*{formacion[__${iterStat.index}__].titulo}" type="text"/></div>
+      </div>
+    </div>
+
+    <div th:each="c, iterStat : *{cargoLaboral}">
+      <input type="hidden" th:field="*{cargoLaboral[__${iterStat.index}__].idCargo}" />
+      <div class="fila">
+        <div class="dato"><label>Código</label><input th:field="*{cargoLaboral[__${iterStat.index}__].codigo}" type="text"/></div>
+        <div class="dato"><label>Cargo</label><input th:field="*{cargoLaboral[__${iterStat.index}__].cargo}" type="text"/></div>
+        <div class="dato"><label>Dependencia</label><input th:field="*{cargoLaboral[__${iterStat.index}__].dependencia}" type="text"/></div>
+      </div>
+    </div>
+
+    <div th:each="pcl, iterStat : *{personaCargoLaboral}">
+      <input type="hidden" th:field="*{personaCargoLaboral[__${iterStat.index}__].idPcl}" />
+      <input type="hidden" th:field="*{personaCargoLaboral[__${iterStat.index}__].personaId}" />
+      <input type="hidden" th:field="*{personaCargoLaboral[__${iterStat.index}__].cargoId}" />
+      <div class="fila">
+        <div class="dato"><label>Meses Experiencia</label><input type="number" th:field="*{personaCargoLaboral[__${iterStat.index}__].mesesExperiencia}" /></div>
+        <div class="dato"><label>Fecha Ingreso</label><input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaIngreso}" /></div>
+        <div class="dato"><label>Fecha Firma Contrato</label><input type="date" th:field="*{personaCargoLaboral[__${iterStat.index}__].fechaFirmaContrato}" /></div>
+      </div>
+    </div>
+
+    <div th:each="ind, iterStat : *{induccionExamen}">
+      <input type="hidden" th:field="*{induccionExamen[__${iterStat.index}__].idInduccion}" />
+      <input type="hidden" th:field="*{induccionExamen[__${iterStat.index}__].personaCargoId}" />
+      <div class="fila">
+        <div class="dato"><label>Fecha de Egreso</label><input type="date" th:field="*{induccionExamen[__${iterStat.index}__].fechaEgreso}" /></div>
+        <div class="dato">
+          <label>Examen Ingreso</label>
+          <select class="campo-bool" th:field="*{induccionExamen[__${iterStat.index}__].examenIngreso}">
+            <option th:value="''">Sin definir</option>
+            <option th:value="true">SI</option>
+            <option th:value="false">NO</option>
+          </select>
+        </div>
+        <div class="dato">
+          <label>Inducción</label>
+          <select class="campo-bool" th:field="*{induccionExamen[__${iterStat.index}__].induccion}">
+            <option th:value="''">Sin definir</option>
+            <option th:value="true">SI</option>
+            <option th:value="false">NO</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" th:field="*{salud.idSalud}" />
+    <div class="fila">
+      <div class="dato"><label>Dotación</label><input th:field="*{salud.dotacion}" type="text"/></div>
+      <div class="dato"><label>ARL</label><input th:field="*{salud.arl}" type="text"/></div>
+      <div class="dato"><label>EPS</label><input th:field="*{salud.eps}" type="text"/></div>
+    </div>
+    <div class="fila">
+      <div class="dato"><label>AFP</label><input th:field="*{salud.afp}" type="text"/></div>
+      <div class="dato"><label>CCF</label><input th:field="*{salud.ccf}" type="text"/></div>
+      <div class="dato"><label>RH</label><input th:field="*{salud.rh}" type="text"/></div>
+    </div>
+    <div class="fila">
+      <div class="dato">
+        <label>Carnet Vacunación</label>
+        <select class="campo-bool" th:field="*{salud.carnetVacunacion}">
+          <option th:value="''">Sin definir</option>
+          <option th:value="true">SI</option>
+          <option th:value="false">NO</option>
+        </select>
+      </div>
+      <div class="dato"><label>Estado</label><input th:field="*{estado}" type="text"/></div>
+      <th:block th:each="e, iterStat : *{enfermedad}">
+        <input type="hidden" th:field="*{enfermedad[__${iterStat.index}__].idEnfermedad}" />
+        <div class="dato"><label>Enfermedad</label><input th:field="*{enfermedad[__${iterStat.index}__].nombre}" type="text"/></div>
+      </th:block>
+    </div>
+
+    <div class="fila">
+      <th:block th:each="a, iterStat : *{alergia}">
+        <input type="hidden" th:field="*{alergia[__${iterStat.index}__].idAlergia}" />
+        <div class="dato"><label>Alergia</label><input th:field="*{alergia[__${iterStat.index}__].nombre}" type="text"/></div>
+      </th:block>
+      <th:block th:each="m, iterStat : *{medicamento}">
+        <input type="hidden" th:field="*{medicamento[__${iterStat.index}__].idMedicamento}" />
+        <div class="dato"><label>Medicamento</label><input th:field="*{medicamento[__${iterStat.index}__].nombre}" type="text"/></div>
+      </th:block>
+      <th:block th:each="rp, iterStat : *{riesgoProcedencia}">
+        <input type="hidden" th:field="*{riesgoProcedencia[__${iterStat.index}__].idRiesgo}" />
+        <div class="dato"><label>Medio Transporte</label><input th:field="*{riesgoProcedencia[__${iterStat.index}__].medioTransporte}" type="text"/></div>
+      </th:block>
+    </div>
+
+    <div class="fila">
+      <th:block th:each="rp, iterStat : *{riesgoProcedencia}">
+        <div class="dato"><label>Procedencia Trabajador</label><input th:field="*{riesgoProcedencia[__${iterStat.index}__].procedenciaTrabajador}" type="text"/></div>
+        <div class="dato"><label>Riesgo</label><input th:field="*{riesgoProcedencia[__${iterStat.index}__].riesgo}" type="text"/></div>
+      </th:block>
+      <th:block th:each="ce, iterStat : *{contactoEmergencia}">
+        <input type="hidden" th:field="*{contactoEmergencia[__${iterStat.index}__].idContacto}" />
+        <div class="dato"><label>Nombre Contacto</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].nombreContactoEmergencia}" type="text"/></div>
+      </th:block>
+    </div>
+
+    <div class="fila">
+      <th:block th:each="ce, iterStat : *{contactoEmergencia}">
+        <div class="dato"><label>Parentesco</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].parentesco}" type="text"/></div>
+        <div class="dato"><label>Teléfono</label><input th:field="*{contactoEmergencia[__${iterStat.index}__].telefonoContactoEmergencia}" type="text"/></div>
+      </th:block>
+    </div>
+
+    <th:block th:if="${camposCustom != null and !#lists.isEmpty(camposCustom.?[#strings.toLowerCase(nombre) != 'estado'])}">
+      <div class="fila">
+        <div class="dato" th:each="campo : ${camposCustom.?[#strings.toLowerCase(nombre) != 'estado']}">
+          <label th:text="${campo.etiquetaVisible}">Campo personalizado</label>
+          <th:block th:switch="${campo.tipoDatoNormalizado}">
+            <textarea th:case="'textarea'"
+                      th:name="${'campo_custom_' + campo.id}"
+                      th:text="${valoresCustom != null ? valoresCustom[campo.id] : ''}"></textarea>
+            <input th:case="'numero'"
+                   type="number"
+                   step="any"
+                   th:name="${'campo_custom_' + campo.id}"
+                   th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+            <input th:case="'fecha'"
+                   type="date"
+                   th:name="${'campo_custom_' + campo.id}"
+                   th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+            <select th:case="'booleano'" th:name="${'campo_custom_' + campo.id}">
+              <option value="">Sin definir</option>
+              <option value="SI" th:selected="${valoresCustom != null and valoresCustom[campo.id] == 'SI'}">SI</option>
+              <option value="NO" th:selected="${valoresCustom != null and valoresCustom[campo.id] == 'NO'}">NO</option>
+            </select>
+            <input th:case="*"
+                   type="text"
+                   th:name="${'campo_custom_' + campo.id}"
+                   th:value="${valoresCustom != null ? valoresCustom[campo.id] : ''}" />
+          </th:block>
+        </div>
+      </div>
+    </th:block>
+
+    <div class="fila">
+      <div class="dato full-width" style="text-align:center;">
+        <button type="submit" class="btn-guardar">Guardar</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const inputArchivo = document.getElementById("imagenInput");
+      const preview = document.getElementById("previewImg");
+      const hiddenUrl = document.getElementById("imagenUrl");
+      const defaultAvatar = "/img/default-avatar.svg";
+
+      if (!inputArchivo || !preview || !hiddenUrl) {
+        return;
+      }
+
+      if (!preview.getAttribute("src")) {
+        preview.src = defaultAvatar;
+      }
+      preview.addEventListener("error", () => {
+        preview.src = defaultAvatar;
+      });
+
+      const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+      inputArchivo.addEventListener("change", async function () {
+        if (!this.files || this.files.length === 0) return;
+
+        const archivo = this.files[0];
+        const formData = new FormData();
+        formData.append("imagen", archivo);
+
+        try {
+          const headers = {};
+          if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+          }
+
+          const resp = await fetch("/api/imagenes/subir", {
+            method: "POST",
+            body: formData,
+            headers
+          });
+
+          if (!resp.ok) {
+            const txt = await resp.text();
+            throw new Error("Respuesta no OK del servidor: " + txt);
+          }
+
+          const data = await resp.json();
+          if (!data.url) throw new Error("El backend no devolvió la URL de la imagen");
+
+          preview.src = data.url;
+          preview.style.display = "block";
+          hiddenUrl.value = data.url;
+        } catch (err) {
+          console.error("Error al subir imagen:", err);
+          alert("Error al subir la imagen " + err.message);
+        }
+      });
+    });
+  </script>
+</div>
+
+
+
+
