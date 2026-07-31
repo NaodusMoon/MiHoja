@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readSheet } from "read-excel-file/node";
 
-import { saveCompletePerson, type CompletePersonInput } from "@/lib/people-service";
+import { importCompletePeople, type CompletePersonInput } from "@/lib/people-service";
 
 function normalizeHeader(value: unknown) {
   return String(value ?? "")
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       .map((row, rowIndex) => ({ row, rowIndex: rowIndex + 2 }))
       .filter(({ row }) => row.some((cell) => cell !== null && cell !== ""));
 
-    let processed = 0;
+    const inputs: CompletePersonInput[] = [];
     const failedRows: Array<{ row: number; message: string }> = [];
 
     for (const { row, rowIndex } of validRows) {
@@ -134,21 +134,28 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      try {
-        await saveCompletePerson(undefined, input);
-        processed += 1;
-      } catch (error) {
-        failedRows.push({
-          row: rowIndex,
-          message: error instanceof Error ? error.message : "No se pudo guardar la fila."
-        });
-      }
+      inputs.push(input);
     }
 
-    if (processed === 0) {
+    if (inputs.length === 0) {
       return NextResponse.json(
-        { message: "No se pudo importar ninguna fila.", processed, failedRows },
+        { message: "No se pudo importar ninguna fila.", processed: 0, failedRows },
         { status: 400 }
+      );
+    }
+
+    let processed = 0;
+    try {
+      const saved = await importCompletePeople(inputs);
+      processed = saved.length;
+    } catch (error) {
+      return NextResponse.json(
+        {
+          message: error instanceof Error ? error.message : "No se pudo guardar la importacion.",
+          processed: 0,
+          failedRows: [{ row: 0, message: "La importacion por lotes fallo; no se confirmaron las relaciones." }]
+        },
+        { status: 500 }
       );
     }
 
