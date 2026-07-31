@@ -45,7 +45,14 @@ function buildPeopleQuery(params: {
 
 async function ensureOk(response: Response, errorLabel: string) {
   if (!response.ok) {
-    throw new Error(`${errorLabel} (${response.status})`);
+    let detail = "";
+    try {
+      const body = (await response.clone().json()) as { message?: string };
+      detail = body.message?.trim() ?? "";
+    } catch {
+      // Keep the generic message when the server does not return JSON.
+    }
+    throw new Error(`${errorLabel} (${response.status})${detail ? `: ${detail}` : ""}`);
   }
 }
 

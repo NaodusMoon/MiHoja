@@ -585,10 +585,59 @@ export async function saveCompletePerson(personId: number | undefined, input: Co
 }
 
 export async function deletePeople(ids: number[]) {
-  if (ids.length === 0) return;
-  const filter = ids.map((id) => Number(id)).filter(Number.isFinite).join(",");
-  await supabaseRest<void>(`persona?n=in.(${filter})`, {
-    method: "DELETE",
-    prefer: "return=minimal"
-  });
+  const cleanIds = Array.from(
+    new Set(ids.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0))
+  );
+  if (cleanIds.length === 0) return;
+
+  const filter = cleanIds.join(",");
+  const deleteRows = async (table: string, where: string) => {
+    await supabaseRest<void>(`${table}?${where}`, {
+      method: "DELETE",
+      prefer: "return=minimal"
+    });
+  };
+
+  const [jobs, diseases, medicines] = await Promise.all([
+    supabaseRest<Array<{ id_pcl: number }>>(
+      `persona_cargo_laboral?select=id_pcl&persona_id=in.(${filter})`
+    ),
+    supabaseRest<Array<{ id_enfermedad: number }>>(
+      `enfermedad?select=id_enfermedad&n=in.(${filter})`
+    ),
+    supabaseRest<Array<{ id_medicamento: number }>>(
+      `medicamento?select=id_medicamento&n=in.(${filter})`
+    )
+  ]);
+
+  const jobIds = jobs.map((row) => row.id_pcl).filter(Number.isInteger);
+  const diseaseIds = diseases.map((row) => row.id_enfermedad).filter(Number.isInteger);
+  const medicineIds = medicines.map((row) => row.id_medicamento).filter(Number.isInteger);
+
+  if (diseaseIds.length > 0) {
+    await deleteRows("enfermedad_medicamento", `enfermedad_id=in.(${diseaseIds.join(",")})`);
+  }
+  if (medicineIds.length > 0) {
+    await deleteRows("enfermedad_medicamento", `medicamento_id=in.(${medicineIds.join(",")})`);
+  }
+  if (jobIds.length > 0) {
+    await deleteRows("induccion_examen", `persona_cargo_id=in.(${jobIds.join(",")})`);
+  }
+
+  await Promise.all([
+    deleteRows("persona_campo_valor", `persona_id=in.(${filter})`),
+    deleteRows("formacion", `n=in.(${filter})`),
+    deleteRows("riesgo_procedencia", `n=in.(${filter})`),
+    deleteRows("salud", `n=in.(${filter})`),
+    deleteRows("contacto_emergencia", `n=in.(${filter})`),
+    deleteRows("alergia", `n=in.(${filter})`),
+    deleteRows("enfermedad", `n=in.(${filter})`),
+    deleteRows("medicamento", `n=in.(${filter})`)
+  ]);
+
+  if (jobIds.length > 0) {
+    await deleteRows("persona_cargo_laboral", `persona_id=in.(${filter})`);
+  }
+
+  await deleteRows("persona", `n=in.(${filter})`);
 }
