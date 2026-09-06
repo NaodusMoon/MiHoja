@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { requestJson } from "@/lib/client-request";
 
 import type { CustomField } from "@/lib/people-service";
 
@@ -140,22 +141,24 @@ export function PersonForm({
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (saving) return;
     setSaving(true);
     setMessage(null);
 
-    const response = await fetch(personId ? `/api/people/${personId}` : "/api/people", {
+    try {
+    const result = await requestJson<{ message?: string; person?: { n?: number } }>(personId ? `/api/people/${personId}` : "/api/people", {
       method: personId ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...values, customFields: customValues })
     });
-    const result = (await response.json()) as { message?: string; person?: { n?: number } };
-
-    setSaving(false);
-    setMessage(result.message ?? (response.ok ? "Registro guardado." : "No se pudo guardar."));
-    if (response.ok) {
+    setMessage(result.message ?? "Registro guardado.");
       const id = personId ?? result.person?.n;
       router.push(id ? `/muestra/${id}` : "/");
       router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "No se pudo guardar el registro.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -204,6 +207,7 @@ export function PersonForm({
           <label>
             <span>Estado</span>
             <select value={values.estado} onChange={(event) => update("estado", event.target.value)}>
+              {!["ACTIVO", "INACTIVO"].includes(values.estado) ? <option value={values.estado}>{values.estado || "Sin especificar"}</option> : null}
               <option value="ACTIVO">Activo</option>
               <option value="INACTIVO">Inactivo</option>
             </select>
@@ -306,7 +310,7 @@ export function PersonForm({
       ) : null}
 
       <div className="formFooter">
-        {message ? <p className="formMessage">{message}</p> : <span />}
+        {message ? <p className="formMessage" role="status">{message}</p> : <span />}
         <button className="primaryAction" disabled={saving} type="submit">
           <Save aria-hidden="true" />
           <span>{saving ? "Guardando..." : "Guardar registro completo"}</span>

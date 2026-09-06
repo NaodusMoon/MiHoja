@@ -2069,3 +2069,55 @@ svg {
   width: 1px !important;
   height: 1px !important;
 }
+
+/* Shared finishing touches for forms, detail views and recovery screens. */
+.simplePageHeader h1 { overflow-wrap: anywhere; line-height: 1.15; }
+.simplePageHeader > div { min-width: 0; }
+.simplePageActions { flex-wrap: wrap; flex-shrink: 0; }
+.simpleEyebrow { color: #8a671c; }
+.simpleTopbarSection { max-width: 45%; overflow-wrap: anywhere; }
+.formSection h2, .detailGroup h2, .fieldListHeader h2 { color: var(--color-primary-deep); }
+.detailGroups { align-items: start; }
+.detailGroup { min-width: 0; border-top: 3px solid #d6e8d8; }
+.detailGroup h2 { padding-bottom: 8px; }
+.detailGroup dt { color: var(--color-muted); }
+.detailGroup dd { color: var(--color-text-strong); line-height: 1.55; }
+.dataForm label, .fieldCreator label { min-width: 0; color: var(--color-text-strong); }
+.dataForm input, .dataForm select, .dataForm textarea, .fieldCreator input {
+  min-width: 0; background: #fbfcfa; border-color: var(--color-line-strong);
+  color: var(--color-text-strong); transition: border-color 150ms, box-shadow 150ms;
+}
+.formGroup { padding: 28px 0; border-color: var(--color-line); }
+.formGroup legend { color: var(--color-primary-deep); }
+.fieldRow { border-radius: 14px; border: 1px solid var(--color-line); border-left: 4px solid var(--color-gold); }
+.fieldRow strong { overflow-wrap: anywhere; }
+.formMessage, .inlineStatus { padding: 12px 16px; border-radius: 12px; background: var(--color-primary-soft); line-height: 1.5; }
+.importActions { min-width: 0; }
+.importActions > * { max-width: 100%; }
+.importActions button span { overflow-wrap: anywhere; min-width: 0; }
+.importErrors { grid-column: 1 / -1; margin: 0; color: #8c392e; }
+.emptyStateCard { padding: clamp(24px, 5vw, 64px); border: 1px solid var(--color-line); border-radius: var(--radius-card); background: white; box-shadow: var(--shadow-card); }
+.emptyStateCard > span { font-size: 64px; font-weight: 800; color: var(--color-gold); }
+.emptyStateCard h2 { color: var(--color-primary-deep); }
+.emptyStateCard p { color: var(--color-muted); line-height: 1.6; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #b88722; outline-offset: 3px;
+}
+button:disabled { opacity: .6; cursor: not-allowed; }
+@media (min-width: 901px) {
+  .simpleSidebar { position: sticky; top: 0; height: 100vh; }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  .formGrid, .detailGroups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .importBand { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .simpleNav a { min-width: 0; flex: 1; padding: 10px 6px; font-size: 13px; }
+  .simpleNav a span { display: inline; }
+  .simpleNav svg { flex-shrink: 0; width: 16px; }
+  .simplePage { width: 100%; padding: 24px 0 40px; }
+  .simpleTopbarSection { display: none; }
+  .simpleTopbar { padding: 14px 18px; }
+  .dataForm input, .dataForm select, .dataForm textarea, .fieldCreator input { font-size: 16px; }
+  .fieldRow { flex-wrap: wrap; }
+}

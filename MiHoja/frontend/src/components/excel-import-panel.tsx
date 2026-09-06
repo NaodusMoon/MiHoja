@@ -2,14 +2,17 @@
 
 import { useRef, useState } from "react";
 import { Download, FileSpreadsheet, Upload } from "lucide-react";
+import { requestJson } from "@/lib/client-request";
 
 export function ExcelImportPanel() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [failedRows, setFailedRows] = useState<Array<{ row: number; message: string }>>([]);
 
   const upload = async () => {
+    if (uploading) return;
     if (!file) {
       inputRef.current?.click();
       return;
@@ -17,12 +20,18 @@ export function ExcelImportPanel() {
 
     setUploading(true);
     setMessage(null);
+    setFailedRows([]);
     const body = new FormData();
     body.set("file", file);
-    const response = await fetch("/api/import", { method: "POST", body });
-    const result = (await response.json()) as { message?: string };
-    setMessage(result.message ?? (response.ok ? "Importacion completada." : "No se pudo importar."));
-    setUploading(false);
+    try {
+      const result = await requestJson<{ message?: string; failedRows?: Array<{ row: number; message: string }> }>("/api/import", { method: "POST", body });
+      setMessage(result.message ?? "Importación completada.");
+      setFailedRows(result.failedRows ?? []);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "No se pudo importar.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -43,12 +52,14 @@ export function ExcelImportPanel() {
         </a>
         <input
           accept=".xlsx"
+          aria-label="Archivo Excel"
+          disabled={uploading}
           className="visuallyHidden"
           onChange={(event) => setFile(event.target.files?.[0] ?? null)}
           ref={inputRef}
           type="file"
         />
-        <button className="secondaryAction" onClick={() => inputRef.current?.click()} type="button">
+        <button className="secondaryAction" disabled={uploading} onClick={() => inputRef.current?.click()} type="button">
           <FileSpreadsheet aria-hidden="true" />
           <span>{file?.name ?? "Seleccionar Excel"}</span>
         </button>
@@ -57,7 +68,8 @@ export function ExcelImportPanel() {
           <span>{uploading ? "Importando..." : "Importar"}</span>
         </button>
       </div>
-      {message ? <p className="importMessage">{message}</p> : null}
+      {message ? <p className="importMessage" role="status">{message}</p> : null}
+      {failedRows.length ? <ul className="importErrors">{failedRows.map((failure) => <li key={failure.row}>Fila {failure.row}: {failure.message}</li>)}</ul> : null}
     </section>
   );
 }

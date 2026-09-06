@@ -6,13 +6,14 @@ import { SimpleAppShell } from "@/components/simple-app-shell";
 import { getPersonById } from "@/lib/people-service";
 
 function display(value: unknown) {
-  if (value === null || value === undefined || value === "") return "NO DISPONIBLE";
+  if (value === null || value === undefined || value === "") return "Sin registrar";
   if (typeof value === "boolean") return value ? "SI" : "NO";
   return String(value);
 }
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!/^\d+$/.test(id) || !Number.isSafeInteger(Number(id)) || Number(id) < 1) notFound();
   const person = await getPersonById(Number(id));
   if (!person) notFound();
 
@@ -35,6 +36,8 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
         ["Correo", person.correo_institucional],
         ["Telefono", person.telefono_institucional],
         ["Estado", person.estado]
+        , ["Número de hijos", person.numero_hijos]
+        , ["Enlace SIGEP", person.enlace_sigep]
       ]
     },
     {
@@ -44,6 +47,10 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
         ["Codigo", cargo?.cargo_laboral?.codigo],
         ["Dependencia", cargo?.cargo_laboral?.dependencia],
         ["Fecha de ingreso", cargo?.fecha_ingreso],
+        ["Firma del contrato", cargo?.fecha_firma_contrato],
+        ["Inducción", cargo?.induccion_examen?.[0]?.induccion],
+        ["Examen de ingreso", cargo?.induccion_examen?.[0]?.examen_ingreso],
+        ["Fecha de egreso", cargo?.induccion_examen?.[0]?.fecha_egreso],
         ["Meses de experiencia", cargo?.meses_experiencia],
         ["Formacion", formation?.formacion_academica],
         ["Grado", formation?.grado],
@@ -58,14 +65,25 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
         ["AFP", health?.afp],
         ["Caja de compensacion", health?.ccf],
         ["RH", health?.rh],
+        ["Dotación", health?.dotacion],
+        ["Carnet de vacunación", health?.carnet_vacunacion],
+        ["Alergias", person.alergia?.map((item) => item.nombre).join(", ")],
+        ["Enfermedades", person.enfermedad?.map((item) => item.nombre).join(", ")],
+        ["Medicamentos", person.medicamento?.map((item) => item.nombre).join(", ")],
         ["Contacto de emergencia", contact?.nombre_contacto_emergencia],
         ["Parentesco", contact?.parentesco],
         ["Telefono de emergencia", contact?.telefono_contacto_emergencia],
         ["Riesgo", risk?.riesgo],
         ["Transporte", risk?.medio_transporte]
+        , ["Procedencia", risk?.procedencia_trabajador]
       ]
     }
   ];
+
+  if (person.persona_campo_valor?.length) groups.push({
+    title: "Información adicional",
+    items: person.persona_campo_valor.map((field) => [field.campo_personalizado?.nombre.replaceAll("_", " ") ?? `Campo ${field.campo_id}`, field.valor])
+  });
 
   return (
     <SimpleAppShell
@@ -76,7 +94,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
           <span>Editar</span>
         </Link>
       }
-      description={`Registro ficticio de demostracion #${person.numero ?? person.n}`}
+      description={`Ficha de personal · Registro #${person.numero ?? person.n}`}
       title={`${person.nombres ?? ""} ${person.apellidos ?? ""}`.trim()}
     >
       <div className="detailGroups">

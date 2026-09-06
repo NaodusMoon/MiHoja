@@ -39,7 +39,7 @@ export function SimpleAppShell({
           {links.map((link) => {
             const Icon = link.icon;
             return (
-              <Link className={active === link.href ? "isActive" : ""} href={link.href} key={link.href}>
+              <Link aria-current={active === link.href ? "page" : undefined} className={active === link.href ? "isActive" : ""} href={link.href} key={link.href}>
                 <Icon aria-hidden="true" />
                 <span>{link.label}</span>
               </Link>

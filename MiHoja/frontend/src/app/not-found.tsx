@@ -1,14 +1,17 @@
 import Link from "next/link";
+import { SimpleAppShell } from "@/components/simple-app-shell";
 
 export default function NotFound() {
   return (
-    <main className="notFoundPage">
+    <SimpleAppShell active="/" title="No encontramos esta página" description="El enlace puede haber cambiado o el registro ya no está disponible.">
+    <section className="emptyStateCard">
       <span>404</span>
-      <h1>Esta pagina no existe</h1>
+      <h2>Volvamos a tus registros</h2>
       <p>El enlace puede estar desactualizado o el registro ya no esta disponible.</p>
       <Link className="primaryAction" href="/">
         Volver al panel
       </Link>
-    </main>
+    </section>
+    </SimpleAppShell>
   );
 }
